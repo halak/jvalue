@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -311,11 +311,11 @@ namespace Halak
 
         #region Get
         /// <summary>
-        /// ÀÔ·ÂÇÑ »öÀÎ¿¡ Á¸ÀçÇÏ´Â JValue¸¦ °¡Á®¿É´Ï´Ù.
-        /// ¸¸¾à »öÀÎÀ» À½¼ö·Î ÀÔ·ÂÇÏ¸é µÚ¿¡¼­ºÎÅÍ °¡Á®¿É´Ï´Ù.
+        /// ìž…ë ¥í•œ ìƒ‰ì¸ì— ì¡´ìž¬í•˜ëŠ” JValueë¥¼ ê°€ì ¸ì˜µë‹ˆë‹¤.
+        /// ë§Œì•½ ìƒ‰ì¸ì„ ìŒìˆ˜ë¡œ ìž…ë ¥í•˜ë©´ ë’¤ì—ì„œë¶€í„° ê°€ì ¸ì˜µë‹ˆë‹¤.
         /// </summary>
-        /// <param name="index">»öÀÎ</param>
-        /// <returns>ÀÔ·ÂÇÑ »öÀÎ¿¡ Á¸ÀçÇÏ´Â JValue °ª. ¸¸¾à °´Ã¼°¡ ¹è¿­ÀÌ ¾Æ´Ï°Å³ª »öÀÎÀÌ ¹üÀ§¸¦ ¹þ¾î³µÀ¸¸é JValue.NullÀ» ¹ÝÈ¯ÇÕ´Ï´Ù.</returns>
+        /// <param name="index">ìƒ‰ì¸</param>
+        /// <returns>ìž…ë ¥í•œ ìƒ‰ì¸ì— ì¡´ìž¬í•˜ëŠ” JValue ê°’. ë§Œì•½ ê°ì²´ê°€ ë°°ì—´ì´ ì•„ë‹ˆê±°ë‚˜ ìƒ‰ì¸ì´ ë²”ìœ„ë¥¼ ë²—ì–´ë‚¬ìœ¼ë©´ JValue.Nullì„ ë°˜í™˜í•©ë‹ˆë‹¤.</returns>
         /// <example>
         /// <code>
         /// var x = new JValue("[1,2,3,4,5,6,7,8,9]");
@@ -353,11 +353,11 @@ namespace Halak
         }
 
         /// <summary>
-        /// ÀÔ·ÂÇÑ ÀÌ¸§¿¡ ÇØ´çÇÏ´Â ÇÏÀ§ JValue¸¦ °¡Á®¿É´Ï´Ù.
-        /// Á¡(.)À¸·Î ÀÌ¸§À» ±¸ºÐÇÏ¿© ÇÏÀ§ °´Ã¼ÀÇ ÇÏÀ§ °´Ã¼±îÁö Å½»öÇÏ¿© °¡Á®¿Ã ¼ö ÀÖ½À´Ï´Ù.
+        /// ìž…ë ¥í•œ ì´ë¦„ì— í•´ë‹¹í•˜ëŠ” í•˜ìœ„ JValueë¥¼ ê°€ì ¸ì˜µë‹ˆë‹¤.
+        /// ì (.)ìœ¼ë¡œ ì´ë¦„ì„ êµ¬ë¶„í•˜ì—¬ í•˜ìœ„ ê°ì²´ì˜ í•˜ìœ„ ê°ì²´ê¹Œì§€ íƒìƒ‰í•˜ì—¬ ê°€ì ¸ì˜¬ ìˆ˜ ìžˆìŠµë‹ˆë‹¤.
         /// </summary>
-        /// <param name="key">ÀÌ¸§</param>
-        /// <returns>ÀÔ·ÂÇÑ ÀÌ¸§¿¡ Á¸ÀçÇÏ´Â JValue °ª. Å½»öÁß¿¡ ÇÏÀ§ °´Ã¼¸¦ Ã£Áö ¸øÇÏ¸é Å½»öÀ» Áß´ÜÇÏ°í JValue.NullÀ» ¹ÝÈ¯ÇÕ´Ï´Ù.</returns>
+        /// <param name="key">ì´ë¦„</param>
+        /// <returns>ìž…ë ¥í•œ ì´ë¦„ì— ì¡´ìž¬í•˜ëŠ” JValue ê°’. íƒìƒ‰ì¤‘ì— í•˜ìœ„ ê°ì²´ë¥¼ ì°¾ì§€ ëª»í•˜ë©´ íƒìƒ‰ì„ ì¤‘ë‹¨í•˜ê³  JValue.Nullì„ ë°˜í™˜í•©ë‹ˆë‹¤.</returns>
         /// <example>
         /// <code>
         /// var x = new JValue("{hello:{world:10}}");
