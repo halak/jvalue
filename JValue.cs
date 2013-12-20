@@ -37,23 +37,10 @@ namespace Halak
         {
             get
             {
-                if (string.IsNullOrEmpty(source))
+                if (string.IsNullOrEmpty(source) == false)
+                    return GetTypeCode(source[startIndex]);
+                else
                     return TypeCode.Null;
-
-                switch (source[startIndex])
-                {
-                    case 't':
-                    case 'f':
-                        return TypeCode.Boolean;
-                    case '"':
-                        return TypeCode.String;
-                    case '[':
-                        return TypeCode.Array;
-                    case '{':
-                        return TypeCode.Object;
-                    default:
-                        return TypeCode.Number;
-                }
             }
         }
         #endregion
@@ -80,7 +67,10 @@ namespace Halak
 
             this.source = source;
             this.startIndex = 0;
-            this.length = source.Length;
+            this.length = source.Length - this.startIndex;
+
+            this.startIndex = SkipWhitespaces(0);
+            this.length = source.Length - this.startIndex;
         }
 
         private JValue(string source, int startOffset, int length)
@@ -92,6 +82,24 @@ namespace Halak
         #endregion
 
         #region Methods
+        private TypeCode GetTypeCode(char c)
+        {
+            switch (c)
+            {
+                case 't':
+                case 'f':
+                    return TypeCode.Boolean;
+                case '"':
+                    return TypeCode.String;
+                case '[':
+                    return TypeCode.Array;
+                case '{':
+                    return TypeCode.Object;
+                default:
+                    return TypeCode.Number;
+            }
+        }
+
         #region As
         public bool AsBoolean()
         {
@@ -368,22 +376,32 @@ namespace Halak
         public JValue Get(string key)
         {
             var current = this;
-            foreach (var item in key.SplitAndEnumerate('.'))
-                current = current.GetFromOneDepth(item);
+            foreach (var item in key.SplitRangeAndEnumerate('.'))
+                current = current.GetFromOneDepth(key, item.Item1, item.Item2);
 
             return current;
         }
 
-        private JValue GetFromOneDepth(string key)
+        private JValue GetFromOneDepth(string key, int keyStartIndex, int keyLength)
         {
-            // TODO: OPTIMIZE
-
             if (Type == TypeCode.Object)
             {
-                foreach (var item in Object())
+                int end = startIndex + length - 1;
+
+                int kStart = SkipWhitespaces(startIndex + 1);
+                while (kStart < end)
                 {
-                    if (item.Key == key)
-                        return item.Value;
+                    int kEnd = SkipLetterOrDigit(kStart + 1);
+                    int vStart = SkipWhitespaces(kEnd + 1);
+                    int vEnd = SkipValue(vStart);
+
+                    if (length == kEnd - kStart &&
+                        string.Compare(key, keyStartIndex, source, kStart, keyLength) == 0)
+                    {
+                        return new JValue(source, vStart, vEnd - vStart);
+                    }
+
+                    kStart = SkipWhitespaces(vEnd + 1);
                 }
             }
 
@@ -396,13 +414,14 @@ namespace Halak
         {
             if (Type == TypeCode.Array)
             {
-                int start = startIndex + 1;
-                int end = NextComma(start);
-                while (end != -1)
+                int end = startIndex + length - 1;
+
+                int vStart = SkipWhitespaces(startIndex + 1);
+                while (vStart < end)
                 {
-                    yield return new JValue(source, start, end - start);
-                    start = end + 1;
-                    end = NextComma(start);
+                    int vEnd = SkipValue(vStart);
+                    yield return new JValue(source, vStart, vEnd - vStart);
+                    vStart = SkipWhitespaces(vEnd + 1);
                 }
             }
         }
@@ -411,14 +430,15 @@ namespace Halak
         {
             if (Type == TypeCode.Array)
             {
+                int end = startIndex + length - 1;
+
                 int index = 0;
-                int start = startIndex + 1;
-                int end = NextComma(start);
-                while (end != -1)
+                int vStart = SkipWhitespaces(startIndex + 1);
+                while (vStart < end)
                 {
-                    yield return new KeyValuePair<int, JValue>(index++, new JValue(source, start, end - start));
-                    start = end + 1;
-                    end = NextComma(start);
+                    int vEnd = SkipValue(vStart);
+                    yield return new KeyValuePair<int, JValue>(index++, new JValue(source, vStart, vEnd - vStart));
+                    vStart = SkipWhitespaces(vEnd + 1);
                 }
             }
         }
@@ -427,76 +447,53 @@ namespace Halak
         {
             if (Type == TypeCode.Object)
             {
-                int keyStart = NextToKeyStart(startIndex + 1);
-                while (keyStart != -1)
+                int end = startIndex + length - 1;
+
+                int kStart = SkipWhitespaces(startIndex + 1);
+                while (kStart < end)
                 {
-                    int keyEnd = NextToKeyEnd(keyStart + 1);
-                    int valueStart = NextToValueStart(keyEnd);
-                    int valueEnd = NextComma(valueStart);
-                    yield return new KeyValuePair<string, JValue>(source.Substring(keyStart, keyEnd - keyStart),
-                                                                  new JValue(source, valueStart, valueEnd - valueStart));
-                    keyStart = NextToKeyStart(valueEnd + 1);
+                    int kEnd = SkipLetterOrDigit(kStart + 1);
+                    int vStart = SkipWhitespaces(kEnd + 1);
+                    int vEnd = SkipValue(vStart);
+                    yield return new KeyValuePair<string, JValue>(source.Substring(kStart, kEnd - kStart),
+                                                                  new JValue(source, vStart, vEnd - vStart));
+                    kStart = SkipWhitespaces(vEnd + 1);
                 }
             }
         }
 
-        // TODO: public IEnumerable<Tuple<int keyStart, int keyEnd, JValue>> Object()
-
-        private int NextComma(int index)
+        private int SkipValue(int index)
         {
-            int endIndex = startIndex + length;
-            if (index >= endIndex)
-                return -1;
+            int end = startIndex + length;
+            if (end < index)
+                return end;
 
-            int depth = 0;
-            bool inQuotes = false;
-            for (; index < endIndex; index++)
+            var typeCode = GetTypeCode(source[index]);
+            switch (typeCode)
             {
-                if (inQuotes == false)
-                {
-                    switch (source[index])
-                    {
-                        case ',':
-                            if (depth == 0)
-                                return index;
-                            break;
-                        case '[':
-                        case '{':
-                            depth++;
-                            break;
-                        case ']':
-                        case '}':
-                            depth--;
-                            break;
-                        case '"':
-                            inQuotes = true;
-                            break;
-                    }
-                }
-                else
-                {
-                    switch (source[index])
-                    {
-                        case '"':
-                            inQuotes = false;
-                            break;
-                        case '\\':
-                            index++;
-                            break;
-                    }
-                }
+                case TypeCode.String:
+                    return SkipString(index);
+                case TypeCode.Array:
+                case TypeCode.Object:
+                    return SkipBracket(index);
+                default:
+                    return SkipLetterOrDigit(index);
             }
-
-            return endIndex - 1;
         }
 
-        private int NextToNoWhiteSpaces(int index, int endIndex)
+        private int SkipWhitespaces(int index)
         {
-            for (; index < endIndex; index++)
+            int end = startIndex + length;
+            if (end < index)
+                return end;
+
+            for (; index < end; index++)
             {
                 switch (source[index])
                 {
                     case ' ':
+                    case ':':
+                    case ',':
                     case '\t':
                     case '\r':
                     case '\n':
@@ -506,63 +503,93 @@ namespace Halak
                 }
             }
 
-            return endIndex - 1;
+            return end;
         }
 
-        private int NextToKeyStart(int index)
+        private int SkipLetterOrDigit(int index)
         {
-            int endIndex = startIndex + length;
-            if (index >= endIndex)
-                return -1;
+            int end = startIndex + length;
+            if (end < index)
+                return end;
 
-            return NextToNoWhiteSpaces(index, endIndex);
-        }
-
-        private int NextToKeyEnd(int index)
-        {
-            int endIndex = startIndex + length;
-            if (index >= endIndex)
-                return -1;
-
-            for (; index < endIndex; index++)
+            for (; index < end; index++)
             {
                 switch (source[index])
                 {
                     case ' ':
+                    case ':':
+                    case ',':
+                    case ']':
+                    case '}':
+                    case '"':
                     case '\t':
                     case '\r':
                     case '\n':
-                    case ':':
                         return index;
                 }
             }
 
-            return endIndex - 1;
+            return end;
         }
 
-        private int NextToValueStart(int index)
+        private int SkipString(int index)
         {
-            int endIndex = startIndex + length;
-            if (index >= endIndex)
-                return -1;
+            int end = startIndex + length;
+            if (end < index)
+                return end;
 
-            for (; index < endIndex; index++)
+            index++;
+            for (; index < end; index++)
             {
-                if (source[index] == ':')
+                switch (source[index])
                 {
-                    index++;
-                    break;
+                    case '"':
+                        return index + 1;
+                    case '\\':
+                        index++;
+                        break;
                 }
             }
 
-            return NextToNoWhiteSpaces(index, endIndex);
+            return end;
+        }
+
+        private int SkipBracket(int index)
+        {
+            int end = startIndex + length;
+            if (end < index)
+                return end;
+
+            int depth = 0;
+            for (; index < end; index++)
+            {
+                switch (source[index])
+                {
+                    case '[':
+                    case '{':
+                        depth++;
+                        break;
+                    case ']':
+                    case '}':
+                        depth--;
+
+                        if (depth == 0)
+                            return index + 1;
+                        break;
+                    case '"':
+                        index = SkipString(index) - 1;
+                        break;
+                }
+            }
+
+            return end;
         }
         #endregion
 
         #region Object
         public override int GetHashCode()
         {
-            return source.GetHashCode() + startIndex + (10000 * length);
+            return source.GetHashCode() + startIndex;
         }
 
         public override bool Equals(object obj)
@@ -576,7 +603,7 @@ namespace Halak
         public override string ToString()
         {
             if (source != null)
-                return string.Format("JValue({0})", source.Substring(startIndex, length));
+                return string.Format("JValue({0}, {1})", Type, source.Substring(startIndex, length));
             else
                 return "JValue(null)";
         }
@@ -628,48 +655,24 @@ namespace Halak
             return value.AsString();
         }
         #endregion
-
-        #region TestBed
-        private static void Main(string[] args)
-        {
-            var source = new JValue(@"{
-                name: ""Json guide"",
-                pages: 400,
-                authors: [""halak"", ""foo"", ""bar"", ""blah""]
-            ");
-
-            JValue book = new JValue(source);
-            string name = book["name"];
-            Console.WriteLine("Name: {0}", name);
-
-            int pages = book["pages"];
-            Console.WriteLine("Pages: {0}", pages);
-
-            Console.WriteLine("Primary author: {0}", book["authors"][0].AsString());
-            Console.WriteLine("Authors:");
-            foreach (var item in book["authors"].Array())
-                Console.WriteLine("\t{0}", item);
-            Console.WriteLine("Unknown author: {0}", book["authors"][100].AsString());
-        }
-        #endregion
     }
 
     #region Utilities
     public static class JValueStringExtension
     {
-        public static IEnumerable<string> SplitAndEnumerate(this string s, char c)
+        public static IEnumerable<Tuple<int, int>> SplitRangeAndEnumerate(this string s, char c)
         {
             int start = 0;
             for (int i = 0; i < s.Length; i++)
             {
                 if (s[i] == c)
                 {
-                    yield return s.Substring(start, i - start);
+                    yield return new Tuple<int, int>(start, i - start);
                     start = i + 1;
                 }
             }
 
-            yield return s.Substring(start);
+            yield return new Tuple<int, int>(start, s.Length - start);
         }
     }
     #endregion
