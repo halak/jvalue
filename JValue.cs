@@ -391,9 +391,12 @@ namespace Halak
                 int kStart = SkipWhitespaces(startIndex + 1);
                 while (kStart < end)
                 {
-                    int kEnd = SkipLetterOrDigit(kStart + 1);
+                    int kEnd = SkipString(kStart);
                     int vStart = SkipWhitespaces(kEnd + 1);
                     int vEnd = SkipValue(vStart);
+
+                    kStart++; // remove quotes
+                    kEnd--; // remove quotes
 
                     if (length == kEnd - kStart &&
                         string.Compare(key, keyStartIndex, source, kStart, keyLength) == 0)
@@ -452,9 +455,13 @@ namespace Halak
                 int kStart = SkipWhitespaces(startIndex + 1);
                 while (kStart < end)
                 {
-                    int kEnd = SkipLetterOrDigit(kStart + 1);
+                    int kEnd = SkipString(kStart);
                     int vStart = SkipWhitespaces(kEnd + 1);
                     int vEnd = SkipValue(vStart);
+
+                    kStart++; // remove quotes
+                    kEnd--; // remove quotes
+
                     yield return new KeyValuePair<string, JValue>(source.Substring(kStart, kEnd - kStart),
                                                                   new JValue(source, vStart, vEnd - vStart));
                     kStart = SkipWhitespaces(vEnd + 1);
