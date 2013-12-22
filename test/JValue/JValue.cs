@@ -67,7 +67,7 @@ namespace Halak
 
             this.source = source;
             this.startIndex = 0;
-            this.length = source.Length - this.startIndex;
+            this.length = source.Length;
 
             this.startIndex = SkipWhitespaces(0);
             this.length = source.Length - this.startIndex;
@@ -86,15 +86,15 @@ namespace Halak
         {
             switch (c)
             {
-                case 't':
-                case 'f':
-                    return TypeCode.Boolean;
                 case '"':
                     return TypeCode.String;
                 case '[':
                     return TypeCode.Array;
                 case '{':
                     return TypeCode.Object;
+                case 't':
+                case 'f':
+                    return TypeCode.Boolean;
                 default:
                     return TypeCode.Number;
             }
@@ -377,7 +377,7 @@ namespace Halak
         {
             var current = this;
             foreach (var item in key.SplitRangeAndEnumerate('.'))
-                current = current.GetFromOneDepth(key, item.Item1, item.Item2);
+                current = current.GetFromOneDepth(key, item.Start, item.Length);
 
             return current;
         }
@@ -398,7 +398,7 @@ namespace Halak
                     kStart++; // remove quotes
                     kEnd--; // remove quotes
 
-                    if (length == kEnd - kStart &&
+                    if (keyLength == kEnd - kStart &&
                         string.Compare(key, keyStartIndex, source, kStart, keyLength) == 0)
                     {
                         return new JValue(source, vStart, vEnd - vStart);
@@ -472,7 +472,7 @@ namespace Halak
         private int SkipValue(int index)
         {
             int end = startIndex + length;
-            if (end < index)
+            if (end <= index)
                 return end;
 
             var typeCode = GetTypeCode(source[index]);
@@ -491,9 +491,6 @@ namespace Halak
         private int SkipWhitespaces(int index)
         {
             int end = startIndex + length;
-            if (end < index)
-                return end;
-
             for (; index < end; index++)
             {
                 switch (source[index])
@@ -516,9 +513,6 @@ namespace Halak
         private int SkipLetterOrDigit(int index)
         {
             int end = startIndex + length;
-            if (end < index)
-                return end;
-
             for (; index < end; index++)
             {
                 switch (source[index])
@@ -542,9 +536,6 @@ namespace Halak
         private int SkipString(int index)
         {
             int end = startIndex + length;
-            if (end < index)
-                return end;
-
             index++;
             for (; index < end; index++)
             {
@@ -564,9 +555,6 @@ namespace Halak
         private int SkipBracket(int index)
         {
             int end = startIndex + length;
-            if (end < index)
-                return end;
-
             int depth = 0;
             for (; index < end; index++)
             {
@@ -667,19 +655,31 @@ namespace Halak
     #region Utilities
     public static class JValueStringExtension
     {
-        public static IEnumerable<Tuple<int, int>> SplitRangeAndEnumerate(this string s, char c)
+        public struct Range
+        {
+            public readonly int Start;
+            public readonly int Length;
+
+            public Range(int start, int length)
+            {
+                Start = start;
+                Length = length;
+            }
+        }
+
+        public static IEnumerable<Range> SplitRangeAndEnumerate(this string s, char c)
         {
             int start = 0;
             for (int i = 0; i < s.Length; i++)
             {
                 if (s[i] == c)
                 {
-                    yield return new Tuple<int, int>(start, i - start);
+                    yield return new Range(start, i - start);
                     start = i + 1;
                 }
             }
 
-            yield return new Tuple<int, int>(start, s.Length - start);
+            yield return new Range(start, s.Length - start);
         }
     }
     #endregion

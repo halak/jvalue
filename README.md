@@ -1,4 +1,8 @@
-jvalue
+JValue
 ======
 
-super lightweight C# json reader
+super lightweight C# json reader.
+
+
+Usage
+-----

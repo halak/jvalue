@@ -9,7 +9,6 @@ namespace Halak
 {
     static class Comparison
     {
-        static Stopwatch sw = new Stopwatch();
         static void Main(string[] args)
         {
             var currentProcess = Process.GetCurrentProcess();
@@ -18,32 +17,38 @@ namespace Halak
             Thread.CurrentThread.Priority = ThreadPriority.Highest;
 
             SmallIntArray();
+            SmallIntArray();
+            BigIntArray();
             BigIntArray();
             SmallObject();
+            SmallObject();
+            BigObject();
             BigObject();
 
             Console.WriteLine("Benchmark Complete");
             Console.ReadKey();
         }
 
-        #region Execute
+        #region Benchmark
         static void Benchmark(string library, Action action, int count = 100000)
         {
-            GC.Collect();
+            GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
             GC.WaitForPendingFinalizers();
-            GC.Collect();
+            GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
 
             action();
 
-            sw.Reset();
-            sw.Start();
+            var oldMemory = GC.GetTotalMemory(false);
+
+            var sw = Stopwatch.StartNew();
             for (int i = 0; i < count; i++)
             {
                 action();
             }
             sw.Stop();
 
-            Console.WriteLine("  {0}: {1:N0}ms", library, sw.ElapsedMilliseconds);
+            var currentMemory = GC.GetTotalMemory(false);
+            Console.WriteLine("  {0,-10}| {1,6:N0}ms | {2,10:N0}", library, sw.ElapsedMilliseconds, currentMemory - oldMemory);
             action = null;
         }
         #endregion
@@ -53,10 +58,10 @@ namespace Halak
             string source = "[10, 20, 30, 40]";
 
             Console.WriteLine("Small Int Array");
-            Benchmark("JValue", () => JValueSide.EnumerateArray(source));
             Benchmark("LitJson", () => LitJsonSide.EnumerateArray(source));
             Benchmark("JsonFx", () => JsonFxSide.EnumerateArray(source));
             Benchmark("Json.NET", () => NewtonsoftJsonSide.EnumerateArray(source));
+            Benchmark("*JValue", () => JValueSide.EnumerateArray(source));
             Console.WriteLine();
         }
 
@@ -72,10 +77,10 @@ namespace Halak
             string source = '[' + string.Join(",", o) + ']';
 
             Console.WriteLine("Big Int Array");
-            Benchmark("JValue", () => JValueSide.EnumerateArray(source), count);
             Benchmark("LitJson", () => LitJsonSide.EnumerateArray(source), count);
             Benchmark("JsonFx", () => JsonFxSide.EnumerateArray(source), count);
             Benchmark("Json.NET", () => NewtonsoftJsonSide.EnumerateArray(source), count);
+            Benchmark("*JValue", () => JValueSide.EnumerateArray(source), count);
             Console.WriteLine();
         }
 
@@ -96,10 +101,10 @@ namespace Halak
 
             int count = 10000;
             Console.WriteLine("Small Object");
-            Benchmark("JValue", () => JValueSide.QueryObject(source, keys), count);
             Benchmark("LitJson", () => LitJsonSide.QueryObject(source, keys), count);
             Benchmark("JsonFx", () => JsonFxSide.QueryObject(source, keys), count);
             Benchmark("Json.NET", () => NewtonsoftJsonSide.QueryObject(source, keys), count);
+            Benchmark("*JValue", () => JValueSide.QueryObject(source, keys), count);
             Console.WriteLine();
         }
 
@@ -143,10 +148,10 @@ namespace Halak
             int count = 10;
 
             Console.WriteLine("Big Object");
-            Benchmark("JValue", () => JValueSide.QueryObject(source, keys), count);
             Benchmark("LitJson", () => LitJsonSide.QueryObject(source, keys), count);
             Benchmark("JsonFx", () => JsonFxSide.QueryObject(source, keys), count);
             Benchmark("Json.NET", () => NewtonsoftJsonSide.QueryObject(source, keys), count);
+            Benchmark("*JValue", () => JValueSide.QueryObject(source, keys), count);
             Console.WriteLine();
         }
 
