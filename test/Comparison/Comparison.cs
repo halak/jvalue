@@ -17,12 +17,8 @@ namespace Halak
             Thread.CurrentThread.Priority = ThreadPriority.Highest;
 
             SmallIntArray();
-            SmallIntArray();
-            BigIntArray();
             BigIntArray();
             SmallObject();
-            SmallObject();
-            BigObject();
             BigObject();
 
             Console.WriteLine("Benchmark Complete");

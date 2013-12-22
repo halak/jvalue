@@ -82,7 +82,7 @@ namespace Halak
         #endregion
 
         #region Methods
-        private TypeCode GetTypeCode(char c)
+        private static TypeCode GetTypeCode(char c)
         {
             switch (c)
             {
@@ -300,7 +300,7 @@ namespace Halak
 
         public List<JValue> AsArray()
         {
-            var result = new List<JValue>();
+            var result = new List<JValue>(GetElementCount());
             foreach (var item in Array())
                 result.Add(item);
 
@@ -309,7 +309,7 @@ namespace Halak
 
         public Dictionary<string, JValue> AsObject()
         {
-            var result = new Dictionary<string, JValue>();
+            var result = new Dictionary<string, JValue>(GetElementCount());
             foreach (var item in Object())
                 result[item.Key] = item.Value;
 
@@ -340,7 +340,7 @@ namespace Halak
             if (Type == TypeCode.Array)
             {
                 if (index < 0)
-                    index += GetArrayLength();
+                    index += GetElementCount();
 
                 foreach (var item in Array())
                 {
@@ -352,11 +352,33 @@ namespace Halak
             return Null;
         }
 
-        private int GetArrayLength()
+        private int GetElementCount()
         {
-            int count = 0;
-            foreach (var item in Array())
-                count++;
+            int count = 1;
+            int depth = 0;
+            int end = startIndex + length - 1; // ignore } or ]
+            for (int i = startIndex + 1; i < end; i++) // ignore { or [
+            {
+                switch (source[i])
+                {
+                    case ',':
+                        if (depth == 0)
+                            count++;
+                        break;
+                    case '[':
+                    case '{':
+                        depth++;
+                        break;
+                    case ']':
+                    case '}':
+                        depth--;
+                        break;
+                    case '"':
+                        i = SkipString(i) - 1;
+                        break;
+                }
+            }
+
             return count;
         }
 
