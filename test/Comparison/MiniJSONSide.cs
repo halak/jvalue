@@ -5,13 +5,11 @@ using System.Text;
 
 namespace Halak.JValueComparison
 {
-    static class JsonFxSide
+    static class MiniJSONSide
     {
-        static JsonFx.Json.JsonReader reader = new JsonFx.Json.JsonReader();
-
         public static void EnumerateArray(string source)
         {
-            dynamic data = reader.Read(source);
+            var data = MiniJSON.Json.Deserialize(source) as List<object>;
             foreach (var item in data)
             {
                 Program.Noop(item);
@@ -20,7 +18,7 @@ namespace Halak.JValueComparison
 
         public static void QueryObject(string source, IEnumerable<string> keys)
         {
-            dynamic data = reader.Read<Dictionary<string, object>>(source);
+            var data = MiniJSON.Json.Deserialize(source) as Dictionary<string, object>;
             foreach (var item in keys)
             {
                 Program.Noop(data[item]);

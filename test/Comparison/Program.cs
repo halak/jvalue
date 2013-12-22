@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 
-namespace Halak
+namespace Halak.JValueComparison
 {
-    static class Comparison
+    static class Program
     {
         static void Main(string[] args)
         {
@@ -57,6 +57,7 @@ namespace Halak
             Benchmark("LitJson", () => LitJsonSide.EnumerateArray(source));
             Benchmark("JsonFx", () => JsonFxSide.EnumerateArray(source));
             Benchmark("Json.NET", () => NewtonsoftJsonSide.EnumerateArray(source));
+            Benchmark("MiniJSON", () => MiniJSONSide.EnumerateArray(source));
             Benchmark("*JValue", () => JValueSide.EnumerateArray(source));
             Console.WriteLine();
         }
@@ -76,6 +77,7 @@ namespace Halak
             Benchmark("LitJson", () => LitJsonSide.EnumerateArray(source), count);
             Benchmark("JsonFx", () => JsonFxSide.EnumerateArray(source), count);
             Benchmark("Json.NET", () => NewtonsoftJsonSide.EnumerateArray(source), count);
+            Benchmark("MiniJSON", () => MiniJSONSide.EnumerateArray(source), count);
             Benchmark("*JValue", () => JValueSide.EnumerateArray(source), count);
             Console.WriteLine();
         }
@@ -100,6 +102,7 @@ namespace Halak
             Benchmark("LitJson", () => LitJsonSide.QueryObject(source, keys), count);
             Benchmark("JsonFx", () => JsonFxSide.QueryObject(source, keys), count);
             Benchmark("Json.NET", () => NewtonsoftJsonSide.QueryObject(source, keys), count);
+            Benchmark("MiniJSON", () => MiniJSONSide.QueryObject(source, keys), count);
             Benchmark("*JValue", () => JValueSide.QueryObject(source, keys), count);
             Console.WriteLine();
         }
@@ -147,6 +150,7 @@ namespace Halak
             Benchmark("LitJson", () => LitJsonSide.QueryObject(source, keys), count);
             Benchmark("JsonFx", () => JsonFxSide.QueryObject(source, keys), count);
             Benchmark("Json.NET", () => NewtonsoftJsonSide.QueryObject(source, keys), count);
+            Benchmark("MiniJSON", () => MiniJSONSide.QueryObject(source, keys), count);
             Benchmark("*JValue", () => JValueSide.QueryObject(source, keys), count);
             Console.WriteLine();
         }

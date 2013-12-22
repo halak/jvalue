@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Halak
+namespace Halak.JValueComparison
 {
     static class NewtonsoftJsonSide
     {
@@ -14,7 +14,7 @@ namespace Halak
             var data = (object[])serializer.Deserialize(new System.IO.StringReader(source), typeof(object[]));
             foreach (var item in data)
             {
-                Comparison.Noop(item);
+                Program.Noop(item);
             }
         }
 
@@ -23,7 +23,7 @@ namespace Halak
             var data = (Dictionary<string, object>)serializer.Deserialize(new System.IO.StringReader(source), typeof(Dictionary<string, object>));
             foreach (var item in keys)
             {
-                Comparison.Noop(data[item]);
+                Program.Noop(data[item]);
             }
         }
     }

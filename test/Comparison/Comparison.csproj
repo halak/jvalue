@@ -35,6 +35,9 @@
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>Halak.JValueComparison.Program</StartupObject>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="JsonFx">
       <HintPath>.\JsonFx.dll</HintPath>
@@ -54,7 +57,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Comparison.cs" />
+    <Compile Include="MiniJSON.cs" />
+    <Compile Include="MiniJSONSide.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="JsonFxSide.cs" />
     <Compile Include="JValueSide.cs" />
     <Compile Include="LitJsonSide.cs" />

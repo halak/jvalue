@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Halak
+namespace Halak.JValueComparison
 {
     static class LitJsonSide
     {
@@ -12,7 +12,7 @@ namespace Halak
             var data = LitJson.JsonMapper.ToObject(source);
             foreach (var item in data)
             {
-                Comparison.Noop(item);
+                Program.Noop(item);
             }
         }
 
@@ -21,7 +21,7 @@ namespace Halak
             var data = LitJson.JsonMapper.ToObject(source);
             foreach (var item in keys)
             {
-                Comparison.Noop(data[item]);
+                Program.Noop(data[item]);
             }
         }
     }

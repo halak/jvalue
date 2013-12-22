@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 
-namespace Halak
+namespace Halak.JValueDev
 {
-    class Development
+    class Program
     {
         static void Main(string[] args)
         {

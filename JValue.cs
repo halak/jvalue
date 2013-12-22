@@ -95,6 +95,8 @@ namespace Halak
                 case 't':
                 case 'f':
                     return TypeCode.Boolean;
+                case 'n':
+                    return TypeCode.Null;
                 default:
                     return TypeCode.Number;
             }
@@ -356,8 +358,8 @@ namespace Halak
         {
             int count = 1;
             int depth = 0;
-            int end = startIndex + length - 1;
-            for (int i = startIndex + 1; i < end; i++)
+            int end = startIndex + length - 1; // ignore } or ]
+            for (int i = startIndex + 1; i < end; i++) // ignore { or [
             {
                 switch (source[i])
                 {

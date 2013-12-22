@@ -95,6 +95,8 @@ namespace Halak
                 case 't':
                 case 'f':
                     return TypeCode.Boolean;
+                case 'n':
+                    return TypeCode.Null;
                 default:
                     return TypeCode.Number;
             }
