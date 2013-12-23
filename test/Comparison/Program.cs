@@ -26,26 +26,9 @@ namespace Halak.JValueComparison
         }
 
         #region Benchmark
-        static void Benchmark(string library, Action action, int count = 100000)
+        static void Benchmark(string name, Action action, int count = 100000)
         {
-            GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
-            GC.WaitForPendingFinalizers();
-            GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
-
-            action();
-
-            var oldMemory = GC.GetTotalMemory(false);
-
-            var sw = Stopwatch.StartNew();
-            for (int i = 0; i < count; i++)
-            {
-                action();
-            }
-            sw.Stop();
-
-            var currentMemory = GC.GetTotalMemory(false);
-            Console.WriteLine("  {0,-10}| {1,6:N0}ms | {2,10:N0}", library, sw.ElapsedMilliseconds, currentMemory - oldMemory);
-            action = null;
+            Halak.JValueDev.Program.Benchmark(name, action, count);
         }
         #endregion
 

@@ -12,7 +12,7 @@ namespace Halak.JValueComparison
             var data = new JValue(source);
             foreach (var item in data.Array())
             {
-                Program.Noop(item);
+                Program.Noop(item.AsInt());
             }
         }
 
@@ -21,7 +21,7 @@ namespace Halak.JValueComparison
             var data = new JValue(source);
             foreach (var item in keys)
             {
-                Program.Noop(data[item]);
+                Program.Noop(data[item].AsInt());
             }
         }
     }

@@ -3,13 +3,30 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 
+using System.Data;
+using System.Globalization;
+
 namespace Halak.JValueDev
 {
-    class Program
+    public static class Program
     {
         static void Main(string[] args)
         {
-            // PerformanceTest_IsInteger();
+            PerformanceTest_IsInteger();
+            // PerformanceTest_ParseInt();
+
+            Action<string, int> assertParseInt = (input, result) =>
+            {
+                Trace.Assert(JValueExtension.Parse(input, 0, input.Length, 0) == result);
+            };
+            assertParseInt("10000", 10000);
+            assertParseInt("4294967295", 0); // overflow
+            assertParseInt("2147483648", 0); // overflow
+            assertParseInt("2147483647", 2147483647); // max
+            assertParseInt("12387cs831", 0); // invalid
+            assertParseInt("0", 0);
+            assertParseInt("-12938723", -12938723);
+            assertParseInt("3948222", 3948222);
 
             Trace.Assert(new JValue("true").Type == JValue.TypeCode.Boolean);
             Trace.Assert(new JValue("false").Type == JValue.TypeCode.Boolean);
@@ -28,6 +45,30 @@ namespace Halak.JValueDev
             BasicObjectTest2();
             BasicArrayTest1();
         }
+
+        #region Benchmark
+        public static void Benchmark(string name, Action action, int count = 100000)
+        {
+            GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
+            GC.WaitForPendingFinalizers();
+            GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
+
+            action();
+
+            var oldMemory = GC.GetTotalMemory(false);
+
+            var sw = Stopwatch.StartNew();
+            for (int i = 0; i < count; i++)
+            {
+                action();
+            }
+            sw.Stop();
+
+            var currentMemory = GC.GetTotalMemory(false);
+            Console.WriteLine("  {0,-16}| {1,6:N0}ms | {2,10:N0}", name, sw.ElapsedMilliseconds, currentMemory - oldMemory);
+            action = null;
+        }
+        #endregion
 
         #region PerformanceTest (IsInteger)
         static void PerformanceTest_IsInteger()
@@ -49,60 +90,53 @@ namespace Halak.JValueDev
 
             Console.WriteLine("Performance Test (IsInteger): {0}", test);
 
-            sw.Start();
-            for (int i = 0; i < count; i++)
-            {
-                test.IndexOf('.', startIndex, length);
-                test.IndexOf('e', startIndex, length);
-                test.IndexOf('E', startIndex, length);
-            }
-            sw.Stop();
-            Console.WriteLine("IndexOf {0}ms", sw.ElapsedMilliseconds);
+            Benchmark("IndexOf", () =>
+                {
+                    test.IndexOf('.', startIndex, length);
+                    test.IndexOf('e', startIndex, length);
+                    test.IndexOf('E', startIndex, length);
+                }, count);
 
             char[] floatingPoint = { '.', 'e', 'E' };
-            sw.Reset();
-            sw.Start();
-            for (int i = 0; i < count; i++)
-            {
-                test.IndexOfAny(floatingPoint, startIndex, length);
-            }
-            sw.Stop();
-            Console.WriteLine("IndexOfAny {0}ms", sw.ElapsedMilliseconds);
-
-            sw.Reset();
-            sw.Start();
-            for (int i = 0; i < count; i++)
-            {
-                for (int k = startIndex; k < startIndex + length; k++)
+            Benchmark("IndexOfAny", () =>
                 {
-                    char c = test[k];
-                    if (c == '.' || c == 'e' || c == 'E')
-                        break;
-                }
-            }
-            sw.Stop();
-            Console.WriteLine("Handmade if {0}ms", sw.ElapsedMilliseconds);
+                    test.IndexOfAny(floatingPoint, startIndex, length);
+                }, count);
 
-            sw.Reset();
-            sw.Start();
-            for (int i = 0; i < count; i++)
-            {
-                for (int k = startIndex; k < startIndex + length; k++)
+            Benchmark("Handmade if", () =>
                 {
-                    switch (test[k])
+                    for (int k = startIndex; k < startIndex + length; k++)
                     {
-                        case '.':
-                        case 'e':
-                        case 'E':
-                            k = startIndex + length;
+                        char c = test[k];
+                        if (c == '.' || c == 'e' || c == 'E')
                             break;
                     }
-                }
-            }
-            sw.Stop();
-            Console.WriteLine("Handmade switch {0}ms", sw.ElapsedMilliseconds);
+                }, count);
 
-            Console.WriteLine();
+            Benchmark("Handmade switch", () =>
+                {
+                    for (int k = startIndex; k < startIndex + length; k++)
+                    {
+                        switch (test[k])
+                        {
+                            case '.':
+                            case 'e':
+                            case 'E':
+                                k = startIndex + length;
+                                break;
+                        }
+                    }
+                }, count);
+        }
+        #endregion
+
+        #region PerformanceTest (ParseInt)
+        static void PerformanceTest_ParseInt()
+        {
+            int count = 3000000;
+            Benchmark("int.Parse", () => int.Parse("10000"), count);
+            Benchmark("int.TryParse", () => { int x; int.TryParse("10000", out x); }, count);
+            Benchmark("JValue.Parse", () => JValueExtension.Parse("10000", 0, 5, 0), count);
         }
         #endregion
 

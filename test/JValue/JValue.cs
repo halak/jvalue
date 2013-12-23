@@ -137,11 +137,7 @@ namespace Halak
                 case TypeCode.Number:
                     return AsIntActually(defaultValue);
                 case TypeCode.String:
-                    int value;
-                    if (int.TryParse(AsStringActually(), out value))
-                        return value;
-                    else
-                        return defaultValue;
+                    return JValueExtension.Parse(source, startIndex + 1, length - 2, defaultValue);
                 default:
                     return defaultValue;
             }
@@ -151,9 +147,13 @@ namespace Halak
         {
             for (int i = startIndex; i < startIndex + length; i++)
             {
-                char c = source[i];
-                if (c == '.' || c == 'e' || c == 'E')
-                    return false;
+                switch (source[i])
+                {
+                    case '.':
+                    case 'e':
+                    case 'E':
+                        return false;
+                }
             }
 
             return true;
@@ -161,23 +161,10 @@ namespace Halak
 
         private int AsIntActually(int defaultValue = 0)
         {
-            string s = source.Substring(startIndex, length);
             if (IsInteger())
-            {
-                int intValue;
-                if (int.TryParse(s, out intValue))
-                    return intValue;
-                else
-                    return defaultValue;
-            }
+                return JValueExtension.Parse(source, startIndex, length, defaultValue);
             else
-            {
-                double doubleValue;
-                if (double.TryParse(s, out doubleValue))
-                    return (int)doubleValue;
-                else
-                    return defaultValue;
-            }
+                return (int)JValueExtension.Parse(source, startIndex, length, (double)defaultValue);
         }
 
         public long AsLong(long defaultValue = 0)
@@ -189,11 +176,7 @@ namespace Halak
                 case TypeCode.Number:
                     return AsLongActually(defaultValue);
                 case TypeCode.String:
-                    long value;
-                    if (long.TryParse(AsStringActually(), out value))
-                        return value;
-                    else
-                        return defaultValue;
+                    return JValueExtension.Parse(source, startIndex + 1, length - 2, defaultValue);
                 default:
                     return defaultValue;
             }
@@ -201,53 +184,30 @@ namespace Halak
 
         private long AsLongActually(long defaultValue = 0)
         {
-            string s = source.Substring(startIndex, length);
             if (IsInteger())
-            {
-                long longValue;
-                if (long.TryParse(s, out longValue))
-                    return longValue;
-                else
-                    return defaultValue;
-            }
+                return JValueExtension.Parse(source, startIndex, length, defaultValue);
             else
-            {
-                double doubleValue;
-                if (double.TryParse(s, out doubleValue))
-                    return (long)doubleValue;
-                else
-                    return defaultValue;
-            }
+                return (long)JValueExtension.Parse(source, startIndex, length, (double)defaultValue);
         }
 
-        public float AsSingle(float defaultValue = 0.0f)
+        public float AsFloat(float defaultValue = 0.0f)
         {
             switch (Type)
             {
                 case TypeCode.Boolean:
                     return AsBooleanActually() ? 1 : 0;
                 case TypeCode.Number:
-                    return AsSingleActually(defaultValue);
+                    return AsFloatActually(defaultValue);
                 case TypeCode.String:
-                    float value;
-                    if (float.TryParse(AsStringActually(), out value))
-                        return value;
-                    else
-                        return defaultValue;
+                    return JValueExtension.Parse(source, startIndex + 1, length - 2, defaultValue);
                 default:
                     return defaultValue;
             }
         }
 
-        private float AsSingleActually(float defaultValue = 0.0f)
+        private float AsFloatActually(float defaultValue = 0.0f)
         {
-            string s = source.Substring(startIndex, length);
-
-            float floatValue;
-            if (float.TryParse(s, out floatValue))
-                return floatValue;
-            else
-                return defaultValue;
+            return JValueExtension.Parse(source, startIndex, length, defaultValue);
         }
 
         public double AsDouble(double defaultValue = 0.0)
@@ -259,11 +219,7 @@ namespace Halak
                 case TypeCode.Number:
                     return AsDoubleActually(defaultValue);
                 case TypeCode.String:
-                    double value;
-                    if (double.TryParse(AsStringActually(), out value))
-                        return value;
-                    else
-                        return defaultValue;
+                    return JValueExtension.Parse(source, startIndex + 1, length - 2, defaultValue);
                 default:
                     return defaultValue;
             }
@@ -271,13 +227,7 @@ namespace Halak
 
         private double AsDoubleActually(double defaultValue = 0.0)
         {
-            string s = source.Substring(startIndex, length);
-
-            double doubleValue;
-            if (double.TryParse(s, out doubleValue))
-                return doubleValue;
-            else
-                return defaultValue;
+            return JValueExtension.Parse(source, startIndex, length, defaultValue);
         }
 
         public string AsString(string defaultValue = "")
@@ -661,7 +611,7 @@ namespace Halak
 
         public static implicit operator float(JValue value)
         {
-            return value.AsSingle();
+            return value.AsFloat();
         }
 
         public static implicit operator double(JValue value)
@@ -677,7 +627,7 @@ namespace Halak
     }
 
     #region Utilities
-    public static class JValueStringExtension
+    public static class JValueExtension
     {
         public struct Range
         {
@@ -704,6 +654,78 @@ namespace Halak
             }
 
             yield return new Range(start, s.Length - start);
+        }
+
+        public static int Parse(string s, int startIndex, int length, int defaultValue)
+        {
+            int i = startIndex;
+            if (s[startIndex] == '-')
+                i++;
+
+            int result = 0;
+            length += startIndex;
+            for (; i < length; i++)
+            {
+                if ('0' <= s[i] && s[i] <= '9')
+                {
+                    result = (result * 10) + (s[i] - 48);
+                    if (result < 0) // is overflow
+                        return defaultValue;
+                }
+                else
+                    return defaultValue;
+            }
+
+            if (s[startIndex] == '-')
+                result = -result;
+
+            return result;
+        }
+
+        public static long Parse(string s, int startIndex, int length, long defaultValue)
+        {
+            int i = startIndex;
+            if (s[startIndex] == '-')
+                i++;
+
+            long result = 0;
+            length += startIndex;
+            for (; i < length; i++)
+            {
+                if ('0' <= s[i] && s[i] <= '9')
+                {
+                    result = (result * 10) + (s[i] - 48);
+
+                    // long이 overflow할 정도 값이면
+                    // 이미 제대로된 이 Library에서 수용 가능한 JSON이 아니기 때문에,
+                    // overflow를 검사하지 않습니다.
+                }
+                else
+                    return defaultValue;                
+            }
+
+            if (s[startIndex] == '-')
+                result = -result;
+
+            return result;
+        }
+
+        public static float Parse(string s, int startIndex, int length, float defaultValue)
+        {
+            float value;
+            if (float.TryParse(s.Substring(startIndex, length), out value))
+                return value;
+            else
+                return defaultValue;
+        }
+
+        public static double Parse(string s, int startIndex, int length, double defaultValue)
+        {
+            double value;
+            if (double.TryParse(s.Substring(startIndex, length), out value))
+                return value;
+            else
+                return defaultValue;
         }
     }
     #endregion
