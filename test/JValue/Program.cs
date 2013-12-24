@@ -12,22 +12,13 @@ namespace Halak.JValueDev
     {
         static void Main(string[] args)
         {
-            PerformanceTest_IsInteger();
-            // PerformanceTest_ParseInt();
+            // PerformanceTest_IsInteger();
+            PerformanceTest_ParseInt();
+            PerformanceTest_ParseFloat();
+            PerformanceTest_ParseDouble();
+            ParseNumberTest();
 
-            Action<string, int> assertParseInt = (input, result) =>
-            {
-                Trace.Assert(JValueExtension.Parse(input, 0, input.Length, 0) == result);
-            };
-            assertParseInt("10000", 10000);
-            assertParseInt("4294967295", 0); // overflow
-            assertParseInt("2147483648", 0); // overflow
-            assertParseInt("2147483647", 2147483647); // max
-            assertParseInt("12387cs831", 0); // invalid
-            assertParseInt("0", 0);
-            assertParseInt("-12938723", -12938723);
-            assertParseInt("3948222", 3948222);
-
+            /*
             Trace.Assert(new JValue("true").Type == JValue.TypeCode.Boolean);
             Trace.Assert(new JValue("false").Type == JValue.TypeCode.Boolean);
             Trace.Assert(new JValue("10").Type == JValue.TypeCode.Number);
@@ -44,6 +35,7 @@ namespace Halak.JValueDev
             BasicObjectTest1();
             BasicObjectTest2();
             BasicArrayTest1();
+            */
         }
 
         #region Benchmark
@@ -130,13 +122,49 @@ namespace Halak.JValueDev
         }
         #endregion
 
-        #region PerformanceTest (ParseInt)
+        #region PerformanceTest (ParseNumber)
         static void PerformanceTest_ParseInt()
         {
-            int count = 3000000;
+            int count = 5000000;
             Benchmark("int.Parse", () => int.Parse("10000"), count);
             Benchmark("int.TryParse", () => { int x; int.TryParse("10000", out x); }, count);
             Benchmark("JValue.Parse", () => JValueExtension.Parse("10000", 0, 5, 0), count);
+        }
+
+        static void PerformanceTest_ParseDouble()
+        {
+            int count = 5000000;
+            string source1 = "1234.56789";
+            string source2 = "1.1234e+10";
+
+            Benchmark("double.Parse", () =>
+            {
+                double.Parse(source1);
+                double.Parse(source2);
+            }, count);
+            Benchmark("JValue.Parse", () =>
+            {
+                JValueExtension.Parse(source1, 0, source1.Length, 0.0);
+                JValueExtension.Parse(source2, 0, source2.Length, 0.0);
+            }, count);
+        }
+
+        static void PerformanceTest_ParseFloat()
+        {
+            int count = 5000000;
+            string source1 = "1234.56789";
+            string source2 = "1.1234e+10";
+
+            Benchmark("double.Parse", () =>
+            {
+                float.Parse(source1);
+                float.Parse(source2);
+            }, count);
+            Benchmark("JValue.Parse", () =>
+            {
+                JValueExtension.Parse(source1, 0, source1.Length, 0.0f);
+                JValueExtension.Parse(source2, 0, source2.Length, 0.0f);
+            }, count);
         }
         #endregion
 
@@ -183,6 +211,64 @@ namespace Halak.JValueDev
             foreach (var item in book["authors"].Array())
                 Console.WriteLine("\t{0}", item);
             Console.WriteLine("Unknown author: {0}", book["authors"][100].AsString());
+        }
+
+        static void ParseNumberTest()
+        {
+            ParseIntTest();
+            ParseDoubleTest();
+        }
+
+        static void ParseIntTest()
+        {
+            Action<string, int> assert = (input, result) =>
+            {
+                Trace.Assert(JValueExtension.Parse(input, 0, input.Length, 0) == result);
+            };
+            assert("10000", 10000);
+            assert("4294967295", 0); // overflow
+            assert("2147483648", 0); // overflow
+            assert("2147483647", 2147483647); // max
+            assert("12387cs831", 0); // invalid
+            assert("0", 0);
+            assert("-12938723", -12938723);
+            assert("3948222", 3948222);
+
+            var random = new Random();
+            for (int i = 0; i < 10000; i++)
+            {
+                var value = random.Next(int.MinValue, int.MaxValue);
+                assert(value.ToString(), value);
+            }
+        }
+
+        static void ParseDoubleTest()
+        {
+            Func<double, double, bool> almostEquals = (a, b) => Math.Abs(a - b) < 0.0000001;
+
+            Action<string, double> assert = (input, result) =>
+            {
+                Trace.Assert(almostEquals(JValueExtension.Parse(input, 0, input.Length, 0.0), result));
+            };
+            assert("10000", 10000.0);
+            assert("2147483647", 2147483647.0);
+            assert("0", 0.0);
+            assert("-1293.8723", -1293.8723);
+            assert("3948.222", 3948.222);
+
+            double min = -10000000.0;
+            double max = +10000000.0;
+
+            var specifiers = new string[] { "G", "E", "e" };
+            var random = new Random();
+            for (int i = 0; i < 100000; i++)
+            {
+                var value = Math.Round(random.NextDouble() * (max - min) + min, 6);
+                assert(value.ToString(), value);
+
+                var valueString = value.ToString(specifiers[random.Next(specifiers.Length)]);
+                Trace.Assert(almostEquals(double.Parse(valueString), JValueExtension.Parse(valueString, 0, valueString.Length, 0.0)));
+            }
         }
     }
 }

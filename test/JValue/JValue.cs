@@ -659,7 +659,7 @@ namespace Halak
         public static int Parse(string s, int startIndex, int length, int defaultValue)
         {
             int i = startIndex;
-            if (s[startIndex] == '-')
+            if (s[startIndex] == '-' || s[startIndex] == '+')
                 i++;
 
             int result = 0;
@@ -685,7 +685,7 @@ namespace Halak
         public static long Parse(string s, int startIndex, int length, long defaultValue)
         {
             int i = startIndex;
-            if (s[startIndex] == '-')
+            if (s[startIndex] == '-' || s[startIndex] == '+')
                 i++;
 
             long result = 0;
@@ -701,7 +701,7 @@ namespace Halak
                     // overflow를 검사하지 않습니다.
                 }
                 else
-                    return defaultValue;                
+                    return defaultValue;
             }
 
             if (s[startIndex] == '-')
@@ -712,20 +712,54 @@ namespace Halak
 
         public static float Parse(string s, int startIndex, int length, float defaultValue)
         {
-            float value;
-            if (float.TryParse(s.Substring(startIndex, length), out value))
-                return value;
-            else
-                return defaultValue;
+            return (float)Parse(s, startIndex, length, (double)defaultValue);
         }
 
         public static double Parse(string s, int startIndex, int length, double defaultValue)
         {
-            double value;
-            if (double.TryParse(s.Substring(startIndex, length), out value))
-                return value;
+            int i = startIndex;
+            if (s[startIndex] == '-' || s[startIndex] == '+')
+                i++;
+
+            long mantissa = 0;
+            length += startIndex; // length => end
+            for (; i < length; i++)
+            {
+                if ('0' <= s[i] && s[i] <= '9')
+                    mantissa = (mantissa * 10) + (s[i] - 48);
+                else if (s[i] == '.' || s[i] == 'e' || s[i] == 'E')
+                    break;
+                else
+                    return defaultValue;
+            }
+
+            int exponent = 0;
+            if (i < length && s[i] == '.')
+            {
+                i++;
+                for (; i < length; i++, exponent++)
+                {
+                    if ('0' <= s[i] && s[i] <= '9')
+                        mantissa = (mantissa * 10) + (s[i] - 48);
+                    else if (s[i] == 'e' || s[i] == 'E')
+                        break;
+                    else
+                        return defaultValue;
+                }
+            }
+
+            if (i < length)
+                exponent -= Parse(s, i + 1, length - (i + 1), 0);
+
+            // defaultValue => result
+            if (exponent != 0)
+                defaultValue = (double)mantissa / Math.Pow(10.0, exponent);
             else
-                return defaultValue;
+                defaultValue = (double)mantissa;
+            if (s[startIndex] == '-')
+                defaultValue = -defaultValue;
+
+            return defaultValue;
         }
     }
     #endregion
