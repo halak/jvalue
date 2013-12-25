@@ -13,10 +13,10 @@ namespace Halak.JValueDev
         static void Main(string[] args)
         {
             // PerformanceTest_IsInteger();
-            PerformanceTest_ParseInt();
-            PerformanceTest_ParseFloat();
-            PerformanceTest_ParseDouble();
-            ParseNumberTest();
+            // PerformanceTest_ParseInt();
+            // PerformanceTest_ParseFloat();
+            // PerformanceTest_ParseDouble();
+            // ParseNumberTest();
 
             /*
             Trace.Assert(new JValue("true").Type == JValue.TypeCode.Boolean);
@@ -36,6 +36,8 @@ namespace Halak.JValueDev
             BasicObjectTest2();
             BasicArrayTest1();
             */
+
+            DJValueTest();
         }
 
         #region Benchmark
@@ -213,6 +215,7 @@ namespace Halak.JValueDev
             Console.WriteLine("Unknown author: {0}", book["authors"][100].AsString());
         }
 
+        #region ParseNumberTest
         static void ParseNumberTest()
         {
             ParseIntTest();
@@ -270,5 +273,26 @@ namespace Halak.JValueDev
                 Trace.Assert(almostEquals(double.Parse(valueString), JValueExtension.Parse(valueString, 0, valueString.Length, 0.0)));
             }
         }
+        #endregion
+
+        #region DJValue
+        static void DJValueTest()
+        {
+            dynamic book = new DJValue(@"{
+                ""name"": ""Json guide"",
+                ""pages"": 400,
+                ""authors"": [""halak"", ""foo"", ""bar"", ""blah""]
+            }");
+
+            Console.WriteLine("Name: {0}", book.name);
+            Console.WriteLine("Pages: {0}", (int)book.pages);
+
+            Console.WriteLine("Primary author: {0}", book.authors[0].AsString());
+            Console.WriteLine("Authors:");
+            foreach (var item in book.authors)
+                Console.WriteLine("\t{0}", item);
+            Console.WriteLine("Unknown author: {0}", book.authors[100].AsString());
+        }
+        #endregion
     }
 }
