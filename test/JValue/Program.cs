@@ -40,6 +40,8 @@ namespace Halak.JValueDev
             Trace.Assert(new JValue(10).Type == JValue.TypeCode.Number);
             Trace.Assert(new JValue(10).AsInt() == 10);
             Trace.Assert(new JValue("Hello\nWorld").AsString() == "Hello\nWorld");
+            Trace.Assert(new JValue(new List<JValue>() { 10, 20, 30 }).Type == JValue.TypeCode.Array);
+            Trace.Assert(new JValue(new List<JValue>() { 10, 20, 30 }).ToString() == "[10,20,30]");
 
             // DJValueTest();
         }

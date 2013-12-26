@@ -24,8 +24,6 @@ namespace Halak
 
         #region Static Fields
         public static readonly JValue Null = new JValue();
-        public static readonly JValue EmptyArray = new JValue("[]", 0, 2);
-        public static readonly JValue EmptyObject = new JValue("{}", 0, 2);
         #endregion
 
         #region Fields
@@ -116,6 +114,52 @@ namespace Halak
                 }
             }
             sb.Append('"');
+
+            source = sb.ToString();
+            startIndex = 0;
+            length = source.Length;
+        }
+
+        public JValue(IEnumerable<JValue> value)
+        {
+            var sb = new System.Text.StringBuilder();
+            sb.Append('[');
+            bool isFirst = true;
+            foreach (var item in value)
+            {
+                if (isFirst == false)
+                    sb.Append(',');
+                else
+                    isFirst = false;
+
+                sb.Append(item.ToString());
+            }
+            sb.Append(']');
+
+            source = sb.ToString();
+            startIndex = 0;
+            length = source.Length;
+        }
+
+        public JValue(IEnumerable<KeyValuePair<string, JValue>> value)
+        {
+            var sb = new System.Text.StringBuilder();
+            sb.Append('{');
+            bool isFirst = true;
+            foreach (var item in value)
+            {
+                if (isFirst == false)
+                    sb.Append(',');
+                else
+                    isFirst = false;
+
+                sb.Append('"');
+                sb.Append(item.Key);
+                sb.Append('"');
+                sb.Append(':');
+                sb.Append(item.Value.ToString());
+            }
+            sb.Append('}');
 
             source = sb.ToString();
             startIndex = 0;
@@ -688,10 +732,10 @@ namespace Halak
 
         public override string ToString()
         {
-            if (source != null)
-                return string.Format("JValue({0}, {1})", Type, source.Substring(startIndex, length));
+            if (Type != TypeCode.Null)
+                return source.Substring(startIndex, length);
             else
-                return "JValue(null)";
+                return "null";
         }
         #endregion
 
@@ -739,6 +783,36 @@ namespace Halak
         public static implicit operator string(JValue value)
         {
             return value.AsString();
+        }
+
+        public static implicit operator JValue(bool value)
+        {
+            return new JValue(value);
+        }
+
+        public static implicit operator JValue(int value)
+        {
+            return new JValue(value);
+        }
+
+        public static implicit operator JValue(long value)
+        {
+            return new JValue(value);
+        }
+
+        public static implicit operator JValue(float value)
+        {
+            return new JValue(value);
+        }
+
+        public static implicit operator JValue(double value)
+        {
+            return new JValue(value);
+        }
+
+        public static implicit operator JValue(string value)
+        {
+            return new JValue(value);
         }
         #endregion
     }
