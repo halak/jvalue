@@ -24,6 +24,8 @@ namespace Halak
 
         #region Static Fields
         public static readonly JValue Null = new JValue();
+        public static readonly JValue EmptyArray = new JValue("[]", 0, 2);
+        public static readonly JValue EmptyObject = new JValue("{}", 0, 2);
         #endregion
 
         #region Fields
@@ -60,17 +62,70 @@ namespace Halak
         #endregion
 
         #region Constructors
-        public JValue(string source)
+        public JValue(bool value)
         {
-            if (string.IsNullOrEmpty(source))
-                source = string.Empty;
+            source = value ? "true" : "false";
+            startIndex = 0;
+            length = source.Length;
+        }
 
-            this.source = source;
-            this.startIndex = 0;
-            this.length = source.Length;
+        public JValue(int value)
+        {
+            source = value.ToString();
+            startIndex = 0;
+            length = source.Length;
+        }
 
-            this.startIndex = SkipWhitespaces(0);
-            this.length = source.Length - this.startIndex;
+        public JValue(long value)
+        {
+            source = value.ToString();
+            startIndex = 0;
+            length = source.Length;
+        }
+
+        public JValue(float value)
+        {
+            source = value.ToString();
+            startIndex = 0;
+            length = source.Length;
+        }
+
+        public JValue(double value)
+        {
+            source = value.ToString();
+            startIndex = 0;
+            length = source.Length;
+        }
+
+        public JValue(string value)
+        {
+            var sb = new System.Text.StringBuilder(value.Length + 2);
+            sb.Append('"');
+            for (int i = 0; i < value.Length; i++)
+            {
+                switch (value[i])
+                {
+                    case '"': sb.Append('\\'); sb.Append('"'); break;
+                    case '\\': sb.Append('\\'); sb.Append('\\'); break;
+                    case '\n': sb.Append('\\'); sb.Append('n'); break;
+                    case '\t': sb.Append('\\'); sb.Append('t'); break;
+                    case '\r': sb.Append('\\'); sb.Append('r'); break;
+                    case '\b': sb.Append('\\'); sb.Append('b'); break;
+                    case '\f': sb.Append('\\'); sb.Append('f'); break;                    
+                    default: sb.Append(value[i]); break;
+                }
+            }
+            sb.Append('"');
+
+            source = sb.ToString();
+            startIndex = 0;
+            length = source.Length;
+        }
+
+        public static JValue Parse(string source)
+        {
+            int index = SkipWhitespaces(source);
+            return new JValue(source, index, source.Length - index);
         }
 
         private JValue(string source, int startOffset, int length)
@@ -247,7 +302,48 @@ namespace Halak
 
         private string AsStringActually()
         {
-            return source.Substring(startIndex + 1, length - 2);
+            var sb = new System.Text.StringBuilder(length - 2);
+            int end = startIndex + length - 1;
+            for (int i = startIndex + 1; i < end; i++)
+            {
+                if (source[i] != '\\')
+                    sb.Append(source[i]);
+                else
+                {
+                    i++;
+
+                    switch (source[i])
+                    {
+                        case '"': sb.Append('"'); break;
+                        case '/': sb.Append('/'); break;
+                        case '\\': sb.Append('\\'); break;
+                        case 'n': sb.Append('\n'); break;
+                        case 't': sb.Append('\t'); break;
+                        case 'r': sb.Append('\r'); break;
+                        case 'b': sb.Append('\b'); break;
+                        case 'f': sb.Append('\f'); break;
+                        case 'u':
+                            char a = source[++i];
+                            char b = source[++i];
+                            char c = source[++i];
+                            char d = source[++i];
+                            sb.Append((char)((Hex(a) * 4096) + (Hex(b) * 256) + (Hex(c) * 16) + (Hex(d))));
+                            break;
+                    }
+                }
+            }
+
+            return sb.ToString();
+        }
+
+        private int Hex(char c)
+        {
+            return
+                ('0' <= c && c <= '9') ?
+                    c - '0' :
+                ('a' <= c && c <= 'f') ?
+                    c - 'a' :
+                    c - 'A';
         }
 
         public List<JValue> AsArray()
@@ -460,6 +556,27 @@ namespace Halak
                 default:
                     return SkipLetterOrDigit(index);
             }
+        }
+
+        private static int SkipWhitespaces(string source)
+        {
+            for (int i = 0; i < source.Length; i++)
+            {
+                switch (source[i])
+                {
+                    case ' ':
+                    case ':':
+                    case ',':
+                    case '\t':
+                    case '\r':
+                    case '\n':
+                        break;
+                    default:
+                        return i;
+                }
+            }
+
+            return source.Length;
         }
 
         private int SkipWhitespaces(int index)

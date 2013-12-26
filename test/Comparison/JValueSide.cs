@@ -9,7 +9,7 @@ namespace Halak.JValueComparison
     {
         public static void EnumerateArray(string source)
         {
-            var data = new JValue(source);
+            var data = JValue.Parse(source);
             foreach (var item in data.Array())
             {
                 Program.Noop(item.AsInt());
@@ -18,7 +18,7 @@ namespace Halak.JValueComparison
 
         public static void QueryObject(string source, IEnumerable<string> keys)
         {
-            var data = new JValue(source);
+            var data = JValue.Parse(source);
             foreach (var item in keys)
             {
                 Program.Noop(data[item].AsInt());

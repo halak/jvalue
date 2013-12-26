@@ -37,7 +37,11 @@ namespace Halak.JValueDev
             BasicArrayTest1();
             */
 
-            DJValueTest();
+            Trace.Assert(new JValue(10).Type == JValue.TypeCode.Number);
+            Trace.Assert(new JValue(10).AsInt() == 10);
+            Trace.Assert(new JValue("Hello\nWorld").AsString() == "Hello\nWorld");
+
+            // DJValueTest();
         }
 
         #region Benchmark
@@ -63,7 +67,7 @@ namespace Halak.JValueDev
             action = null;
         }
         #endregion
-
+         
         #region PerformanceTest (IsInteger)
         static void PerformanceTest_IsInteger()
         {
@@ -172,7 +176,7 @@ namespace Halak.JValueDev
 
         static void BasicArrayTest1()
         {
-            var a = new JValue(@"   [10,  20    ,  [10  ,30,40 ]     ,30 ,""Hello""  , ""ASDASD"", 1]");
+            var a = JValue.Parse(@"   [10,  20    ,  [10  ,30,40 ]     ,30 ,""Hello""  , ""ASDASD"", 1]");
             Trace.Assert(a.Type == JValue.TypeCode.Array);
             foreach (var item in a.Array())
                 Console.WriteLine(item.ToString());
@@ -182,7 +186,7 @@ namespace Halak.JValueDev
 
         static void BasicObjectTest1()
         {
-            JValue people = new JValue(@"{
+            JValue people = JValue.Parse(@"{
                 ""first_name"": ""Mario"",
                 ""last_name"":  ""Kim"",
                 ""age"": 30,
@@ -197,7 +201,7 @@ namespace Halak.JValueDev
 
         static void BasicObjectTest2()
         {
-            JValue book = new JValue(@"{
+            JValue book = JValue.Parse(@"{
                 ""name"": ""Json guide"",
                 ""pages"": 400,
                 ""authors"": [""halak"", ""foo"", ""bar"", ""blah""]

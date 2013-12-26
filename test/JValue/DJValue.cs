@@ -27,7 +27,7 @@ namespace Halak
         }
 
         public DJValue(string source)
-            : this(new JValue(source))
+            : this(JValue.Parse(source))
         {
         }
 

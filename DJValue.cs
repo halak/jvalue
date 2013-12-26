@@ -7,6 +7,9 @@ using System.Text;
 
 namespace Halak
 {
+    /// <summary>
+    /// Dynamic JValue.
+    /// </summary>
     public sealed class DJValue : DynamicObject, IEnumerable<KeyValuePair<object, DJValue>>
     {
         #region Static Fields
@@ -24,7 +27,7 @@ namespace Halak
         }
 
         public DJValue(string source)
-            : this(new JValue(source))
+            : this(JValue.Parse(source))
         {
         }
 
