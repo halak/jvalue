@@ -12,30 +12,29 @@ namespace Halak.JValueDev
     {
         static void Main(string[] args)
         {
-            // PerformanceTest_IsInteger();
-            // PerformanceTest_ParseInt();
-            // PerformanceTest_ParseFloat();
-            // PerformanceTest_ParseDouble();
-            // ParseNumberTest();
+            //PerformanceTest_IsInteger();
+            //PerformanceTest_ParseInt();
+            //PerformanceTest_ParseFloat();
+            //PerformanceTest_ParseDouble();
+            //ParseNumberTest();
 
-            /*
-            Trace.Assert(new JValue("true").Type == JValue.TypeCode.Boolean);
-            Trace.Assert(new JValue("false").Type == JValue.TypeCode.Boolean);
-            Trace.Assert(new JValue("10").Type == JValue.TypeCode.Number);
-            Trace.Assert(new JValue("100").Type == JValue.TypeCode.Number);
-            Trace.Assert(new JValue("10.0").Type == JValue.TypeCode.Number);
-            Trace.Assert(new JValue("50.0").Type == JValue.TypeCode.Number);
-            Trace.Assert(new JValue("\"Hello\"").Type == JValue.TypeCode.String);
-            Trace.Assert(new JValue("\"World Hello\"").Type == JValue.TypeCode.String);
+            //Trace.Assert(new JValue("true").Type == JValue.TypeCode.Boolean);
+            //Trace.Assert(new JValue("false").Type == JValue.TypeCode.Boolean);
+            //Trace.Assert(new JValue("10").Type == JValue.TypeCode.Number);
+            //Trace.Assert(new JValue("100").Type == JValue.TypeCode.Number);
+            //Trace.Assert(new JValue("10.0").Type == JValue.TypeCode.Number);
+            //Trace.Assert(new JValue("50.0").Type == JValue.TypeCode.Number);
+            //Trace.Assert(new JValue("\"Hello\"").Type == JValue.TypeCode.String);
+            //Trace.Assert(new JValue("\"World Hello\"").Type == JValue.TypeCode.String);
 
-            Trace.Assert(new JValue("true").AsBoolean() == true);
-            Trace.Assert(new JValue("false").AsBoolean() == false);
-            Trace.Assert(new JValue("10").AsInt() == 10);
+            //Trace.Assert(new JValue("true").AsBoolean() == true);
+            //Trace.Assert(new JValue("false").AsBoolean() == false);
+            //Trace.Assert(new JValue("10").AsInt() == 10);
 
-            BasicObjectTest1();
+            //BasicObjectTest1();
             BasicObjectTest2();
-            BasicArrayTest1();
-            */
+            //BasicArrayTest1();
+            
 
             Trace.Assert(new JValue(10).Type == JValue.TypeCode.Number);
             Trace.Assert(new JValue(10).AsInt() == 10);
@@ -219,6 +218,8 @@ namespace Halak.JValueDev
             foreach (var item in book["authors"].Array())
                 Console.WriteLine("\t{0}", item);
             Console.WriteLine("Unknown author: {0}", book["authors"][100].AsString());
+
+            Console.WriteLine(book.Serialize(false));
         }
 
         #region ParseNumberTest

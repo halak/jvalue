@@ -109,7 +109,7 @@ namespace Halak
                     case '\t': sb.Append('\\'); sb.Append('t'); break;
                     case '\r': sb.Append('\\'); sb.Append('r'); break;
                     case '\b': sb.Append('\\'); sb.Append('b'); break;
-                    case '\f': sb.Append('\\'); sb.Append('f'); break;                    
+                    case '\f': sb.Append('\\'); sb.Append('f'); break;
                     default: sb.Append(value[i]); break;
                 }
             }
@@ -122,48 +122,24 @@ namespace Halak
 
         public JValue(IEnumerable<JValue> value)
         {
-            var sb = new System.Text.StringBuilder();
-            sb.Append('[');
-            bool isFirst = true;
-            foreach (var item in value)
+            using (var sw = new System.IO.StringWriter())
             {
-                if (isFirst == false)
-                    sb.Append(',');
-                else
-                    isFirst = false;
-
-                sb.Append(item.ToString());
+                Serialize(sw, value, 0);
+                source = sw.ToString();
+                startIndex = 0;
+                length = source.Length;
             }
-            sb.Append(']');
-
-            source = sb.ToString();
-            startIndex = 0;
-            length = source.Length;
         }
 
         public JValue(IEnumerable<KeyValuePair<string, JValue>> value)
         {
-            var sb = new System.Text.StringBuilder();
-            sb.Append('{');
-            bool isFirst = true;
-            foreach (var item in value)
+            using (var sw = new System.IO.StringWriter())
             {
-                if (isFirst == false)
-                    sb.Append(',');
-                else
-                    isFirst = false;
-
-                sb.Append('"');
-                sb.Append(item.Key);
-                sb.Append('"');
-                sb.Append(':');
-                sb.Append(item.Value.ToString());
+                Serialize(sw, value, 0);
+                source = sw.ToString();
+                startIndex = 0;
+                length = source.Length;
             }
-            sb.Append('}');
-
-            source = sb.ToString();
-            startIndex = 0;
-            length = source.Length;
         }
 
         public static JValue Parse(string source)
@@ -713,6 +689,132 @@ namespace Halak
             }
 
             return end;
+        }
+        #endregion
+
+        #region Serialization
+        public string Serialize(bool prettyPrint = false)
+        {
+            var sw = new System.IO.StringWriter();
+            Serialize(sw, prettyPrint);
+            return sw.ToString();
+        }
+
+        public void Serialize(System.IO.TextWriter writer, bool prettyPrint = false)
+        {
+            Serialize(writer, this, 0, prettyPrint);
+        }
+
+        private static void Spaces(System.IO.TextWriter writer, int spaces)
+        {
+            for (int i = 0; i < spaces; i++)
+                writer.Write(' ');
+        }
+
+        private static void Indent(System.IO.TextWriter writer, int indentLevel)
+        {
+            Spaces(writer, indentLevel * 4);
+        }
+
+        private static void Serialize(System.IO.TextWriter writer, JValue value, int indentLevel, bool prettyPrint = false)
+        {
+            switch (value.Type)
+            {
+                case TypeCode.Array:
+                    Serialize(writer, value.Array(), indentLevel, prettyPrint);
+                    break;
+                case TypeCode.Object:
+                    Serialize(writer, value.Object(), indentLevel, prettyPrint);
+                    break;
+                default:
+                    writer.Write(value.ToString());
+                    break;
+            }
+        }
+
+        private static void Serialize(System.IO.TextWriter writer, IEnumerable<JValue> value, int indentLevel, bool prettyPrint = false)
+        {
+            if (prettyPrint)
+                writer.WriteLine('[');
+            else
+                writer.Write('[');
+
+            bool isFirst = true;
+            foreach (var item in value)
+            {
+                if (isFirst == false)
+                {
+                    if (prettyPrint)
+                        writer.WriteLine(',');
+                    else
+                        writer.Write(',');
+                }
+                else
+                    isFirst = false;
+
+                if (prettyPrint)
+                    Indent(writer, indentLevel + 1);
+
+                Serialize(writer, item, indentLevel + 1, prettyPrint);
+            }
+
+            if (prettyPrint)
+            {
+                writer.WriteLine();
+                Indent(writer, indentLevel);
+            }
+
+            writer.Write(']');
+        }
+
+        private static void Serialize(System.IO.TextWriter writer, IEnumerable<KeyValuePair<string, JValue>> value, int indentLevel, bool prettyPrint = false)
+        {
+            if (prettyPrint)
+                writer.WriteLine('{');
+            else
+                writer.Write('{');
+
+            int maxKeyLength = 0;
+            if (prettyPrint)
+            {
+                foreach (var item in value)
+                    maxKeyLength = Math.Max(maxKeyLength, item.Key.Length);
+
+                maxKeyLength += 1;
+            }
+
+            bool isFirst = true;
+            foreach (var item in value)
+            {
+                if (isFirst == false)
+                {
+                    if (prettyPrint)
+                        writer.WriteLine(',');
+                    else
+                        writer.Write(',');
+                }
+                else
+                    isFirst = false;
+
+                if (prettyPrint)
+                    Indent(writer, indentLevel + 1);
+
+                writer.Write('"');
+                writer.Write(item.Key);
+                writer.Write('"');
+                writer.Write(':');
+                if (prettyPrint)
+                    Spaces(writer, maxKeyLength - item.Key.Length);
+                Serialize(writer, item.Value, indentLevel + 1, prettyPrint);
+            }
+
+            if (prettyPrint)
+            {
+                writer.WriteLine();
+                Indent(writer, indentLevel);
+            }
+
+            writer.Write('}');
         }
         #endregion
 
