@@ -31,8 +31,9 @@ namespace Halak.JValueDev
             //Trace.Assert(new JValue("false").AsBoolean() == false);
             //Trace.Assert(new JValue("10").AsInt() == 10);
 
+            SimpleTest();
             //BasicObjectTest1();
-            BasicObjectTest2();
+            //BasicObjectTest2();
             //BasicArrayTest1();
             
 
@@ -46,7 +47,7 @@ namespace Halak.JValueDev
         }
 
         #region Benchmark
-        public static void Benchmark(string name, Action action, int count = 100000)
+        public static long Benchmark(string name, Action action, int count = 100000)
         {
             GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
             GC.WaitForPendingFinalizers();
@@ -64,8 +65,11 @@ namespace Halak.JValueDev
             sw.Stop();
 
             var currentMemory = GC.GetTotalMemory(false);
-            Console.WriteLine("  {0,-16}| {1,6:N0}ms | {2,10:N0}", name, sw.ElapsedMilliseconds, currentMemory - oldMemory);
+            Console.WriteLine("| {0,-16} | {1,10:N0}ms |", name, sw.ElapsedMilliseconds);
+            // Console.WriteLine("  {0,-16}| {1,10:N0}ms | {2,10:N0}", name, sw.ElapsedMilliseconds, currentMemory - oldMemory);
             action = null;
+
+            return sw.ElapsedMilliseconds;
         }
         #endregion
          
@@ -175,6 +179,21 @@ namespace Halak.JValueDev
         }
         #endregion
 
+        static void SimpleTest()
+        {
+            JValue location = JValue.Parse(@"{""x"":10, ""y"":20}");
+            Console.WriteLine((int)location["x"]); // 10
+            Console.WriteLine((int)location["y"]); // 20
+            Console.WriteLine(location["z"].ToString()); // null
+
+            var person = new Dictionary<string, JValue>()
+            {
+                {"name", "John"},
+                {"age", 27},
+            };
+            Console.WriteLine(new JValue(person).ToString()); // {"name":"John","age":27}
+        }
+
         static void BasicArrayTest1()
         {
             var a = JValue.Parse(@"   [10,  20    ,  [10  ,30,40 ]     ,30 ,""Hello""  , ""ASDASD"", 1]");
@@ -205,7 +224,8 @@ namespace Halak.JValueDev
             JValue book = JValue.Parse(@"{
                 ""name"": ""Json guide"",
                 ""pages"": 400,
-                ""authors"": [""halak"", ""foo"", ""bar"", ""blah""]
+                ""tags"": [""computer"", ""data-interchange format"", ""easy""],
+                ""price"": {""usd"":0.99, ""krw"":1000}
             }");
             string name = book["name"];
             Console.WriteLine("Name: {0}", name);
@@ -213,12 +233,16 @@ namespace Halak.JValueDev
             int pages = book["pages"];
             Console.WriteLine("Pages: {0}", pages);
 
-            Console.WriteLine("Primary author: {0}", book["authors"][0].AsString());
-            Console.WriteLine("Authors:");
-            foreach (var item in book["authors"].Array())
+            Console.WriteLine("Primary tag: {0}", book["tags"][0].AsString());
+            Console.WriteLine("Tags:");
+            foreach (var item in book["tags"].Array())
                 Console.WriteLine("\t{0}", item);
-            Console.WriteLine("Unknown author: {0}", book["authors"][100].AsString());
+            Console.WriteLine("Unknown author: {0}", book["tags"][100].AsString());
 
+            JValue price = book["price"];
+            Console.WriteLine("Price: ${0}", (double)price["usd"]);
+            Console.WriteLine("");
+            Console.WriteLine("Reserialization");
             Console.WriteLine(book.Serialize(false));
         }
 

@@ -91,6 +91,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy /y $(ProjectDir)JValue.cs $(ProjectDir)..\..\JValue.cs
+copy /y $(ProjectDir)JValue.Serialization.cs $(ProjectDir)..\..\JValue.Serialization.cs
 copy /y $(ProjectDir)DJValue.cs $(ProjectDir)..\..\DJValue.cs</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

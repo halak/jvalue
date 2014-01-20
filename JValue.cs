@@ -60,6 +60,12 @@ namespace Halak
         #endregion
 
         #region Constructors
+        public static JValue Parse(string source)
+        {
+            int index = SkipWhitespaces(source);
+            return new JValue(source, index, source.Length - index);
+        }
+
         public JValue(bool value)
         {
             source = value ? "true" : "false";
@@ -140,12 +146,6 @@ namespace Halak
                 startIndex = 0;
                 length = source.Length;
             }
-        }
-
-        public static JValue Parse(string source)
-        {
-            int index = SkipWhitespaces(source);
-            return new JValue(source, index, source.Length - index);
         }
 
         private JValue(string source, int startOffset, int length)
@@ -844,7 +844,9 @@ namespace Halak
         #region IComparable<JValue>
         public int CompareTo(JValue other)
         {
-            return string.Compare(source, startIndex, other.source, other.startIndex, Math.Max(length, other.length));
+            string a = source ?? string.Empty;
+            string b = other.source ?? string.Empty;
+            return string.Compare(a, startIndex, b, other.startIndex, Math.Max(length, other.length));
         }
         #endregion
 
@@ -920,6 +922,10 @@ namespace Halak
     }
 
     #region Utilities
+    /// <summary>
+    /// Support utility class for JValue
+    /// !No Heap Memory Allocation!
+    /// </summary>
     public static class JValueExtension
     {
         public struct Range
@@ -961,7 +967,7 @@ namespace Halak
             {
                 if ('0' <= s[i] && s[i] <= '9')
                 {
-                    result = (result * 10) + (s[i] - 48);
+                    result = (result * 10) + (s[i] - '0');
                     if (result < 0) // is overflow
                         return defaultValue;
                 }
@@ -987,7 +993,7 @@ namespace Halak
             {
                 if ('0' <= s[i] && s[i] <= '9')
                 {
-                    result = (result * 10) + (s[i] - 48);
+                    result = (result * 10) + (s[i] - '0');
 
                     // long이 overflow할 정도 값이면
                     // 이미 제대로된 이 Library에서 수용 가능한 JSON이 아니기 때문에,
@@ -1019,7 +1025,7 @@ namespace Halak
             for (; i < length; i++)
             {
                 if ('0' <= s[i] && s[i] <= '9')
-                    mantissa = (mantissa * 10) + (s[i] - 48);
+                    mantissa = (mantissa * 10) + (s[i] - '0');
                 else if (s[i] == '.' || s[i] == 'e' || s[i] == 'E')
                     break;
                 else
@@ -1033,7 +1039,7 @@ namespace Halak
                 for (; i < length; i++, exponent++)
                 {
                     if ('0' <= s[i] && s[i] <= '9')
-                        mantissa = (mantissa * 10) + (s[i] - 48);
+                        mantissa = (mantissa * 10) + (s[i] - '0');
                     else if (s[i] == 'e' || s[i] == 'E')
                         break;
                     else
