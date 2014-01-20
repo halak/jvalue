@@ -13,7 +13,6 @@ Features
   - Single file. (`DJValue.cs` is optional)
 - Cons
   - When you get to repeat the same key, it is inefficient.
-  - Slow serialization.
   - Object mapping NOT supported. (`System.Reflection`)
 
 
