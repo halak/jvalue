@@ -48,6 +48,9 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>.\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="ServiceStack.Text">
+      <HintPath>.\ServiceStack.Text.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -66,6 +69,7 @@
     <Compile Include="LitJsonSide.cs" />
     <Compile Include="NewtonsoftJsonSide.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ServiceStackSide.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\JValue\JValue.csproj">

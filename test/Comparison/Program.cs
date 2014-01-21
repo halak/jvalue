@@ -31,7 +31,7 @@ namespace Halak.JValueComparison
             Console.WriteLine("Benchmark Complete");
             Console.WriteLine();
 
-            // PrintMarkdownTable();
+            PrintMarkdownTable();
 
             Console.ReadKey();
         }
@@ -110,6 +110,7 @@ namespace Halak.JValueComparison
             Benchmark("JsonFx", () => JsonFxSide.EnumerateArray(source));
             Benchmark("Json.NET", () => NewtonsoftJsonSide.EnumerateArray(source));
             Benchmark("MiniJSON", () => MiniJSONSide.EnumerateArray(source));
+            Benchmark("ServiceStackSide", () => ServiceStackSide.EnumerateArray(source));
             Benchmark("JValue", () => JValueSide.EnumerateArray(source));
             Benchmark("JValue other", () => JValueOtherSide.EnumerateArray(source));
             Console.WriteLine();
@@ -131,6 +132,7 @@ namespace Halak.JValueComparison
             Benchmark("JsonFx", () => JsonFxSide.EnumerateArray(source), count);
             Benchmark("Json.NET", () => NewtonsoftJsonSide.EnumerateArray(source), count);
             Benchmark("MiniJSON", () => MiniJSONSide.EnumerateArray(source), count);
+            Benchmark("ServiceStackSide", () => ServiceStackSide.EnumerateArray(source), count);
             Benchmark("JValue", () => JValueSide.EnumerateArray(source), count);
             Benchmark("JValue other", () => JValueOtherSide.EnumerateArray(source), count);
             Console.WriteLine();
@@ -149,7 +151,7 @@ namespace Halak.JValueComparison
                 ""JellyBean"": ""Android 4.1 (API Level 16)"",
                 ""KitKat"": ""Android 4.4 (API Level 19)""
             }";
-            var keys = new string[] { "JellyBean", "IceCreamSandwich", "Eclair", "Donut", "Cupcake", "Froyo", "Honeycomb", "KitKat" };
+            var keys = new string[] { "JellyBean", "Cupcake", "IceCreamSandwich", "Eclair", "Donut", "Cupcake", "Froyo", "Honeycomb", "KitKat" };
 
             int count = 10000;
             Header(string.Format("Small Object ({0:N0}bytes)", source.Length * 2), count);
@@ -157,6 +159,7 @@ namespace Halak.JValueComparison
             Benchmark("JsonFx", () => JsonFxSide.QueryObject(source, keys), count);
             Benchmark("Json.NET", () => NewtonsoftJsonSide.QueryObject(source, keys), count);
             Benchmark("MiniJSON", () => MiniJSONSide.QueryObject(source, keys), count);
+            Benchmark("ServiceStackSide", () => ServiceStackSide.QueryObject(source, keys), count);
             Benchmark("JValue", () => JValueSide.QueryObject(source, keys), count);
             Benchmark("JValue other", () => JValueOtherSide.QueryObject(source, keys), count);
             Console.WriteLine();
@@ -206,6 +209,7 @@ namespace Halak.JValueComparison
             Benchmark("JsonFx", () => JsonFxSide.QueryObject(source, keys), count);
             Benchmark("Json.NET", () => NewtonsoftJsonSide.QueryObject(source, keys), count);
             Benchmark("MiniJSON", () => MiniJSONSide.QueryObject(source, keys), count);
+            Benchmark("ServiceStackSide", () => ServiceStackSide.QueryObject(source, keys), count);
             Benchmark("JValue", () => JValueSide.QueryObject(source, keys), count);
             Benchmark("JValue other", () => JValueOtherSide.QueryObject(source, keys), count);
             Console.WriteLine();

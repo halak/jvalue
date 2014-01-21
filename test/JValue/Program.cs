@@ -18,23 +18,24 @@ namespace Halak.JValueDev
             //PerformanceTest_ParseDouble();
             //ParseNumberTest();
 
-            //Trace.Assert(new JValue("true").Type == JValue.TypeCode.Boolean);
-            //Trace.Assert(new JValue("false").Type == JValue.TypeCode.Boolean);
-            //Trace.Assert(new JValue("10").Type == JValue.TypeCode.Number);
-            //Trace.Assert(new JValue("100").Type == JValue.TypeCode.Number);
-            //Trace.Assert(new JValue("10.0").Type == JValue.TypeCode.Number);
-            //Trace.Assert(new JValue("50.0").Type == JValue.TypeCode.Number);
-            //Trace.Assert(new JValue("\"Hello\"").Type == JValue.TypeCode.String);
-            //Trace.Assert(new JValue("\"World Hello\"").Type == JValue.TypeCode.String);
+            Trace.Assert(JValue.Parse("true").Type == JValue.TypeCode.Boolean);
+            Trace.Assert(JValue.Parse("false").Type == JValue.TypeCode.Boolean);
+            Trace.Assert(JValue.Parse("10").Type == JValue.TypeCode.Number);
+            Trace.Assert(JValue.Parse("100").Type == JValue.TypeCode.Number);
+            Trace.Assert(JValue.Parse("10.0").Type == JValue.TypeCode.Number);
+            Trace.Assert(JValue.Parse("50.0").Type == JValue.TypeCode.Number);
+            Trace.Assert(JValue.Parse("\"Hello\"").Type == JValue.TypeCode.String);
+            Trace.Assert(JValue.Parse("\"World Hello\"").Type == JValue.TypeCode.String);
 
-            //Trace.Assert(new JValue("true").AsBoolean() == true);
-            //Trace.Assert(new JValue("false").AsBoolean() == false);
-            //Trace.Assert(new JValue("10").AsInt() == 10);
+            Trace.Assert(JValue.Parse("true").AsBoolean() == true);
+            Trace.Assert(JValue.Parse("false").AsBoolean() == false);
+            Trace.Assert(JValue.Parse("10").AsInt() == 10);
 
+            MechanismTest();
             SimpleTest();
-            //BasicObjectTest1();
-            //BasicObjectTest2();
-            //BasicArrayTest1();
+            BasicObjectTest1();
+            BasicObjectTest2();
+            BasicArrayTest1();
             
 
             Trace.Assert(new JValue(10).Type == JValue.TypeCode.Number);
@@ -43,7 +44,7 @@ namespace Halak.JValueDev
             Trace.Assert(new JValue(new List<JValue>() { 10, 20, 30 }).Type == JValue.TypeCode.Array);
             Trace.Assert(new JValue(new List<JValue>() { 10, 20, 30 }).ToString() == "[10,20,30]");
 
-            // DJValueTest();
+            DJValueTest();
         }
 
         #region Benchmark
@@ -65,8 +66,7 @@ namespace Halak.JValueDev
             sw.Stop();
 
             var currentMemory = GC.GetTotalMemory(false);
-            Console.WriteLine("| {0,-16} | {1,10:N0}ms |", name, sw.ElapsedMilliseconds);
-            // Console.WriteLine("  {0,-16}| {1,10:N0}ms | {2,10:N0}", name, sw.ElapsedMilliseconds, currentMemory - oldMemory);
+            Console.WriteLine("  {0,-16}| {1,10:N0}ms | {2,10:N0}", name, sw.ElapsedMilliseconds, currentMemory - oldMemory);
             action = null;
 
             return sw.ElapsedMilliseconds;
@@ -179,9 +179,22 @@ namespace Halak.JValueDev
         }
         #endregion
 
+        static void MechanismTest()
+        {
+            JValue person = JValue.Parse(@"{""name"":""John"", ""age"":27, ""friend"":{""name"":""Tom""}}");
+            JValue name = person["name"];
+            JValue age = person["age"];
+            JValue friend = person["friend"];
+            JValue friendName = friend["name"];
+
+            string nameValue = (string)name;
+            int ageValue = (int)age;
+        }
+
         static void SimpleTest()
         {
             JValue location = JValue.Parse(@"{""x"":10, ""y"":20}");
+            var x = location["x"];
             Console.WriteLine((int)location["x"]); // 10
             Console.WriteLine((int)location["y"]); // 20
             Console.WriteLine(location["z"].ToString()); // null

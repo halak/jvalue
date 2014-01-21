@@ -37,8 +37,25 @@ namespace Halak
         {
             get
             {
-                if (string.IsNullOrEmpty(source) == false)
-                    return GetTypeCode(source[startIndex]);
+                if (source != null && source.Length > 0)
+                {
+                    switch (source[startIndex])
+                    {
+                        case '"':
+                            return TypeCode.String;
+                        case '[':
+                            return TypeCode.Array;
+                        case '{':
+                            return TypeCode.Object;
+                        case 't':
+                        case 'f':
+                            return TypeCode.Boolean;
+                        case 'n':
+                            return TypeCode.Null;
+                        default:
+                            return TypeCode.Number;
+                    }
+                }
                 else
                     return TypeCode.Null;
             }
@@ -157,26 +174,6 @@ namespace Halak
         #endregion
 
         #region Methods
-        private static TypeCode GetTypeCode(char c)
-        {
-            switch (c)
-            {
-                case '"':
-                    return TypeCode.String;
-                case '[':
-                    return TypeCode.Array;
-                case '{':
-                    return TypeCode.Object;
-                case 't':
-                case 'f':
-                    return TypeCode.Boolean;
-                case 'n':
-                    return TypeCode.Null;
-                default:
-                    return TypeCode.Number;
-            }
-        }
-
         #region As
         public bool AsBoolean()
         {
@@ -465,15 +462,6 @@ namespace Halak
         /// </example>
         public JValue Get(string key)
         {
-            var current = this;
-            foreach (var item in key.SplitRangeAndEnumerate('.'))
-                current = current.GetFromOneDepth(key, item.Start, item.Length);
-
-            return current;
-        }
-
-        private JValue GetFromOneDepth(string key, int keyStartIndex, int keyLength)
-        {
             if (Type == TypeCode.Object)
             {
                 int end = startIndex + length - 1;
@@ -488,8 +476,8 @@ namespace Halak
                     kStart++; // remove quotes
                     kEnd--; // remove quotes
 
-                    if (keyLength == kEnd - kStart &&
-                        string.Compare(key, keyStartIndex, source, kStart, keyLength) == 0)
+                    if (key.Length == kEnd - kStart &&
+                        JValueExtension.Equals(key, 0, source, kStart, key.Length))
                     {
                         return new JValue(source, vStart, vEnd - vStart);
                     }
@@ -565,13 +553,12 @@ namespace Halak
             if (end <= index)
                 return end;
 
-            var typeCode = GetTypeCode(source[index]);
-            switch (typeCode)
+            switch (source[index])
             {
-                case TypeCode.String:
+                case '"':
                     return SkipString(index);
-                case TypeCode.Array:
-                case TypeCode.Object:
+                case '[':
+                case '{':
                     return SkipBracket(index);
                 default:
                     return SkipLetterOrDigit(index);
@@ -940,19 +927,15 @@ namespace Halak
             }
         }
 
-        public static IEnumerable<Range> SplitRangeAndEnumerate(this string s, char c)
+        public static bool Equals(string a, int aIndex, string b, int bIndex, int length)
         {
-            int start = 0;
-            for (int i = 0; i < s.Length; i++)
+            while (length-- > 0)
             {
-                if (s[i] == c)
-                {
-                    yield return new Range(start, i - start);
-                    start = i + 1;
-                }
+                if (a[aIndex++] != b[bIndex++])
+                    return false;
             }
 
-            yield return new Range(start, s.Length - start);
+            return true;
         }
 
         public static int Parse(string s, int startIndex, int length, int defaultValue)
