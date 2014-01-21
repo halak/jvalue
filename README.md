@@ -81,14 +81,15 @@ Benchmark
   - Intel(R) Core(TM) i7-2600K CPU @ 3.40GHz 3.70 GHz
   - Windows 7 x86
 
-| Library | Small Int Array (32bytes) × 100,000 | Big Int Array (209,670bytes) × 100 | Small Object (1,084bytes) × 10,000 | Big Object (5,792,000bytes) × 10 |
+| Library | Small Int Array (32bytes) × 100,000 | Big Int Array (209,622bytes) × 100 | Small Object (1,084bytes) × 10,000 | Big Object (5,793,500bytes) × 10 |
 |:----------------:|:---------:|:---------:|:---------:|:---------:|
-|          LitJson |     238ms |     621ms |     129ms |   1,845ms |
-|           JsonFx |     400ms |     949ms |   1,412ms |   2,615ms |
-|         Json.NET |     141ms |     237ms |      51ms |     661ms |
-|         MiniJSON |     141ms |     616ms |      95ms |   1,525ms |
-|           JValue |  **25ms** |  **88ms** |      68ms |     454ms |
-|     JValue other |      38ms |     159ms |  **33ms** | **358ms** |
+|          LitJson |     231ms |     596ms |     128ms |   1,781ms |
+|           JsonFx |     391ms |     911ms |   1,362ms |   2,477ms |
+|         Json.NET |     139ms |     228ms |      50ms |     641ms |
+|         MiniJSON |     137ms |     598ms |      94ms |   1,469ms |
+| ServiceStackSide |      92ms |     231ms |  **29ms** |     495ms |
+|           JValue |  **24ms** |  **89ms** |      51ms | **266ms** |
+|     JValue other |      36ms |     141ms |      32ms |     349ms |
 
 
 Installation
