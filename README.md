@@ -75,7 +75,7 @@ int ageValue = (int)age; // At this time, parse int.
 
 Benchmark
 ---------
-- This is self test.
+- This is self test (2014-01-22 01:05 AM).
 - See `test/Comparison/Program.cs`.
 - Environment
   - Intel(R) Core(TM) i7-2600K CPU @ 3.40GHz 3.70 GHz
