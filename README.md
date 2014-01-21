@@ -8,8 +8,10 @@ Version: *In Development*.
 Features
 --------
 - Pros
-  - Small footprint. (no heap allocation)
+  - Small memory footprint. (no heap allocation)
   - Fastest parse.
+  - Easy to install.
+  - Easy to use.
   - Single file. (`DJValue.cs` is optional)
 - Cons
   - When you get to repeat the same key, it is inefficient.
