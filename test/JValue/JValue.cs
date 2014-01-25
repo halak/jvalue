@@ -913,18 +913,6 @@ namespace Halak
     /// </summary>
     public static class JValueExtension
     {
-        public struct Range
-        {
-            public readonly int Start;
-            public readonly int Length;
-
-            public Range(int start, int length)
-            {
-                Start = start;
-                Length = length;
-            }
-        }
-
         public static bool Equals(string a, int aIndex, string b, int bIndex, int length)
         {
             while (length-- > 0)
