@@ -7,8 +7,6 @@ namespace Halak.JValueComparison
 {
     static class ServiceStackSide
     {
-        static JsonFx.Json.JsonReader reader = new JsonFx.Json.JsonReader();
-
         public static void EnumerateArray(string source)
         {
             var data = ServiceStack.Text.JsonSerializer.DeserializeFromString<List<object>>(source);

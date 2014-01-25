@@ -26,7 +26,10 @@ namespace Halak.JValueDev
             Trace.Assert(JValue.Parse("50.0").Type == JValue.TypeCode.Number);
             Trace.Assert(JValue.Parse("\"Hello\"").Type == JValue.TypeCode.String);
             Trace.Assert(JValue.Parse("\"World Hello\"").Type == JValue.TypeCode.String);
-
+            Trace.Assert(JValue.Parse("").Type == JValue.TypeCode.Null);
+            Trace.Assert(JValue.Parse("null").Type == JValue.TypeCode.Null);
+            Trace.Assert(new JValue().Type == JValue.TypeCode.Null);
+            
             Trace.Assert(JValue.Parse("true").AsBoolean() == true);
             Trace.Assert(JValue.Parse("false").AsBoolean() == false);
             Trace.Assert(JValue.Parse("10").AsInt() == 10);

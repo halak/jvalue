@@ -12,7 +12,9 @@ Features
   - Fastest parse.
   - Easy to install.
   - Easy to use.
+  - Unity3D friendly.
   - Single file. (`DJValue.cs` is optional)
+  - Multithread safe. (JValue is immutable type)
 - Cons
   - When you get to repeat the same key, it is inefficient.
   - Object mapping NOT supported. (`System.Reflection`)
