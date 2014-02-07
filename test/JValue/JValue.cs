@@ -359,8 +359,8 @@ namespace Halak
                 ('0' <= c && c <= '9') ?
                     c - '0' :
                 ('a' <= c && c <= 'f') ?
-                    c - 'a' :
-                    c - 'A';
+                    c - 'a' + 10 :
+                    c - 'A' + 10;
         }
 
         public List<JValue> AsArray()

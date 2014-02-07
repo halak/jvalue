@@ -18,6 +18,8 @@ namespace Halak.JValueDev
             //PerformanceTest_ParseDouble();
             //ParseNumberTest();
 
+            Console.WriteLine(JValue.Parse(@"""\ub9c8\ub9b0""").AsString());
+
             Trace.Assert(JValue.Parse("true").Type == JValue.TypeCode.Boolean);
             Trace.Assert(JValue.Parse("false").Type == JValue.TypeCode.Boolean);
             Trace.Assert(JValue.Parse("10").Type == JValue.TypeCode.Number);

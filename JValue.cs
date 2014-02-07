@@ -359,8 +359,8 @@ namespace Halak
                 ('0' <= c && c <= '9') ?
                     c - '0' :
                 ('a' <= c && c <= 'f') ?
-                    c - 'a' :
-                    c - 'A';
+                    c - 'a' + 10 :
+                    c - 'A' + 10;
         }
 
         public List<JValue> AsArray()
@@ -449,14 +449,12 @@ namespace Halak
 
         /// <summary>
         /// 입력한 이름에 해당하는 하위 JValue를 가져옵니다.
-        /// 점(.)으로 이름을 구분하여 하위 객체의 하위 객체까지 탐색하여 가져올 수 있습니다.
         /// </summary>
         /// <param name="key">이름</param>
-        /// <returns>입력한 이름에 존재하는 JValue 값. 탐색중에 하위 객체를 찾지 못하면 탐색을 중단하고 JValue.Null을 반환합니다.</returns>
+        /// <returns>입력한 이름에 존재하는 JValue 값.</returns>
         /// <example>
         /// <code>
-        /// var x = new JValue("{hello:{world:10}}");
-        /// Trace.Assert(x["hello.world"] == 10);
+        /// var x = JValue.Parse("{hello:{world:10}}");
         /// Trace.Assert(x["hello"]["world"] == 10);
         /// </code>
         /// </example>
@@ -915,18 +913,6 @@ namespace Halak
     /// </summary>
     public static class JValueExtension
     {
-        public struct Range
-        {
-            public readonly int Start;
-            public readonly int Length;
-
-            public Range(int start, int length)
-            {
-                Start = start;
-                Length = length;
-            }
-        }
-
         public static bool Equals(string a, int aIndex, string b, int bIndex, int length)
         {
             while (length-- > 0)
