@@ -2,7 +2,7 @@ JValue
 ======
 Lightweight C# Json Parser.  
 JValue is simple and pure.  
-Version: *In Development*.
+Version: 1.0.0
 
 
 Features
