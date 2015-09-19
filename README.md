@@ -77,21 +77,23 @@ int ageValue = (int)age; // At this time, parse int.
 
 Benchmark
 ---------
-- This is self test (2014-01-22 01:05 AM).
+- This is self test (2015-09-20 00:25 AM).
 - See `test/Comparison/Program.cs`.
 - Environment
-  - Intel(R) Core(TM) i7-2600K CPU @ 3.40GHz 3.70 GHz
-  - Windows 7 x86
-
-| Library | Small Int Array (32bytes) × 100,000 | Big Int Array (209,622bytes) × 100 | Small Object (1,084bytes) × 10,000 | Big Object (5,793,500bytes) × 10 |
+  - Intel(R) Core(TM) i5-4690 CPU @ 3.50GHz 3.50 GHz
+  - Windows 7 x64
+  
+| Library | Small Int Array (32bytes) × 100,000 | Big Int Array (209,712bytes) × 100 | Small Object (1,084bytes) × 10,000 | Big Object (5,793,496bytes) × 10 |
 |:----------------:|:---------:|:---------:|:---------:|:---------:|
-|          LitJson |     231ms |     596ms |     128ms |   1,781ms |
-|           JsonFx |     391ms |     911ms |   1,362ms |   2,477ms |
-|         Json.NET |     139ms |     228ms |      50ms |     641ms |
-|         MiniJSON |     137ms |     598ms |      94ms |   1,469ms |
-| ServiceStackSide |      92ms |     231ms |  **29ms** |     495ms |
-|           JValue |  **24ms** |  **89ms** |      51ms | **266ms** |
-|     JValue other |      36ms |     141ms |      32ms |     349ms |
+|          LitJson |     205ms |     529ms |     106ms |   1,662ms |
+|           JsonFx |     327ms |     815ms |   1,695ms |   2,468ms |
+|         Json.NET |     126ms |     202ms |      48ms |     654ms |
+|         MiniJSON |     116ms |     529ms |      78ms |   1,450ms |
+|     ServiceStack |     107ms |     288ms |  **27ms** |     533ms |
+|              Jil |      38ms |     151ms |      36ms |     902ms |
+|           JValue |  **19ms** |  **60ms** |      42ms | **196ms** |
+|     JValue other |      31ms |      99ms |      29ms |     327ms |
+
 
 
 Installation

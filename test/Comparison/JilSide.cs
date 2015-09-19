@@ -3,13 +3,11 @@ using System.Collections.Generic;
 
 namespace Halak.JValueComparison
 {
-    static class NewtonsoftJsonSide
+    static class JilSide
     {
-        static Newtonsoft.Json.JsonSerializer serializer = new Newtonsoft.Json.JsonSerializer();
-
         public static void EnumerateArray(string source)
         {
-            var data = (object[])serializer.Deserialize(new System.IO.StringReader(source), typeof(object[]));
+            var data = Jil.JSON.Deserialize<List<object>>(source);
             foreach (var item in data)
             {
                 Program.Noop(item);
@@ -18,7 +16,7 @@ namespace Halak.JValueComparison
 
         public static void QueryObject(string source, IEnumerable<string> keys)
         {
-            var data = (Dictionary<string, object>)serializer.Deserialize(new System.IO.StringReader(source), typeof(Dictionary<string, object>));
+            var data = Jil.JSON.Deserialize<Dictionary<string, object>>(source);
             foreach (var item in keys)
             {
                 Program.Noop(data[item]);

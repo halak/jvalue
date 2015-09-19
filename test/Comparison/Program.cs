@@ -62,7 +62,7 @@ namespace Halak.JValueComparison
                     }
                 }
 
-                Times[fastestName][i] *= -1; // mark as fastest
+                Times[fastestName][i] *= -1;  // mark as fastest
             }
 
             foreach (var item in Times)
@@ -71,7 +71,7 @@ namespace Halak.JValueComparison
                 foreach (var elapsedTime in item.Value)
                 {
                     string elapsedTimeString;
-                    if (elapsedTime < 0) // negative is fastest.
+                    if (elapsedTime < 0)  // negative is fastest.
                         elapsedTimeString = string.Format("**{0:N0}ms**", Math.Abs(elapsedTime));
                     else
                         elapsedTimeString = string.Format("{0:N0}ms", elapsedTime);
@@ -110,7 +110,8 @@ namespace Halak.JValueComparison
             Benchmark("JsonFx", () => JsonFxSide.EnumerateArray(source));
             Benchmark("Json.NET", () => NewtonsoftJsonSide.EnumerateArray(source));
             Benchmark("MiniJSON", () => MiniJSONSide.EnumerateArray(source));
-            Benchmark("ServiceStackSide", () => ServiceStackSide.EnumerateArray(source));
+            Benchmark("ServiceStack", () => ServiceStackSide.EnumerateArray(source));
+            Benchmark("Jil", () => JilSide.EnumerateArray(source));
             Benchmark("JValue", () => JValueSide.EnumerateArray(source));
             Benchmark("JValue other", () => JValueOtherSide.EnumerateArray(source));
             Console.WriteLine();
@@ -132,7 +133,8 @@ namespace Halak.JValueComparison
             Benchmark("JsonFx", () => JsonFxSide.EnumerateArray(source), count);
             Benchmark("Json.NET", () => NewtonsoftJsonSide.EnumerateArray(source), count);
             Benchmark("MiniJSON", () => MiniJSONSide.EnumerateArray(source), count);
-            Benchmark("ServiceStackSide", () => ServiceStackSide.EnumerateArray(source), count);
+            Benchmark("ServiceStack", () => ServiceStackSide.EnumerateArray(source), count);
+            Benchmark("Jil", () => JilSide.EnumerateArray(source), count);
             Benchmark("JValue", () => JValueSide.EnumerateArray(source), count);
             Benchmark("JValue other", () => JValueOtherSide.EnumerateArray(source), count);
             Console.WriteLine();
@@ -159,7 +161,8 @@ namespace Halak.JValueComparison
             Benchmark("JsonFx", () => JsonFxSide.QueryObject(source, keys), count);
             Benchmark("Json.NET", () => NewtonsoftJsonSide.QueryObject(source, keys), count);
             Benchmark("MiniJSON", () => MiniJSONSide.QueryObject(source, keys), count);
-            Benchmark("ServiceStackSide", () => ServiceStackSide.QueryObject(source, keys), count);
+            Benchmark("ServiceStack", () => ServiceStackSide.QueryObject(source, keys), count);
+            Benchmark("Jil", () => JilSide.QueryObject(source, keys), count);
             Benchmark("JValue", () => JValueSide.QueryObject(source, keys), count);
             Benchmark("JValue other", () => JValueOtherSide.QueryObject(source, keys), count);
             Console.WriteLine();
@@ -209,7 +212,8 @@ namespace Halak.JValueComparison
             Benchmark("JsonFx", () => JsonFxSide.QueryObject(source, keys), count);
             Benchmark("Json.NET", () => NewtonsoftJsonSide.QueryObject(source, keys), count);
             Benchmark("MiniJSON", () => MiniJSONSide.QueryObject(source, keys), count);
-            Benchmark("ServiceStackSide", () => ServiceStackSide.QueryObject(source, keys), count);
+            Benchmark("ServiceStack", () => ServiceStackSide.QueryObject(source, keys), count);
+            Benchmark("Jil", () => JilSide.QueryObject(source, keys), count);
             Benchmark("JValue", () => JValueSide.QueryObject(source, keys), count);
             Benchmark("JValue other", () => JValueOtherSide.QueryObject(source, keys), count);
             Console.WriteLine();
