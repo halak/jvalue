@@ -353,7 +353,7 @@ namespace Halak
             return sb.ToString();
         }
 
-        private int Hex(char c)
+        private static int Hex(char c)
         {
             return
                 ('0' <= c && c <= '9') ?
