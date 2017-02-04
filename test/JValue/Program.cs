@@ -31,7 +31,7 @@ namespace Halak.JValueDev
             Trace.Assert(JValue.Parse("").Type == JValue.TypeCode.Null);
             Trace.Assert(JValue.Parse("null").Type == JValue.TypeCode.Null);
             Trace.Assert(new JValue().Type == JValue.TypeCode.Null);
-            
+
             Trace.Assert(JValue.Parse("true").AsBoolean() == true);
             Trace.Assert(JValue.Parse("false").AsBoolean() == false);
             Trace.Assert(JValue.Parse("10").AsInt() == 10);
@@ -41,7 +41,7 @@ namespace Halak.JValueDev
             BasicObjectTest1();
             BasicObjectTest2();
             BasicArrayTest1();
-            
+
 
             Trace.Assert(new JValue(10).Type == JValue.TypeCode.Number);
             Trace.Assert(new JValue(10).AsInt() == 10);
@@ -77,7 +77,7 @@ namespace Halak.JValueDev
             return sw.ElapsedMilliseconds;
         }
         #endregion
-         
+
         #region PerformanceTest (IsInteger)
         static void PerformanceTest_IsInteger()
         {
