@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace Halak
 {
@@ -83,7 +83,7 @@ namespace Halak
             if (source == null)
                 throw new ArgumentNullException("source");
 
-            int index = SkipWhitespaces(source);
+            var index = SkipWhitespaces(source);
             return new JValue(source, index, source.Length - index);
         }
 
@@ -96,28 +96,28 @@ namespace Halak
 
         public JValue(int value)
         {
-            source = value.ToString();
+            source = value.ToString(CultureInfo.InvariantCulture);
             startIndex = 0;
             length = source.Length;
         }
 
         public JValue(long value)
         {
-            source = value.ToString();
+            source = value.ToString(CultureInfo.InvariantCulture);
             startIndex = 0;
             length = source.Length;
         }
 
         public JValue(float value)
         {
-            source = value.ToString();
+            source = value.ToString(CultureInfo.InvariantCulture);
             startIndex = 0;
             length = source.Length;
         }
 
         public JValue(double value)
         {
-            source = value.ToString();
+            source = value.ToString(CultureInfo.InvariantCulture);
             startIndex = 0;
             length = source.Length;
         }
@@ -128,7 +128,7 @@ namespace Halak
             {
                 var sb = new System.Text.StringBuilder(value.Length + 2);
                 sb.Append('"');
-                for (int i = 0; i < value.Length; i++)
+                for (var i = 0; i < value.Length; i++)
                 {
                     switch (value[i])
                     {
@@ -158,7 +158,7 @@ namespace Halak
 
         public JValue(IEnumerable<JValue> value)
         {
-            using (var sw = new System.IO.StringWriter())
+            using (var sw = new System.IO.StringWriter(CultureInfo.InvariantCulture))
             {
                 Serialize(sw, value, 0);
                 source = sw.ToString();
@@ -169,7 +169,7 @@ namespace Halak
 
         public JValue(IEnumerable<KeyValuePair<string, JValue>> value)
         {
-            using (var sw = new System.IO.StringWriter())
+            using (var sw = new System.IO.StringWriter(CultureInfo.InvariantCulture))
             {
                 Serialize(sw, value, 0);
                 source = sw.ToString();
@@ -199,7 +199,7 @@ namespace Halak
                 case TypeCode.Number:
                     return AsDoubleActually() != 0.0;
                 case TypeCode.String:
-                    return length != 2; // two quotation marks
+                    return length != 2;  // two quotation marks
                 case TypeCode.Array:
                 case TypeCode.Object:
                     return true;
@@ -222,7 +222,7 @@ namespace Halak
                 case TypeCode.Number:
                     return AsIntActually(defaultValue);
                 case TypeCode.String:
-                    return JValueExtension.Parse(source, startIndex + 1, length - 2, defaultValue);
+                    return JValueExtensions.Parse(source, startIndex + 1, length - 2, defaultValue);
                 default:
                     return defaultValue;
             }
@@ -230,7 +230,7 @@ namespace Halak
 
         private bool IsInteger()
         {
-            for (int i = startIndex; i < startIndex + length; i++)
+            for (var i = startIndex; i < startIndex + length; i++)
             {
                 switch (source[i])
                 {
@@ -247,9 +247,9 @@ namespace Halak
         private int AsIntActually(int defaultValue = 0)
         {
             if (IsInteger())
-                return JValueExtension.Parse(source, startIndex, length, defaultValue);
+                return JValueExtensions.Parse(source, startIndex, length, defaultValue);
             else
-                return (int)JValueExtension.Parse(source, startIndex, length, (double)defaultValue);
+                return (int)JValueExtensions.Parse(source, startIndex, length, (double)defaultValue);
         }
 
         public long AsLong(long defaultValue = 0)
@@ -261,18 +261,18 @@ namespace Halak
                 case TypeCode.Number:
                     return AsLongActually(defaultValue);
                 case TypeCode.String:
-                    return JValueExtension.Parse(source, startIndex + 1, length - 2, defaultValue);
+                    return JValueExtensions.Parse(source, startIndex + 1, length - 2, defaultValue);
                 default:
                     return defaultValue;
             }
         }
 
-        private long AsLongActually(long defaultValue = 0)
+        private long AsLongActually(long defaultValue = 0L)
         {
             if (IsInteger())
-                return JValueExtension.Parse(source, startIndex, length, defaultValue);
+                return JValueExtensions.Parse(source, startIndex, length, defaultValue);
             else
-                return (long)JValueExtension.Parse(source, startIndex, length, (double)defaultValue);
+                return (long)JValueExtensions.Parse(source, startIndex, length, (double)defaultValue);
         }
 
         public float AsFloat(float defaultValue = 0.0f)
@@ -284,7 +284,7 @@ namespace Halak
                 case TypeCode.Number:
                     return AsFloatActually(defaultValue);
                 case TypeCode.String:
-                    return JValueExtension.Parse(source, startIndex + 1, length - 2, defaultValue);
+                    return JValueExtensions.Parse(source, startIndex + 1, length - 2, defaultValue);
                 default:
                     return defaultValue;
             }
@@ -292,7 +292,7 @@ namespace Halak
 
         private float AsFloatActually(float defaultValue = 0.0f)
         {
-            return JValueExtension.Parse(source, startIndex, length, defaultValue);
+            return JValueExtensions.Parse(source, startIndex, length, defaultValue);
         }
 
         public double AsDouble(double defaultValue = 0.0)
@@ -304,7 +304,7 @@ namespace Halak
                 case TypeCode.Number:
                     return AsDoubleActually(defaultValue);
                 case TypeCode.String:
-                    return JValueExtension.Parse(source, startIndex + 1, length - 2, defaultValue);
+                    return JValueExtensions.Parse(source, startIndex + 1, length - 2, defaultValue);
                 default:
                     return defaultValue;
             }
@@ -312,7 +312,7 @@ namespace Halak
 
         private double AsDoubleActually(double defaultValue = 0.0)
         {
-            return JValueExtension.Parse(source, startIndex, length, defaultValue);
+            return JValueExtensions.Parse(source, startIndex, length, defaultValue);
         }
 
         public string AsString(string defaultValue = "")
@@ -333,8 +333,8 @@ namespace Halak
         private string AsStringActually()
         {
             var sb = new System.Text.StringBuilder(length - 2);
-            int end = startIndex + length - 1;
-            for (int i = startIndex + 1; i < end; i++)
+            var end = startIndex + length - 1;
+            for (var i = startIndex + 1; i < end; i++)
             {
                 if (source[i] != '\\')
                     sb.Append(source[i]);
@@ -432,10 +432,10 @@ namespace Halak
 
         private int GetElementCount()
         {
-            int count = 1;
-            int depth = 0;
-            int end = startIndex + length - 1; // ignore } or ]
-            for (int i = startIndex + 1; i < end; i++) // ignore { or [
+            var count = 1;
+            var depth = 0;
+            var end = startIndex + length - 1;  // ignore } or ]
+            for (var i = startIndex + 1; i < end; i++)  // ignore { or [
             {
                 switch (source[i])
                 {
@@ -475,20 +475,20 @@ namespace Halak
         {
             if (Type == TypeCode.Object)
             {
-                int end = startIndex + length - 1;
+                var end = startIndex + length - 1;
 
-                int kStart = SkipWhitespaces(startIndex + 1);
+                var kStart = SkipWhitespaces(startIndex + 1);
                 while (kStart < end)
                 {
-                    int kEnd = SkipString(kStart);
-                    int vStart = SkipWhitespaces(kEnd + 1);
-                    int vEnd = SkipValue(vStart);
+                    var kEnd = SkipString(kStart);
+                    var vStart = SkipWhitespaces(kEnd + 1);
+                    var vEnd = SkipValue(vStart);
 
                     kStart++; // remove quotes
                     kEnd--; // remove quotes
 
                     if (key.Length == kEnd - kStart &&
-                        JValueExtension.Equals(key, 0, source, kStart, key.Length))
+                        JValueExtensions.Equals(key, 0, source, kStart, key.Length))
                     {
                         return new JValue(source, vStart, vEnd - vStart);
                     }
@@ -506,12 +506,12 @@ namespace Halak
         {
             if (Type == TypeCode.Array)
             {
-                int end = startIndex + length - 1;
+                var end = startIndex + length - 1;
 
-                int vStart = SkipWhitespaces(startIndex + 1);
+                var vStart = SkipWhitespaces(startIndex + 1);
                 while (vStart < end)
                 {
-                    int vEnd = SkipValue(vStart);
+                    var vEnd = SkipValue(vStart);
                     yield return new JValue(source, vStart, vEnd - vStart);
                     vStart = SkipWhitespaces(vEnd + 1);
                 }
@@ -522,13 +522,13 @@ namespace Halak
         {
             if (Type == TypeCode.Array)
             {
-                int end = startIndex + length - 1;
+                var end = startIndex + length - 1;
 
-                int index = 0;
-                int vStart = SkipWhitespaces(startIndex + 1);
+                var index = 0;
+                var vStart = SkipWhitespaces(startIndex + 1);
                 while (vStart < end)
                 {
-                    int vEnd = SkipValue(vStart);
+                    var vEnd = SkipValue(vStart);
                     yield return new KeyValuePair<int, JValue>(index++, new JValue(source, vStart, vEnd - vStart));
                     vStart = SkipWhitespaces(vEnd + 1);
                 }
@@ -539,14 +539,14 @@ namespace Halak
         {
             if (Type == TypeCode.Object)
             {
-                int end = startIndex + length - 1;
+                var end = startIndex + length - 1;
 
-                int kStart = SkipWhitespaces(startIndex + 1);
+                var kStart = SkipWhitespaces(startIndex + 1);
                 while (kStart < end)
                 {
-                    int kEnd = SkipString(kStart);
-                    int vStart = SkipWhitespaces(kEnd + 1);
-                    int vEnd = SkipValue(vStart);
+                    var kEnd = SkipString(kStart);
+                    var vStart = SkipWhitespaces(kEnd + 1);
+                    var vEnd = SkipValue(vStart);
 
                     kStart++; // remove quotes
                     kEnd--; // remove quotes
@@ -560,7 +560,7 @@ namespace Halak
 
         private int SkipValue(int index)
         {
-            int end = startIndex + length;
+            var end = startIndex + length;
             if (end <= index)
                 return end;
 
@@ -578,7 +578,7 @@ namespace Halak
 
         private static int SkipWhitespaces(string source)
         {
-            for (int i = 0; i < source.Length; i++)
+            for (var i = 0; i < source.Length; i++)
             {
                 switch (source[i])
                 {
@@ -599,7 +599,7 @@ namespace Halak
 
         private int SkipWhitespaces(int index)
         {
-            int end = startIndex + length;
+            var end = startIndex + length;
             for (; index < end; index++)
             {
                 switch (source[index])
@@ -621,7 +621,7 @@ namespace Halak
 
         private int SkipLetterOrDigit(int index)
         {
-            int end = startIndex + length;
+            var end = startIndex + length;
             for (; index < end; index++)
             {
                 switch (source[index])
@@ -644,7 +644,7 @@ namespace Halak
 
         private int SkipString(int index)
         {
-            int end = startIndex + length;
+            var end = startIndex + length;
             index++;
             for (; index < end; index++)
             {
@@ -663,8 +663,8 @@ namespace Halak
 
         private int SkipBracket(int index)
         {
-            int end = startIndex + length;
-            int depth = 0;
+            var end = startIndex + length;
+            var depth = 0;
             for (; index < end; index++)
             {
                 switch (source[index])
@@ -693,7 +693,7 @@ namespace Halak
         #region Serialization
         public string Serialize(bool prettyPrint = false)
         {
-            var sw = new System.IO.StringWriter();
+            var sw = new System.IO.StringWriter(CultureInfo.InvariantCulture);
             Serialize(sw, prettyPrint);
             return sw.ToString();
         }
@@ -705,7 +705,7 @@ namespace Halak
 
         private static void Spaces(System.IO.TextWriter writer, int spaces)
         {
-            for (int i = 0; i < spaces; i++)
+            for (var i = 0; i < spaces; i++)
                 writer.Write(' ');
         }
 
@@ -737,7 +737,7 @@ namespace Halak
             else
                 writer.Write('[');
 
-            bool isFirst = true;
+            var isFirst = true;
             foreach (var item in value)
             {
                 if (isFirst == false)
@@ -772,7 +772,7 @@ namespace Halak
             else
                 writer.Write('{');
 
-            int maxKeyLength = 0;
+            var maxKeyLength = 0;
             if (prettyPrint)
             {
                 foreach (var item in value)
@@ -781,7 +781,7 @@ namespace Halak
                 maxKeyLength += 1;
             }
 
-            bool isFirst = true;
+            var isFirst = true;
             foreach (var item in value)
             {
                 if (isFirst == false)
@@ -842,9 +842,9 @@ namespace Halak
         #region IComparable<JValue>
         public int CompareTo(JValue other)
         {
-            string a = source ?? string.Empty;
-            string b = other.source ?? string.Empty;
-            return string.Compare(a, startIndex, b, other.startIndex, Math.Max(length, other.length));
+            var a = source ?? string.Empty;
+            var b = other.source ?? string.Empty;
+            return string.Compare(a, startIndex, b, other.startIndex, Math.Max(length, other.length), CultureInfo.InvariantCulture, CompareOptions.Ordinal);
         }
         #endregion
 
@@ -928,15 +928,35 @@ namespace Halak
         {
             return !left.Equals(right);
         }
+
+        public static bool operator <(JValue left, JValue right)
+        {
+            return left.CompareTo(right) < 0;
+        }
+
+        public static bool operator <=(JValue left, JValue right)
+        {
+            return left.CompareTo(right) <= 0;
+        }
+
+        public static bool operator >(JValue left, JValue right)
+        {
+            return left.CompareTo(right) > 0;
+        }
+
+        public static bool operator >=(JValue left, JValue right)
+        {
+            return left.CompareTo(right) >= 0;
+        }
         #endregion
     }
 
-    #region Utilities
+    #region Extensions
     /// <summary>
     /// Support utility class for JValue
     /// !No Heap Memory Allocation!
     /// </summary>
-    public static class JValueExtension
+    public static class JValueExtensions
     {
         public static bool Equals(string a, int aIndex, string b, int bIndex, int length)
         {
@@ -951,18 +971,18 @@ namespace Halak
 
         public static int Parse(string s, int startIndex, int length, int defaultValue)
         {
-            int i = startIndex;
+            var i = startIndex;
             if (s[startIndex] == '-' || s[startIndex] == '+')
                 i++;
 
-            int result = 0;
+            var result = 0;
             length += startIndex;
             for (; i < length; i++)
             {
                 if ('0' <= s[i] && s[i] <= '9')
                 {
                     result = (result * 10) + (s[i] - '0');
-                    if (result < 0) // is overflow
+                    if (result < 0)  // is overflow
                         return defaultValue;
                 }
                 else
@@ -977,11 +997,11 @@ namespace Halak
 
         public static long Parse(string s, int startIndex, int length, long defaultValue)
         {
-            int i = startIndex;
+            var i = startIndex;
             if (s[startIndex] == '-' || s[startIndex] == '+')
                 i++;
 
-            long result = 0;
+            var result = 0L;
             length += startIndex;
             for (; i < length; i++)
             {
@@ -1010,12 +1030,12 @@ namespace Halak
 
         public static double Parse(string s, int startIndex, int length, double defaultValue)
         {
-            int i = startIndex;
+            var i = startIndex;
             if (s[startIndex] == '-' || s[startIndex] == '+')
                 i++;
 
-            long mantissa = 0;
-            length += startIndex; // length => end
+            var mantissa = 0L;
+            length += startIndex;  // length => end
             for (; i < length; i++)
             {
                 if ('0' <= s[i] && s[i] <= '9')
@@ -1026,7 +1046,7 @@ namespace Halak
                     return defaultValue;
             }
 
-            int exponent = 0;
+            var exponent = 0;
             if (i < length && s[i] == '.')
             {
                 i++;
@@ -1046,9 +1066,9 @@ namespace Halak
 
             // defaultValue => result
             if (exponent != 0)
-                defaultValue = (double)mantissa / Math.Pow(10.0, exponent);
+                defaultValue = mantissa / Math.Pow(10.0, exponent);
             else
-                defaultValue = (double)mantissa;
+                defaultValue = mantissa;
             if (s[startIndex] == '-')
                 defaultValue = -defaultValue;
 

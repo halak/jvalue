@@ -144,7 +144,7 @@ namespace Halak.JValueDev
             int count = 5000000;
             Benchmark("int.Parse", () => int.Parse("10000"), count);
             Benchmark("int.TryParse", () => { int x; int.TryParse("10000", out x); }, count);
-            Benchmark("JValue.Parse", () => JValueExtension.Parse("10000", 0, 5, 0), count);
+            Benchmark("JValue.Parse", () => JValueExtensions.Parse("10000", 0, 5, 0), count);
         }
 
         static void PerformanceTest_ParseDouble()
@@ -160,8 +160,8 @@ namespace Halak.JValueDev
             }, count);
             Benchmark("JValue.Parse", () =>
             {
-                JValueExtension.Parse(source1, 0, source1.Length, 0.0);
-                JValueExtension.Parse(source2, 0, source2.Length, 0.0);
+                JValueExtensions.Parse(source1, 0, source1.Length, 0.0);
+                JValueExtensions.Parse(source2, 0, source2.Length, 0.0);
             }, count);
         }
 
@@ -178,8 +178,8 @@ namespace Halak.JValueDev
             }, count);
             Benchmark("JValue.Parse", () =>
             {
-                JValueExtension.Parse(source1, 0, source1.Length, 0.0f);
-                JValueExtension.Parse(source2, 0, source2.Length, 0.0f);
+                JValueExtensions.Parse(source1, 0, source1.Length, 0.0f);
+                JValueExtensions.Parse(source2, 0, source2.Length, 0.0f);
             }, count);
         }
         #endregion
@@ -275,7 +275,7 @@ namespace Halak.JValueDev
         {
             Action<string, int> assert = (input, result) =>
             {
-                Trace.Assert(JValueExtension.Parse(input, 0, input.Length, 0) == result);
+                Trace.Assert(JValueExtensions.Parse(input, 0, input.Length, 0) == result);
             };
             assert("10000", 10000);
             assert("4294967295", 0); // overflow
@@ -300,7 +300,7 @@ namespace Halak.JValueDev
 
             Action<string, double> assert = (input, result) =>
             {
-                Trace.Assert(almostEquals(JValueExtension.Parse(input, 0, input.Length, 0.0), result));
+                Trace.Assert(almostEquals(JValueExtensions.Parse(input, 0, input.Length, 0.0), result));
             };
             assert("10000", 10000.0);
             assert("2147483647", 2147483647.0);
@@ -319,7 +319,7 @@ namespace Halak.JValueDev
                 assert(value.ToString(), value);
 
                 var valueString = value.ToString(specifiers[random.Next(specifiers.Length)]);
-                Trace.Assert(almostEquals(double.Parse(valueString), JValueExtension.Parse(valueString, 0, valueString.Length, 0.0)));
+                Trace.Assert(almostEquals(double.Parse(valueString), JValueExtensions.Parse(valueString, 0, valueString.Length, 0.0)));
             }
         }
         #endregion

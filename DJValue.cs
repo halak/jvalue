@@ -13,7 +13,7 @@ namespace Halak
     public sealed class DJValue : DynamicObject, IEnumerable<KeyValuePair<object, DJValue>>
     {
         #region Static Fields
-        public static DJValue Null = new DJValue();
+        public static readonly DJValue Null = new DJValue();
         #endregion
 
         #region Fields
