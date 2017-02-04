@@ -79,6 +79,9 @@ namespace Halak
         #region Constructors
         public static JValue Parse(string source)
         {
+            if (source == null)
+                throw new ArgumentNullException("source");
+
             int index = SkipWhitespaces(source);
             return new JValue(source, index, source.Length - index);
         }
@@ -120,27 +123,36 @@ namespace Halak
 
         public JValue(string value)
         {
-            var sb = new System.Text.StringBuilder(value.Length + 2);
-            sb.Append('"');
-            for (int i = 0; i < value.Length; i++)
+            if (value != null)
             {
-                switch (value[i])
+                var sb = new System.Text.StringBuilder(value.Length + 2);
+                sb.Append('"');
+                for (int i = 0; i < value.Length; i++)
                 {
-                    case '"': sb.Append('\\'); sb.Append('"'); break;
-                    case '\\': sb.Append('\\'); sb.Append('\\'); break;
-                    case '\n': sb.Append('\\'); sb.Append('n'); break;
-                    case '\t': sb.Append('\\'); sb.Append('t'); break;
-                    case '\r': sb.Append('\\'); sb.Append('r'); break;
-                    case '\b': sb.Append('\\'); sb.Append('b'); break;
-                    case '\f': sb.Append('\\'); sb.Append('f'); break;
-                    default: sb.Append(value[i]); break;
+                    switch (value[i])
+                    {
+                        case '"': sb.Append('\\'); sb.Append('"'); break;
+                        case '\\': sb.Append('\\'); sb.Append('\\'); break;
+                        case '\n': sb.Append('\\'); sb.Append('n'); break;
+                        case '\t': sb.Append('\\'); sb.Append('t'); break;
+                        case '\r': sb.Append('\\'); sb.Append('r'); break;
+                        case '\b': sb.Append('\\'); sb.Append('b'); break;
+                        case '\f': sb.Append('\\'); sb.Append('f'); break;
+                        default: sb.Append(value[i]); break;
+                    }
                 }
-            }
-            sb.Append('"');
+                sb.Append('"');
 
-            source = sb.ToString();
-            startIndex = 0;
-            length = source.Length;
+                source = sb.ToString();
+                startIndex = 0;
+                length = source.Length;
+            }
+            else
+            {
+                source = null;
+                startIndex = 0;
+                length = 0;
+            }
         }
 
         public JValue(IEnumerable<JValue> value)
@@ -353,7 +365,7 @@ namespace Halak
             return sb.ToString();
         }
 
-        private static int Hex(char c)
+        private int Hex(char c)
         {
             return
                 ('0' <= c && c <= '9') ?
@@ -902,6 +914,18 @@ namespace Halak
         public static implicit operator JValue(string value)
         {
             return new JValue(value);
+        }
+        #endregion
+
+        #region Operators
+        public static bool operator ==(JValue left, JValue right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(JValue left, JValue right)
+        {
+            return !left.Equals(right);
         }
         #endregion
     }

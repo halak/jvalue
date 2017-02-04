@@ -2,7 +2,7 @@ JValue
 ======
 Lightweight C# Json Parser.  
 JValue is simple and pure.  
-Version: 1.0.0
+Version: 1.0.2
 
 
 Features
@@ -77,22 +77,22 @@ int ageValue = (int)age; // At this time, parse int.
 
 Benchmark
 ---------
-- This is self test (2015-09-20 00:25 AM).
+- This is self test (2017-02-04 04:11 PM).
 - See `test/Comparison/Program.cs`.
 - Environment
   - Intel(R) Core(TM) i5-4690 CPU @ 3.50GHz 3.50 GHz
   - Windows 7 x64
   
-| Library | Small Int Array (32bytes) × 100,000 | Big Int Array (209,712bytes) × 100 | Small Object (1,084bytes) × 10,000 | Big Object (5,793,496bytes) × 10 |
+| Library | Small Int Array (32bytes) × 100,000 | Big Int Array (209,528bytes) × 100 | Small Object (1,084bytes) × 10,000 | Big Object (5,793,416bytes) × 10 |
 |:----------------:|:---------:|:---------:|:---------:|:---------:|
-|          LitJson |     205ms |     529ms |     106ms |   1,662ms |
-|           JsonFx |     327ms |     815ms |   1,695ms |   2,468ms |
-|         Json.NET |     126ms |     202ms |      48ms |     654ms |
-|         MiniJSON |     116ms |     529ms |      78ms |   1,450ms |
-|     ServiceStack |     107ms |     288ms |  **27ms** |     533ms |
-|              Jil |      38ms |     151ms |      36ms |     902ms |
-|           JValue |  **19ms** |  **60ms** |      42ms | **196ms** |
-|     JValue other |      31ms |      99ms |      29ms |     327ms |
+|          LitJson |     206ms |     522ms |     110ms |   1,761ms |
+|           JsonFx |     339ms |     844ms |   2,388ms |   2,542ms |
+|         Json.NET |     137ms |     232ms |      52ms |     735ms |
+|         MiniJSON |     117ms |     548ms |      82ms |   1,474ms |
+|     ServiceStack |     110ms |     283ms |  **28ms** |     541ms |
+|              Jil |      40ms |     158ms |      39ms |     967ms |
+|           JValue |  **19ms** |  **62ms** |      48ms | **226ms** |
+|     JValue other |      32ms |     104ms |      33ms |     358ms |
 
 
 
