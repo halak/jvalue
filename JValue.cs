@@ -8,6 +8,7 @@ namespace Halak
     /// Super lightweight JSON Reader
     /// </summary>
     /// <seealso cref="http://www.json.org/"/>
+    /// <seealso cref="https://github.com/halak/jvalue/"/>
     public struct JValue : IComparable<JValue>, IEquatable<JValue>
     {
         #region TypeCode
@@ -365,7 +366,7 @@ namespace Halak
             return sb.ToString();
         }
 
-        private int Hex(char c)
+        private static int Hex(char c)
         {
             return
                 ('0' <= c && c <= '9') ?
