@@ -41,7 +41,7 @@ namespace Halak.JValueDev
             BasicObjectTest1();
             BasicObjectTest2();
             BasicArrayTest1();
-
+            EscapeStringTest();
 
             Trace.Assert(new JValue(10).Type == JValue.TypeCode.Number);
             Trace.Assert(new JValue(10).AsInt() == 10);
@@ -92,7 +92,7 @@ namespace Halak.JValueDev
 
         static void PerformanceTest_IsInteger(string test, int startIndex, int length)
         {
-            int count = 10000000;
+            var count = 10000000;
 
             var sw = new Stopwatch();
 
@@ -105,7 +105,7 @@ namespace Halak.JValueDev
                     test.IndexOf('E', startIndex, length);
                 }, count);
 
-            char[] floatingPoint = { '.', 'e', 'E' };
+            var floatingPoint = new[] { '.', 'e', 'E' };
             Benchmark("IndexOfAny", () =>
                 {
                     test.IndexOfAny(floatingPoint, startIndex, length);
@@ -113,7 +113,7 @@ namespace Halak.JValueDev
 
             Benchmark("Handmade if", () =>
                 {
-                    for (int k = startIndex; k < startIndex + length; k++)
+                    for (var k = startIndex; k < startIndex + length; k++)
                     {
                         char c = test[k];
                         if (c == '.' || c == 'e' || c == 'E')
@@ -123,7 +123,7 @@ namespace Halak.JValueDev
 
             Benchmark("Handmade switch", () =>
                 {
-                    for (int k = startIndex; k < startIndex + length; k++)
+                    for (var k = startIndex; k < startIndex + length; k++)
                     {
                         switch (test[k])
                         {
@@ -141,7 +141,7 @@ namespace Halak.JValueDev
         #region PerformanceTest (ParseNumber)
         static void PerformanceTest_ParseInt()
         {
-            int count = 5000000;
+            var count = 5000000;
             Benchmark("int.Parse", () => int.Parse("10000"), count);
             Benchmark("int.TryParse", () => { int x; int.TryParse("10000", out x); }, count);
             Benchmark("JValue.Parse", () => JValueExtensions.Parse("10000", 0, 5, 0), count);
@@ -149,7 +149,7 @@ namespace Halak.JValueDev
 
         static void PerformanceTest_ParseDouble()
         {
-            int count = 5000000;
+            var count = 5000000;
             string source1 = "1234.56789";
             string source2 = "1.1234e+10";
 
@@ -167,9 +167,9 @@ namespace Halak.JValueDev
 
         static void PerformanceTest_ParseFloat()
         {
-            int count = 5000000;
-            string source1 = "1234.56789";
-            string source2 = "1.1234e+10";
+            var count = 5000000;
+            var source1 = "1234.56789";
+            var source2 = "1.1234e+10";
 
             Benchmark("double.Parse", () =>
             {
@@ -186,11 +186,11 @@ namespace Halak.JValueDev
 
         static void MechanismTest()
         {
-            JValue person = JValue.Parse(@"{""name"":""John"", ""age"":27, ""friend"":{""name"":""Tom""}}");
-            JValue name = person["name"];
-            JValue age = person["age"];
-            JValue friend = person["friend"];
-            JValue friendName = friend["name"];
+            var person = JValue.Parse(@"{""name"":""John"", ""age"":27, ""friend"":{""name"":""Tom""}}");
+            var name = person["name"];
+            var age = person["age"];
+            var friend = person["friend"];
+            var friendName = friend["name"];
 
             string nameValue = (string)name;
             int ageValue = (int)age;
@@ -198,7 +198,7 @@ namespace Halak.JValueDev
 
         static void SimpleTest()
         {
-            JValue location = JValue.Parse(@"{""x"":10, ""y"":20}");
+            var location = JValue.Parse(@"{""x"":10, ""y"":20}");
             var x = location["x"];
             Console.WriteLine((int)location["x"]); // 10
             Console.WriteLine((int)location["y"]); // 20
@@ -224,7 +224,7 @@ namespace Halak.JValueDev
 
         static void BasicObjectTest1()
         {
-            JValue people = JValue.Parse(@"{
+            var people = JValue.Parse(@"{
                 ""first_name"": ""Mario"",
                 ""last_name"":  ""Kim"",
                 ""age"": 30,
@@ -239,7 +239,7 @@ namespace Halak.JValueDev
 
         static void BasicObjectTest2()
         {
-            JValue book = JValue.Parse(@"{
+            var book = JValue.Parse(@"{
                 ""name"": ""Json guide"",
                 ""pages"": 400,
                 ""tags"": [""computer"", ""data-interchange format"", ""easy""],
@@ -257,11 +257,19 @@ namespace Halak.JValueDev
                 Console.WriteLine("\t{0}", item);
             Console.WriteLine("Unknown author: {0}", book["tags"][100].AsString());
 
-            JValue price = book["price"];
+            var price = book["price"];
             Console.WriteLine("Price: ${0}", (double)price["usd"]);
             Console.WriteLine("");
             Console.WriteLine("Reserialization");
             Console.WriteLine(book.Serialize(false));
+        }
+
+        static void EscapeStringTest()
+        {
+            var fileTable = JValue.Parse("{\"C:\\\\hello\\\\world.txt\": \"awesome\nworld\"}");
+
+            string awesome = fileTable["C:\\hello\\world.txt"];
+            Console.WriteLine(awesome);
         }
 
         #region ParseNumberTest
@@ -287,7 +295,7 @@ namespace Halak.JValueDev
             assert("3948222", 3948222);
 
             var random = new Random();
-            for (int i = 0; i < 10000; i++)
+            for (var i = 0; i < 10000; i++)
             {
                 var value = random.Next(int.MinValue, int.MaxValue);
                 assert(value.ToString(), value);
@@ -308,12 +316,12 @@ namespace Halak.JValueDev
             assert("-1293.8723", -1293.8723);
             assert("3948.222", 3948.222);
 
-            double min = -10000000.0;
-            double max = +10000000.0;
+            var min = -10000000.0;
+            var max = +10000000.0;
 
             var specifiers = new string[] { "G", "E", "e" };
             var random = new Random();
-            for (int i = 0; i < 100000; i++)
+            for (var i = 0; i < 100000; i++)
             {
                 var value = Math.Round(random.NextDouble() * (max - min) + min, 6);
                 assert(value.ToString(), value);

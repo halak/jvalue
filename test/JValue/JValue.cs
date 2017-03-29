@@ -487,17 +487,59 @@ namespace Halak
                     kStart++; // remove quotes
                     kEnd--; // remove quotes
 
-                    if (key.Length == kEnd - kStart &&
-                        JValueExtensions.Equals(key, 0, source, kStart, key.Length))
-                    {
+                    if (EqualsKey(key, source, kStart, key.Length))
                         return new JValue(source, vStart, vEnd - vStart);
-                    }
 
                     kStart = SkipWhitespaces(vEnd + 1);
                 }
             }
 
             return JValue.Null;
+        }
+
+        private static bool EqualsKey(string s, string key, int startIndex, int length)
+        {
+            if (s.Length > key.Length)
+                return false;
+
+            var end = startIndex + length;
+            for (int i = startIndex, k = 0; i < end; i++, k++)
+            {
+                if (key[i] == '\\')
+                {
+                    i++;
+
+                    var character = ' ';
+                    switch (key[i])
+                    {
+                        case '"': character = '"'; break;
+                        case '/': character = '/'; break;
+                        case '\\': character = '\\'; break;
+                        case 'n': character = '\n'; break;
+                        case 't': character = '\t'; break;
+                        case 'r': character = '\r'; break;
+                        case 'b': character = '\b'; break;
+                        case 'f': character = '\f'; break;
+                        case 'u':
+                            char a = key[++i];
+                            char b = key[++i];
+                            char c = key[++i];
+                            char d = key[++i];
+                            character = (char)((Hex(a) * 4096) + (Hex(b) * 256) + (Hex(c) * 16) + (Hex(d)));
+                            break;
+                    }
+
+                    if (s[k] != character)
+                        return false;
+                }
+                else
+                {
+                    if (s[k] != key[i])
+                        return false;
+                }
+            }
+
+            return true;
         }
         #endregion
 
@@ -548,10 +590,7 @@ namespace Halak
                     var vStart = SkipWhitespaces(kEnd + 1);
                     var vEnd = SkipValue(vStart);
 
-                    kStart++; // remove quotes
-                    kEnd--; // remove quotes
-
-                    yield return new KeyValuePair<string, JValue>(source.Substring(kStart, kEnd - kStart),
+                    yield return new KeyValuePair<string, JValue>(new JValue(source, kStart, kEnd - kStart).AsStringActually(),
                                                                   new JValue(source, vStart, vEnd - vStart));
                     kStart = SkipWhitespaces(vEnd + 1);
                 }
@@ -798,7 +837,20 @@ namespace Halak
                     Indent(writer, indentLevel + 1);
 
                 writer.Write('"');
-                writer.Write(item.Key);
+                for (var i = 0; i < item.Key.Length; i++)
+                {
+                    switch (item.Key[i])
+                    {
+                        case '"': writer.Write('\\'); writer.Write('"'); break;
+                        case '\\': writer.Write('\\'); writer.Write('\\'); break;
+                        case '\n': writer.Write('\\'); writer.Write('n'); break;
+                        case '\t': writer.Write('\\'); writer.Write('t'); break;
+                        case '\r': writer.Write('\\'); writer.Write('r'); break;
+                        case '\b': writer.Write('\\'); writer.Write('b'); break;
+                        case '\f': writer.Write('\\'); writer.Write('f'); break;
+                        default: writer.Write(item.Key[i]); break;
+                    }
+                }
                 writer.Write('"');
                 writer.Write(':');
                 if (prettyPrint)
@@ -958,17 +1010,6 @@ namespace Halak
     /// </summary>
     public static class JValueExtensions
     {
-        public static bool Equals(string a, int aIndex, string b, int bIndex, int length)
-        {
-            while (length-- > 0)
-            {
-                if (a[aIndex++] != b[bIndex++])
-                    return false;
-            }
-
-            return true;
-        }
-
         public static int Parse(string s, int startIndex, int length, int defaultValue)
         {
             var i = startIndex;

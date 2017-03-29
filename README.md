@@ -83,16 +83,16 @@ Benchmark
   - Intel(R) Core(TM) i5-4690 CPU @ 3.50GHz 3.50 GHz
   - Windows 7 x64
   
-| Library | Small Int Array (32bytes) × 100,000 | Big Int Array (209,532bytes) × 100 | Small Object (1,084bytes) × 10,000 | Big Object (5,792,820bytes) × 10 |
+| Library | Small Int Array (32bytes) × 100,000 | Big Int Array (209,444bytes) × 100 | Small Object (1,084bytes) × 10,000 | Big Object (5,792,848bytes) × 10 |
 |:----------------:|:---------:|:---------:|:---------:|:---------:|
-|          LitJson |     207ms |     516ms |     110ms |   1,752ms |
-|           JsonFx |     337ms |     816ms |   2,432ms |   2,553ms |
-|         Json.NET |     137ms |     221ms |      52ms |     738ms |
-|         MiniJSON |     117ms |     528ms |      81ms |   1,498ms |
-|     ServiceStack |     104ms |     285ms |  **27ms** |     542ms |
-|              Jil |      40ms |     157ms |      39ms |     956ms |
-|           JValue |  **18ms** |  **61ms** |      45ms | **226ms** |
-|     JValue other |      31ms |     101ms |      31ms |     353ms |
+|          LitJson |     208ms |     528ms |     110ms |   1,776ms |
+|           JsonFx |     349ms |     876ms |   4,971ms |   2,576ms |
+|         Json.NET |     137ms |     232ms |      52ms |     720ms |
+|         MiniJSON |     120ms |     557ms |      83ms |   1,491ms |
+|     ServiceStack |     114ms |     301ms |  **26ms** |     541ms |
+|              Jil |      40ms |     163ms |      40ms |     953ms |
+|           JValue |  **18ms** |  **63ms** |      46ms | **252ms** |
+|     JValue other |      31ms |     105ms |      36ms |     625ms |
 
 
 
