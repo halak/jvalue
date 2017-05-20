@@ -160,7 +160,7 @@ namespace Halak
         {
             using (var sw = new System.IO.StringWriter(CultureInfo.InvariantCulture))
             {
-                Serialize(sw, value, 0);
+                Serialize(sw, value, 0, 0);
                 source = sw.ToString();
                 startIndex = 0;
                 length = source.Length;
@@ -171,7 +171,7 @@ namespace Halak
         {
             using (var sw = new System.IO.StringWriter(CultureInfo.InvariantCulture))
             {
-                Serialize(sw, value, 0);
+                Serialize(sw, value, 0, 0);
                 source = sw.ToString();
                 startIndex = 0;
                 length = source.Length;
@@ -730,38 +730,34 @@ namespace Halak
         #endregion
 
         #region Serialization
-        public string Serialize(bool prettyPrint = false)
+        public string Serialize(int indent = 2)
         {
-            var sw = new System.IO.StringWriter(CultureInfo.InvariantCulture);
-            Serialize(sw, prettyPrint);
-            return sw.ToString();
+            var writer = new System.IO.StringWriter(CultureInfo.InvariantCulture);
+            Serialize(writer, indent);
+            return writer.ToString();
         }
 
-        public void Serialize(System.IO.TextWriter writer, bool prettyPrint = false)
+        public void Serialize(System.IO.TextWriter writer, int indent = 2)
         {
-            Serialize(writer, this, 0, prettyPrint);
+            Serialize(writer, this, indent, 0);
         }
 
-        private static void Spaces(System.IO.TextWriter writer, int spaces)
+        private static void Indent(System.IO.TextWriter writer, int indent, int depth)
         {
+            var spaces = indent * depth;
             for (var i = 0; i < spaces; i++)
                 writer.Write(' ');
         }
 
-        private static void Indent(System.IO.TextWriter writer, int indentLevel)
-        {
-            Spaces(writer, indentLevel * 4);
-        }
-
-        private static void Serialize(System.IO.TextWriter writer, JValue value, int indentLevel, bool prettyPrint = false)
+        private static void Serialize(System.IO.TextWriter writer, JValue value, int indent, int depth)
         {
             switch (value.Type)
             {
                 case TypeCode.Array:
-                    Serialize(writer, value.Array(), indentLevel, prettyPrint);
+                    Serialize(writer, value.Array(), indent, depth);
                     break;
                 case TypeCode.Object:
-                    Serialize(writer, value.Object(), indentLevel, prettyPrint);
+                    Serialize(writer, value.Object(), indent, depth);
                     break;
                 default:
                     writer.Write(value.ToString());
@@ -769,9 +765,9 @@ namespace Halak
             }
         }
 
-        private static void Serialize(System.IO.TextWriter writer, IEnumerable<JValue> value, int indentLevel, bool prettyPrint = false)
+        private static void Serialize(System.IO.TextWriter writer, IEnumerable<JValue> value, int indent, int depth)
         {
-            if (prettyPrint)
+            if (indent > 0)
                 writer.WriteLine('[');
             else
                 writer.Write('[');
@@ -781,7 +777,7 @@ namespace Halak
             {
                 if (isFirst == false)
                 {
-                    if (prettyPrint)
+                    if (indent > 0)
                         writer.WriteLine(',');
                     else
                         writer.Write(',');
@@ -789,43 +785,34 @@ namespace Halak
                 else
                     isFirst = false;
 
-                if (prettyPrint)
-                    Indent(writer, indentLevel + 1);
+                if (indent > 0)
+                    Indent(writer, indent, depth + 1);
 
-                Serialize(writer, item, indentLevel + 1, prettyPrint);
+                Serialize(writer, item, indent, depth + 1);
             }
 
-            if (prettyPrint)
+            if (indent > 0)
             {
                 writer.WriteLine();
-                Indent(writer, indentLevel);
+                Indent(writer, indent, depth);
             }
 
             writer.Write(']');
         }
 
-        private static void Serialize(System.IO.TextWriter writer, IEnumerable<KeyValuePair<string, JValue>> value, int indentLevel, bool prettyPrint = false)
+        private static void Serialize(System.IO.TextWriter writer, IEnumerable<KeyValuePair<string, JValue>> value, int indent, int depth)
         {
-            if (prettyPrint)
+            if (indent > 0)
                 writer.WriteLine('{');
             else
                 writer.Write('{');
-
-            var maxKeyLength = 0;
-            if (prettyPrint)
-            {
-                foreach (var item in value)
-                    maxKeyLength = Math.Max(maxKeyLength, item.Key.Length);
-
-                maxKeyLength += 1;
-            }
 
             var isFirst = true;
             foreach (var item in value)
             {
                 if (isFirst == false)
                 {
-                    if (prettyPrint)
+                    if (indent > 0)
                         writer.WriteLine(',');
                     else
                         writer.Write(',');
@@ -833,8 +820,8 @@ namespace Halak
                 else
                     isFirst = false;
 
-                if (prettyPrint)
-                    Indent(writer, indentLevel + 1);
+                if (indent > 0)
+                    Indent(writer, indent, depth + 1);
 
                 writer.Write('"');
                 for (var i = 0; i < item.Key.Length; i++)
@@ -853,15 +840,14 @@ namespace Halak
                 }
                 writer.Write('"');
                 writer.Write(':');
-                if (prettyPrint)
-                    Spaces(writer, maxKeyLength - item.Key.Length);
-                Serialize(writer, item.Value, indentLevel + 1, prettyPrint);
+                writer.Write(' ');
+                Serialize(writer, item.Value, indent, depth + 1);
             }
 
-            if (prettyPrint)
+            if (indent > 0)
             {
                 writer.WriteLine();
-                Indent(writer, indentLevel);
+                Indent(writer, indent, depth);
             }
 
             writer.Write('}');
@@ -896,7 +882,7 @@ namespace Halak
         {
             var a = source ?? string.Empty;
             var b = other.source ?? string.Empty;
-            return string.Compare(a, startIndex, b, other.startIndex, Math.Max(length, other.length), CultureInfo.InvariantCulture, CompareOptions.Ordinal);
+            return string.Compare(a, startIndex, b, other.startIndex, Math.Max(length, other.length), StringComparison.InvariantCulture);
         }
         #endregion
 

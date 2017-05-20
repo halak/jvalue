@@ -261,7 +261,7 @@ namespace Halak.JValueDev
             Console.WriteLine("Price: ${0}", (double)price["usd"]);
             Console.WriteLine("");
             Console.WriteLine("Reserialization");
-            Console.WriteLine(book.Serialize(false));
+            Console.WriteLine(book.Serialize(0));
         }
 
         static void EscapeStringTest()
