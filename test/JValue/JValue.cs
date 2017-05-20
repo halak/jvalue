@@ -882,7 +882,7 @@ namespace Halak
         {
             var a = source ?? string.Empty;
             var b = other.source ?? string.Empty;
-            return string.Compare(a, startIndex, b, other.startIndex, Math.Max(length, other.length), StringComparison.InvariantCulture);
+            return string.Compare(a, startIndex, b, other.startIndex, Math.Max(length, other.length), StringComparison.Ordinal);
         }
         #endregion
 
