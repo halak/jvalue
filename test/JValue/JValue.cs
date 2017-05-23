@@ -188,12 +188,12 @@ namespace Halak
 
         #region Methods
         #region As
-        public bool AsBoolean()
+        public bool AsBoolean(bool defaultValue = false)
         {
             switch (Type)
             {
                 case TypeCode.Null:
-                    return false;
+                    return defaultValue;
                 case TypeCode.Boolean:
                     return AsBooleanActually();
                 case TypeCode.Number:
@@ -204,7 +204,7 @@ namespace Halak
                 case TypeCode.Object:
                     return true;
                 default:
-                    return false;
+                    return defaultValue;
             }
         }
 
