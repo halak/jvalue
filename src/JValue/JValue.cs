@@ -120,22 +120,7 @@ namespace Halak
             if (value != null)
             {
                 var sb = new System.Text.StringBuilder(value.Length + 2);
-                sb.Append('"');
-                for (var i = 0; i < value.Length; i++)
-                {
-                    switch (value[i])
-                    {
-                        case '"': sb.Append('\\'); sb.Append('"'); break;
-                        case '\\': sb.Append('\\'); sb.Append('\\'); break;
-                        case '\n': sb.Append('\\'); sb.Append('n'); break;
-                        case '\t': sb.Append('\\'); sb.Append('t'); break;
-                        case '\r': sb.Append('\\'); sb.Append('r'); break;
-                        case '\b': sb.Append('\\'); sb.Append('b'); break;
-                        case '\f': sb.Append('\\'); sb.Append('f'); break;
-                        default: sb.Append(value[i]); break;
-                    }
-                }
-                sb.Append('"');
+                AppendJsonString(sb, value);
 
                 source = sb.ToString();
                 startIndex = 0;
@@ -725,10 +710,10 @@ namespace Halak
             switch (value.Type)
             {
                 case TypeCode.Array:
-                    Serialize(writer, value.Array(), indent, depth);
+                    Serialize(writer, value.Array(), indent, depth, indent > 0 && value.length > 80);
                     break;
                 case TypeCode.Object:
-                    Serialize(writer, value.Object(), indent, depth);
+                    Serialize(writer, value.Object(), indent, depth, indent > 0 && value.length > 80);
                     break;
                 default:
                     writer.Write(value.ToString());
@@ -736,9 +721,9 @@ namespace Halak
             }
         }
 
-        private static void Serialize(System.IO.TextWriter writer, IEnumerable<JValue> value, int indent, int depth)
+        private static void Serialize(System.IO.TextWriter writer, IEnumerable<JValue> value, int indent, int depth, bool multiline)
         {
-            if (indent > 0)
+            if (indent > 0 && multiline)
                 writer.WriteLine('[');
             else
                 writer.Write('[');
@@ -749,20 +734,25 @@ namespace Halak
                 if (isFirst == false)
                 {
                     if (indent > 0)
-                        writer.WriteLine(',');
+                    {
+                        if (multiline)
+                            writer.WriteLine(',');
+                        else
+                            writer.Write(", ");
+                    }
                     else
                         writer.Write(',');
                 }
                 else
                     isFirst = false;
 
-                if (indent > 0)
+                if (indent > 0 && multiline)
                     Indent(writer, indent, depth + 1);
 
                 Serialize(writer, item, indent, depth + 1);
             }
 
-            if (indent > 0)
+            if (indent > 0 && multiline)
             {
                 writer.WriteLine();
                 Indent(writer, indent, depth);
@@ -771,9 +761,9 @@ namespace Halak
             writer.Write(']');
         }
 
-        private static void Serialize(System.IO.TextWriter writer, IEnumerable<KeyValuePair<JValue, JValue>> value, int indent, int depth)
+        private static void Serialize(System.IO.TextWriter writer, IEnumerable<KeyValuePair<JValue, JValue>> value, int indent, int depth, bool multiline)
         {
-            if (indent > 0)
+            if (indent > 0 && multiline)
                 writer.WriteLine('{');
             else
                 writer.Write('{');
@@ -784,29 +774,55 @@ namespace Halak
                 if (isFirst == false)
                 {
                     if (indent > 0)
-                        writer.WriteLine(',');
+                    {
+                        if (multiline)
+                            writer.WriteLine(',');
+                        else
+                            writer.Write(", ");
+                    }
                     else
                         writer.Write(',');
                 }
                 else
                     isFirst = false;
 
-                if (indent > 0)
+                if (indent > 0 && multiline)
                     Indent(writer, indent, depth + 1);
 
                 Serialize(writer, item.Key, indent, depth + 1);
                 writer.Write(':');
-                writer.Write(' ');
+                if (indent > 0)
+                    writer.Write(' ');
                 Serialize(writer, item.Value, indent, depth + 1);
             }
 
-            if (indent > 0)
+            if (indent > 0 && multiline)
             {
                 writer.WriteLine();
                 Indent(writer, indent, depth);
             }
 
             writer.Write('}');
+        }
+
+        private static void AppendJsonString(System.Text.StringBuilder builder, string value)
+        {
+            builder.Append('"');
+            for (var i = 0; i < value.Length; i++)
+            {
+                switch (value[i])
+                {
+                    case '"': builder.Append('\\'); builder.Append('"'); break;
+                    case '\\': builder.Append('\\'); builder.Append('\\'); break;
+                    case '\n': builder.Append('\\'); builder.Append('n'); break;
+                    case '\t': builder.Append('\\'); builder.Append('t'); break;
+                    case '\r': builder.Append('\\'); builder.Append('r'); break;
+                    case '\b': builder.Append('\\'); builder.Append('b'); break;
+                    case '\f': builder.Append('\\'); builder.Append('f'); break;
+                    default: builder.Append(value[i]); break;
+                }
+            }
+            builder.Append('"');
         }
         #endregion
 
@@ -930,9 +946,14 @@ namespace Halak
             public ArrayBuilder Push(string value)
             {
                 Prepare();
-                builder.Append('"');
-                builder.Append(value);
-                builder.Append('"');
+                AppendJsonString(builder, value);
+                return this;
+            }
+
+            public ArrayBuilder Push(JValue value)
+            {
+                Prepare();
+                builder.Append(value.source, value.startIndex, value.length);
                 return this;
             }
 
@@ -1055,7 +1076,7 @@ namespace Halak
             {
                 Prepare();
                 AppendKey(key);
-                builder.Append(value);
+                AppendJsonString(builder, value);
                 return this;
             }
 
@@ -1064,6 +1085,14 @@ namespace Halak
                 Prepare();
                 AppendKey(key);
                 builder.Append(value);
+                return this;
+            }
+
+            public ObjectBuilder Put(string key, JValue value)
+            {
+                Prepare();
+                AppendKey(key);
+                builder.Append(value.source, value.startIndex, value.length);
                 return this;
             }
 
@@ -1130,9 +1159,7 @@ namespace Halak
 
             private void AppendKey(string key)
             {
-                builder.Append('"');
-                builder.Append(key);
-                builder.Append('"');
+                AppendJsonString(builder, key);
                 builder.Append(':');
             }
 
