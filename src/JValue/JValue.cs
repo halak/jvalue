@@ -807,22 +807,27 @@ namespace Halak
 
         private static void AppendJsonString(System.Text.StringBuilder builder, string value)
         {
-            builder.Append('"');
-            for (var i = 0; i < value.Length; i++)
+            if (value != null)
             {
-                switch (value[i])
+                builder.Append('"');
+                for (var i = 0; i < value.Length; i++)
                 {
-                    case '"': builder.Append('\\'); builder.Append('"'); break;
-                    case '\\': builder.Append('\\'); builder.Append('\\'); break;
-                    case '\n': builder.Append('\\'); builder.Append('n'); break;
-                    case '\t': builder.Append('\\'); builder.Append('t'); break;
-                    case '\r': builder.Append('\\'); builder.Append('r'); break;
-                    case '\b': builder.Append('\\'); builder.Append('b'); break;
-                    case '\f': builder.Append('\\'); builder.Append('f'); break;
-                    default: builder.Append(value[i]); break;
+                    switch (value[i])
+                    {
+                        case '"': builder.Append('\\'); builder.Append('"'); break;
+                        case '\\': builder.Append('\\'); builder.Append('\\'); break;
+                        case '\n': builder.Append('\\'); builder.Append('n'); break;
+                        case '\t': builder.Append('\\'); builder.Append('t'); break;
+                        case '\r': builder.Append('\\'); builder.Append('r'); break;
+                        case '\b': builder.Append('\\'); builder.Append('b'); break;
+                        case '\f': builder.Append('\\'); builder.Append('f'); break;
+                        default: builder.Append(value[i]); break;
+                    }
                 }
+                builder.Append('"');
             }
-            builder.Append('"');
+            else
+                builder.Append("null");
         }
         #endregion
 
@@ -953,7 +958,10 @@ namespace Halak
             public ArrayBuilder Push(JValue value)
             {
                 Prepare();
-                builder.Append(value.source, value.startIndex, value.length);
+                if (value.Type != TypeCode.Null)
+                    builder.Append(value.source, value.startIndex, value.length);
+                else
+                    builder.Append("null");
                 return this;
             }
 
@@ -1092,7 +1100,10 @@ namespace Halak
             {
                 Prepare();
                 AppendKey(key);
-                builder.Append(value.source, value.startIndex, value.length);
+                if (value.Type != TypeCode.Null)
+                    builder.Append(value.source, value.startIndex, value.length);
+                else
+                    builder.Append("null");
                 return this;
             }
 
