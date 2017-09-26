@@ -1,0 +1,11 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard1.4</TargetFramework>
+    <Description>Lightweight Json parser for .NET</Description>
+    <Company>Halak</Company>
+    <Authors>Halak</Authors>
+    <RootNamespace>Halak</RootNamespace>
+  </PropertyGroup>
+
+</Project>

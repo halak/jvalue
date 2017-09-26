@@ -2,7 +2,7 @@ JValue
 ======
 Lightweight C# Json Parser.  
 JValue is simple and pure.  
-Version: 1.0.2
+Version: 1.1.0
 
 
 Features
@@ -13,7 +13,6 @@ Features
   - Easy to install.
   - Easy to use.
   - Unity3D friendly.
-  - Single file. (`DJValue.cs` is optional)
   - Multithread safe. (JValue is immutable type)
 - Cons
   - When you get to repeat the same key, it is inefficient.
@@ -74,41 +73,6 @@ string nameValue = (string)name; // At this time, encode string.
 int ageValue = (int)age; // At this time, parse int.
 ```
 
-
-Benchmark
----------
-- This is self test (2017-02-04 04:11 PM).
-- See `test/Comparison/Program.cs`.
-- Environment
-  - Intel(R) Core(TM) i5-4690 CPU @ 3.50GHz 3.50 GHz
-  - Windows 7 x64
-  
-| Library | Small Int Array (32bytes) × 100,000 | Big Int Array (209,444bytes) × 100 | Small Object (1,084bytes) × 10,000 | Big Object (5,792,848bytes) × 10 |
-|:----------------:|:---------:|:---------:|:---------:|:---------:|
-|          LitJson |     208ms |     528ms |     110ms |   1,776ms |
-|           JsonFx |     349ms |     876ms |   4,971ms |   2,576ms |
-|         Json.NET |     137ms |     232ms |      52ms |     720ms |
-|         MiniJSON |     120ms |     557ms |      83ms |   1,491ms |
-|     ServiceStack |     114ms |     301ms |  **26ms** |     541ms |
-|              Jil |      40ms |     163ms |      40ms |     953ms |
-|           JValue |  **18ms** |  **63ms** |      46ms | **252ms** |
-|     JValue other |      31ms |     105ms |      36ms |     625ms |
-
-
-
-Installation
-------------
-1. Download `JValue.cs`.
-2. Add `JValue.cs` to your project.
-3. The End. use it. :)
-
-
-Installation (Optional)
------------------------
-1. Open `JValue.cs`
-2. Rename `namespace Halak` to your flavor.
-
-
 Usage
 -----
 ```cs
@@ -128,7 +92,7 @@ Console.WriteLine("Primary tag: {0}", book["tags"][0].AsString());
 Console.WriteLine("Tags:");
 foreach (var item in book["tags"].Array())
     Console.WriteLine("\t{0}", item);
-Console.WriteLine("Unknown author: {0}", book["tags"][100].AsString());
+Console.WriteLine("Unknown tag: {0}", book["tags"][100].AsString());
 
 JValue price = book["price"];
 Console.WriteLine("Price: ${0}", (double)price["usd"]);

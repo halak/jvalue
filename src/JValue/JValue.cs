@@ -9,7 +9,7 @@ namespace Halak
     /// </summary>
     /// <seealso cref="http://www.json.org/"/>
     /// <seealso cref="https://github.com/halak/jvalue/"/>
-    public struct JValue : IComparable<JValue>, IEquatable<JValue>
+    public partial struct JValue : IComparable<JValue>, IEquatable<JValue>
     {
         #region TypeCode
         public enum TypeCode
@@ -65,16 +65,9 @@ namespace Halak
 
         #region Indexer
         /// <seealso cref="JValue.Get(System.Int32)"/>
-        public JValue this[int index]
-        {
-            get { return Get(index); }
-        }
-
+        public JValue this[int index] { get { return Get(index); } }
         /// <seealso cref="JValue.Get(System.String)"/>
-        public JValue this[string key]
-        {
-            get { return Get(key); }
-        }
+        public JValue this[string key] { get { return Get(key); } }
         #endregion
 
         #region Constructors
@@ -153,28 +146,6 @@ namespace Halak
                 source = null;
                 startIndex = 0;
                 length = 0;
-            }
-        }
-
-        public JValue(IEnumerable<JValue> value)
-        {
-            using (var sw = new System.IO.StringWriter(CultureInfo.InvariantCulture))
-            {
-                Serialize(sw, value, 0, 0);
-                source = sw.ToString();
-                startIndex = 0;
-                length = source.Length;
-            }
-        }
-
-        public JValue(IEnumerable<KeyValuePair<string, JValue>> value)
-        {
-            using (var sw = new System.IO.StringWriter(CultureInfo.InvariantCulture))
-            {
-                Serialize(sw, value, 0, 0);
-                source = sw.ToString();
-                startIndex = 0;
-                length = source.Length;
             }
         }
 
@@ -385,9 +356,9 @@ namespace Halak
             return result;
         }
 
-        public Dictionary<string, JValue> AsObject()
+        public Dictionary<JValue, JValue> AsObject()
         {
-            var result = new Dictionary<string, JValue>(GetElementCount());
+            var result = new Dictionary<JValue, JValue>(GetElementCount());
             foreach (var item in Object())
                 result[item.Key] = item.Value;
 
@@ -577,7 +548,7 @@ namespace Halak
             }
         }
 
-        public IEnumerable<KeyValuePair<string, JValue>> Object()
+        public IEnumerable<KeyValuePair<JValue, JValue>> Object()
         {
             if (Type == TypeCode.Object)
             {
@@ -590,7 +561,7 @@ namespace Halak
                     var vStart = SkipWhitespaces(kEnd + 1);
                     var vEnd = SkipValue(vStart);
 
-                    yield return new KeyValuePair<string, JValue>(new JValue(source, kStart, kEnd - kStart).AsStringActually(),
+                    yield return new KeyValuePair<JValue, JValue>(new JValue(source, kStart, kEnd - kStart),
                                                                   new JValue(source, vStart, vEnd - vStart));
                     kStart = SkipWhitespaces(vEnd + 1);
                 }
@@ -800,7 +771,7 @@ namespace Halak
             writer.Write(']');
         }
 
-        private static void Serialize(System.IO.TextWriter writer, IEnumerable<KeyValuePair<string, JValue>> value, int indent, int depth)
+        private static void Serialize(System.IO.TextWriter writer, IEnumerable<KeyValuePair<JValue, JValue>> value, int indent, int depth)
         {
             if (indent > 0)
                 writer.WriteLine('{');
@@ -823,22 +794,7 @@ namespace Halak
                 if (indent > 0)
                     Indent(writer, indent, depth + 1);
 
-                writer.Write('"');
-                for (var i = 0; i < item.Key.Length; i++)
-                {
-                    switch (item.Key[i])
-                    {
-                        case '"': writer.Write('\\'); writer.Write('"'); break;
-                        case '\\': writer.Write('\\'); writer.Write('\\'); break;
-                        case '\n': writer.Write('\\'); writer.Write('n'); break;
-                        case '\t': writer.Write('\\'); writer.Write('t'); break;
-                        case '\r': writer.Write('\\'); writer.Write('r'); break;
-                        case '\b': writer.Write('\\'); writer.Write('b'); break;
-                        case '\f': writer.Write('\\'); writer.Write('f'); break;
-                        default: writer.Write(item.Key[i]); break;
-                    }
-                }
-                writer.Write('"');
+                Serialize(writer, item.Key, indent, depth + 1);
                 writer.Write(':');
                 writer.Write(' ');
                 Serialize(writer, item.Value, indent, depth + 1);
@@ -895,96 +851,296 @@ namespace Halak
         #endregion
 
         #region Implicit Conversion
-        public static implicit operator bool(JValue value)
-        {
-            return value.AsBoolean();
-        }
-
-        public static implicit operator int(JValue value)
-        {
-            return value.AsInt();
-        }
-
-        public static implicit operator long(JValue value)
-        {
-            return value.AsLong();
-        }
-
-        public static implicit operator float(JValue value)
-        {
-            return value.AsFloat();
-        }
-
-        public static implicit operator double(JValue value)
-        {
-            return value.AsDouble();
-        }
-
-        public static implicit operator string(JValue value)
-        {
-            return value.AsString();
-        }
-
-        public static implicit operator JValue(bool value)
-        {
-            return new JValue(value);
-        }
-
-        public static implicit operator JValue(int value)
-        {
-            return new JValue(value);
-        }
-
-        public static implicit operator JValue(long value)
-        {
-            return new JValue(value);
-        }
-
-        public static implicit operator JValue(float value)
-        {
-            return new JValue(value);
-        }
-
-        public static implicit operator JValue(double value)
-        {
-            return new JValue(value);
-        }
-
-        public static implicit operator JValue(string value)
-        {
-            return new JValue(value);
-        }
+        public static implicit operator bool(JValue value) { return value.AsBoolean(); }
+        public static implicit operator int(JValue value) { return value.AsInt(); }
+        public static implicit operator long(JValue value) { return value.AsLong(); }
+        public static implicit operator float(JValue value) { return value.AsFloat(); }
+        public static implicit operator double(JValue value) { return value.AsDouble(); }
+        public static implicit operator string(JValue value) { return value.AsString(); }
+        public static implicit operator JValue(bool value) { return new JValue(value); }
+        public static implicit operator JValue(int value) { return new JValue(value); }
+        public static implicit operator JValue(long value) { return new JValue(value); }
+        public static implicit operator JValue(float value) { return new JValue(value); }
+        public static implicit operator JValue(double value) { return new JValue(value); }
+        public static implicit operator JValue(string value) { return new JValue(value); }
         #endregion
 
         #region Operators
-        public static bool operator ==(JValue left, JValue right)
-        {
-            return left.Equals(right);
-        }
+        public static bool operator ==(JValue left, JValue right) { return left.Equals(right); }
+        public static bool operator !=(JValue left, JValue right) { return !left.Equals(right); }
+        public static bool operator <(JValue left, JValue right) { return left.CompareTo(right) < 0; }
+        public static bool operator <=(JValue left, JValue right) { return left.CompareTo(right) <= 0; }
+        public static bool operator >(JValue left, JValue right) { return left.CompareTo(right) > 0; }
+        public static bool operator >=(JValue left, JValue right) { return left.CompareTo(right) >= 0; }
+        #endregion
 
-        public static bool operator !=(JValue left, JValue right)
+        #region ArrayBuilder
+        public struct ArrayBuilder
         {
-            return !left.Equals(right);
-        }
+            private System.Text.StringBuilder builder;
+            private int startIndex;
 
-        public static bool operator <(JValue left, JValue right)
-        {
-            return left.CompareTo(right) < 0;
-        }
+            public ArrayBuilder(int capacity)
+            {
+                this.builder = new System.Text.StringBuilder(capacity);
+                this.startIndex = 0;
+            }
 
-        public static bool operator <=(JValue left, JValue right)
-        {
-            return left.CompareTo(right) <= 0;
-        }
+            internal ArrayBuilder(System.Text.StringBuilder builder)
+            {
+                this.builder = builder;
+                this.startIndex = builder.Length;
+            }
 
-        public static bool operator >(JValue left, JValue right)
-        {
-            return left.CompareTo(right) > 0;
-        }
+            public ArrayBuilder Push(bool value)
+            {
+                Prepare();
+                builder.Append(value);
+                return this;
+            }
 
-        public static bool operator >=(JValue left, JValue right)
+            public ArrayBuilder Push(int value)
+            {
+                Prepare();
+                builder.Append(value);
+                return this;
+            }
+
+            public ArrayBuilder Push(long value)
+            {
+                Prepare();
+                builder.Append(value);
+                return this;
+            }
+
+            public ArrayBuilder Push(float value)
+            {
+                Prepare();
+                builder.Append(value);
+                return this;
+            }
+
+            public ArrayBuilder Push(double value)
+            {
+                Prepare();
+                builder.Append(value);
+                return this;
+            }
+
+            public ArrayBuilder Push(string value)
+            {
+                Prepare();
+                builder.Append('"');
+                builder.Append(value);
+                builder.Append('"');
+                return this;
+            }
+
+            public ArrayBuilder PushArray(Action<ArrayBuilder> push)
+            {
+                Prepare();
+                var subBuilder = new ArrayBuilder(builder);
+                push(subBuilder);
+                subBuilder.Close();
+                return this;
+            }
+
+            public ArrayBuilder PushArray<T>(IEnumerable<T> values, Action<ArrayBuilder, T> push)
+            {
+                Prepare();
+                var subBuilder = new ArrayBuilder(builder);
+                foreach (var value in values)
+                    push(subBuilder, value);
+                subBuilder.Close();
+                return this;
+            }
+
+            public ArrayBuilder PushObject(Action<ObjectBuilder> push)
+            {
+                Prepare();
+                var subBuilder = new ObjectBuilder(builder);
+                push(subBuilder);
+                subBuilder.Close();
+                return this;
+            }
+
+            public ArrayBuilder PushObject<T>(T value, Action<ObjectBuilder, T> push)
+            {
+                Prepare();
+                var subBuilder = new ObjectBuilder(builder);
+                push(subBuilder, value);
+                subBuilder.Close();
+                return this;
+            }
+
+            public JValue Build()
+            {
+                Close();
+                return new JValue(builder.ToString(), 0, builder.Length);
+            }
+
+            private void Prepare(bool hasNewElement = true)
+            {
+                if (builder == null)
+                    builder = new System.Text.StringBuilder(1024);
+
+                if (builder.Length != startIndex)
+                {
+                    if (hasNewElement)
+                        builder.Append(',');
+                }
+                else
+                    builder.Append('[');
+            }
+
+            internal void Close()
+            {
+                Prepare(false);
+                builder.Append(']');
+            }
+        }
+        #endregion
+
+        #region ObjectBuilder
+        public struct ObjectBuilder
         {
-            return left.CompareTo(right) >= 0;
+            private System.Text.StringBuilder builder;
+            private int startIndex;
+
+            public ObjectBuilder(int capacity)
+            {
+                this.builder = new System.Text.StringBuilder(capacity);
+                this.startIndex = 0;
+            }
+
+            internal ObjectBuilder(System.Text.StringBuilder builder)
+            {
+                this.builder = builder;
+                this.startIndex = builder.Length;
+            }
+
+            public ObjectBuilder Put(string key, bool value)
+            {
+                Prepare();
+                AppendKey(key);
+                builder.Append(value);
+                return this;
+            }
+
+            public ObjectBuilder Put(string key, int value)
+            {
+                Prepare();
+                AppendKey(key);
+                builder.Append(value);
+                return this;
+            }
+
+            public ObjectBuilder Put(string key, long value)
+            {
+                Prepare();
+                AppendKey(key);
+                builder.Append(value);
+                return this;
+            }
+
+            public ObjectBuilder Put(string key, float value)
+            {
+                Prepare();
+                AppendKey(key);
+                builder.Append(value);
+                return this;
+            }
+
+            public ObjectBuilder Put(string key, string value)
+            {
+                Prepare();
+                AppendKey(key);
+                builder.Append(value);
+                return this;
+            }
+
+            public ObjectBuilder Put(string key, double value)
+            {
+                Prepare();
+                AppendKey(key);
+                builder.Append(value);
+                return this;
+            }
+
+            public ObjectBuilder PutArray(string key, Action<ArrayBuilder> put)
+            {
+                Prepare();
+                AppendKey(key);
+                var subBuilder = new ArrayBuilder(builder);
+                put(subBuilder);
+                subBuilder.Close();
+                return this;
+            }
+
+            public ObjectBuilder PutArray<T>(string key, IEnumerable<T> values, Action<ArrayBuilder, T> put)
+            {
+                Prepare();
+                AppendKey(key);
+                var subBuilder = new ArrayBuilder(builder);
+                foreach (var value in values)
+                    put(subBuilder, value);
+                subBuilder.Close();
+                return this;
+            }
+
+            public ObjectBuilder PutObject(string key, Action<ObjectBuilder> put)
+            {
+                Prepare();
+                AppendKey(key);
+                var subBuilder = new ObjectBuilder(builder);
+                put(subBuilder);
+                subBuilder.Close();
+                return this;
+            }
+
+            public ObjectBuilder PutObject<T>(string key, T value, Action<ObjectBuilder, T> put)
+            {
+                Prepare();
+                AppendKey(key);
+                var subBuilder = new ObjectBuilder(builder);
+                put(subBuilder, value);
+                subBuilder.Close();
+                return this;
+            }
+
+            public JValue Build()
+            {
+                Close();
+                return new JValue(builder.ToString(), 0, builder.Length);
+            }
+
+            private void Prepare(bool hasNewElement = true)
+            {
+                if (builder == null)
+                    builder = new System.Text.StringBuilder(1024);
+
+                if (builder.Length != startIndex)
+                {
+                    if (hasNewElement)
+                        builder.Append(',');
+                }
+                else
+                    builder.Append('{');
+            }
+
+            private void AppendKey(string key)
+            {
+                builder.Append('"');
+                builder.Append(key);
+                builder.Append('"');
+                builder.Append(':');
+            }
+
+            internal void Close()
+            {
+                Prepare(false);
+                builder.Append('}');
+            }
         }
         #endregion
     }
