@@ -31,8 +31,20 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\JValue\JsonHelper.Parse.cs">
+      <Link>JsonHelper.Parse.cs</Link>
+    </Compile>
+    <Compile Include="..\JValue\JsonHelper.Serialize.cs">
+      <Link>JsonHelper.Serialize.cs</Link>
+    </Compile>
+    <Compile Include="..\JValue\JValue.ArrayBuilder.cs">
+      <Link>JValue.ArrayBuilder.cs</Link>
+    </Compile>
     <Compile Include="..\JValue\JValue.cs">
       <Link>JValue.cs</Link>
+    </Compile>
+    <Compile Include="..\JValue\JValue.ObjectBuilder.cs">
+      <Link>JValue.ObjectBuilder.cs</Link>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

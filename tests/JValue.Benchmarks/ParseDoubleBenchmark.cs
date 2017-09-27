@@ -27,8 +27,8 @@ namespace Halak
         public double JValueParse()
         {
             return
-                JValueExtensions.Parse(source1, 0, source1.Length, 0.0) +
-                JValueExtensions.Parse(source2, 0, source2.Length, 0.0);
+                JsonHelper.Parse(source1, 0, source1.Length, 0.0) +
+                JsonHelper.Parse(source2, 0, source2.Length, 0.0);
         }
     }
 }

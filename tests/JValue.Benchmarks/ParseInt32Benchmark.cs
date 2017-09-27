@@ -36,8 +36,8 @@ namespace Halak
         public int JValueParse()
         {
             return
-                JValueExtensions.Parse(shortNumber, 0, shortNumber.Length, 0) +
-                JValueExtensions.Parse(longNumber, 0, longNumber.Length, 0);
+                JsonHelper.Parse(shortNumber, 0, shortNumber.Length, 0) +
+                JsonHelper.Parse(longNumber, 0, longNumber.Length, 0);
         }
     }
 }
