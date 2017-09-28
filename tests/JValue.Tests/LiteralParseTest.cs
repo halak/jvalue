@@ -52,8 +52,7 @@ namespace Halak
                 var valueString = value.ToString(specifiers[random.Next(specifiers.Length)]);
                 Assert.AreEqual(
                     double.Parse(valueString),
-                    JsonHelper.Parse(valueString, 0, valueString.Length, 0.0),
-                    0.0000001);
+                    JsonHelper.Parse(valueString, 0, valueString.Length, 0.0));
             }
         }
     }
