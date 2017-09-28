@@ -90,6 +90,16 @@ namespace Halak
 
             Assert.AreEqual((double)book["price"]["usd"], 0.99);
             Assert.AreEqual((int)book["price"]["krw"], 1000);
+
+            var app = JValue.Parse(@"{
+                ""nameRevision"": ""1.0"",
+                ""name"": ""hello json""
+            }");
+
+            Assert.AreEqual((string)app["nameRevision"], "1.0");
+            Assert.AreEqual((string)app["name"], "hello json");
+            Assert.AreEqual(app["n"], JValue.Null);
+            Assert.AreEqual(app["nameNo"], JValue.Null);
         }
 
         [TestMethod]

@@ -353,7 +353,7 @@ namespace Halak
 
         private int GetElementCount()
         {
-            var count = 1;
+            var count = 0;
             var depth = 0;
             var end = startIndex + length - 1;  // ignore } or ]
             for (var i = startIndex + 1; i < end; i++)  // ignore { or [
@@ -374,6 +374,15 @@ namespace Halak
                         break;
                     case '"':
                         i = SkipString(i) - 1;
+                        break;
+                    case ' ':
+                    case '\t':
+                    case '\r':
+                    case '\n':
+                        break;
+                    default:
+                        if (count == 0)
+                            count = 1;
                         break;
                 }
             }
@@ -405,10 +414,7 @@ namespace Halak
                     var vStart = SkipWhitespaces(kEnd + 1);
                     var vEnd = SkipValue(vStart);
 
-                    kStart++; // remove quotes
-                    kEnd--; // remove quotes
-
-                    if (EqualsKey(key, source, kStart, key.Length))
+                    if (EqualsKey(key, source, kStart + 1, kEnd - 1))
                         return new JValue(source, vStart, vEnd - vStart);
 
                     kStart = SkipWhitespaces(vEnd + 1);
@@ -418,19 +424,20 @@ namespace Halak
             return JValue.Null;
         }
 
-        private static bool EqualsKey(string s, string key, int startIndex, int length)
+        private static bool EqualsKey(string a, string b, int bStart, int bEnd)
         {
-            if (s.Length > key.Length)
+            if (a.Length > bEnd - bStart)
                 return false;
 
-            var end = startIndex + length;
-            for (int i = startIndex, k = 0; i < end; i++, k++)
+            var aIndex = 0;
+            var bIndex = bStart;
+            for (; aIndex < a.Length && bIndex < bEnd; aIndex++, bIndex++)
             {
-                if (s[k] != JsonHelper.Unescape(key, ref i))
+                if (a[aIndex] != JsonHelper.Unescape(b, ref bIndex))
                     return false;
             }
 
-            return true;
+            return aIndex == a.Length && bIndex == bEnd;
         }
         #endregion
 
