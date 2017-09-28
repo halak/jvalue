@@ -31,7 +31,7 @@ namespace Halak
                 builder.Append("null");
         }
 
-        public static char Unescape(string source, ref int index)
+        internal static char Unescape(string source, ref int index)
         {
             if (source[index] != '\\')
             {

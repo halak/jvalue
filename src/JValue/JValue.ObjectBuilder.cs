@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 
 namespace Halak
@@ -27,7 +27,7 @@ namespace Halak
             {
                 Prepare();
                 AppendKey(key);
-                builder.Append(value);
+                builder.Append(value ? "true" : "false");
                 return this;
             }
 
@@ -35,7 +35,7 @@ namespace Halak
             {
                 Prepare();
                 AppendKey(key);
-                builder.Append(value);
+                builder.Append(value.ToString(CultureInfo.InvariantCulture));
                 return this;
             }
 
@@ -43,7 +43,7 @@ namespace Halak
             {
                 Prepare();
                 AppendKey(key);
-                builder.Append(value);
+                builder.Append(value.ToString(CultureInfo.InvariantCulture));
                 return this;
             }
 
@@ -51,7 +51,15 @@ namespace Halak
             {
                 Prepare();
                 AppendKey(key);
-                builder.Append(value);
+                builder.Append(value.ToString(CultureInfo.InvariantCulture));
+                return this;
+            }
+
+            public ObjectBuilder Put(string key, double value)
+            {
+                Prepare();
+                AppendKey(key);
+                builder.Append(value.ToString(CultureInfo.InvariantCulture));
                 return this;
             }
 
@@ -60,14 +68,6 @@ namespace Halak
                 Prepare();
                 AppendKey(key);
                 JsonHelper.EscapeTo(builder, value);
-                return this;
-            }
-
-            public ObjectBuilder Put(string key, double value)
-            {
-                Prepare();
-                AppendKey(key);
-                builder.Append(value);
                 return this;
             }
 

@@ -35,10 +35,11 @@ namespace Halak
                 .Put("id", 10)
                 .Put("name", "John")
                 .Put("age", 29)
+                .Put("alive", true)
                 .Build();
 
-            Assert.AreEqual(simpleObject.ToString(), @"{""id"":10,""name"":""John"",""age"":29}");
-            Assert.AreEqual(simpleObject.Serialize(2), @"{""id"": 10, ""name"": ""John"", ""age"": 29}");
+            Assert.AreEqual(simpleObject.ToString(), @"{""id"":10,""name"":""John"",""age"":29,""alive"":true}");
+            Assert.AreEqual(simpleObject.Serialize(2), @"{""id"": 10, ""name"": ""John"", ""age"": 29, ""alive"": true}");
 
             var complexObject = new JValue.ObjectBuilder()
                 .Put("name", "Mike")

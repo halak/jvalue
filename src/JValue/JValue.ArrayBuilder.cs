@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 
 namespace Halak
@@ -13,7 +13,7 @@ namespace Halak
 
             public ArrayBuilder(int capacity)
             {
-                this.builder = new System.Text.StringBuilder(capacity);
+                this.builder = new StringBuilder(capacity);
                 this.startIndex = 0;
             }
 
@@ -26,35 +26,35 @@ namespace Halak
             public ArrayBuilder Push(bool value)
             {
                 Prepare();
-                builder.Append(value);
+                builder.Append(value ? "true" : "false");
                 return this;
             }
 
             public ArrayBuilder Push(int value)
             {
                 Prepare();
-                builder.Append(value);
+                builder.Append(value.ToString(CultureInfo.InvariantCulture));
                 return this;
             }
 
             public ArrayBuilder Push(long value)
             {
                 Prepare();
-                builder.Append(value);
+                builder.Append(value.ToString(CultureInfo.InvariantCulture));
                 return this;
             }
 
             public ArrayBuilder Push(float value)
             {
                 Prepare();
-                builder.Append(value);
+                builder.Append(value.ToString(CultureInfo.InvariantCulture));
                 return this;
             }
 
             public ArrayBuilder Push(double value)
             {
                 Prepare();
-                builder.Append(value);
+                builder.Append(value.ToString(CultureInfo.InvariantCulture));
                 return this;
             }
 
