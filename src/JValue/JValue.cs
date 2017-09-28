@@ -289,7 +289,7 @@ namespace Halak
 
         private string AsStringActually()
         {
-            var sb = new StringBuilder(length - 2);
+            var sb = new StringBuilder(length);
             var end = startIndex + length - 1;
             for (var i = startIndex + 1; i < end; i++)
                 sb.Append(JsonHelper.Unescape(source, ref i));
@@ -623,7 +623,7 @@ namespace Halak
         #region Serialization
         public string Serialize(int indent = 2)
         {
-            var builder = new StringBuilder();
+            var builder = new StringBuilder(indent == 0 ? length : length * 2);
             Serialize(builder, indent);
             return builder.ToString();
         }
