@@ -8,4 +8,8 @@
     <RootNamespace>Halak</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Include="JValue.DebugView.cs" />
+  </ItemGroup>
+
 </Project>

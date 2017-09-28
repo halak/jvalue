@@ -43,6 +43,9 @@
     <Compile Include="..\JValue\JValue.cs">
       <Link>JValue.cs</Link>
     </Compile>
+    <Compile Include="..\JValue\JValue.DebugView.cs">
+      <Link>JValue.DebugView.cs</Link>
+    </Compile>
     <Compile Include="..\JValue\JValue.ObjectBuilder.cs">
       <Link>JValue.ObjectBuilder.cs</Link>
     </Compile>
