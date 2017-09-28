@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Halak
@@ -9,9 +10,12 @@ namespace Halak
         [TestMethod]
         public void TestBasicValueSerializing()
         {
+            Assert.AreEqual(new JValue(true).ToString(), "true");
+            Assert.AreEqual(new JValue(false).ToString(), "false");
             Assert.AreEqual(new JValue(10).Type, JValue.TypeCode.Number);
             Assert.AreEqual(new JValue(10).AsInt(), 10);
             Assert.AreEqual(new JValue("Hello\nWorld").AsString(), "Hello\nWorld");
+
         }
 
         [TestMethod]
@@ -49,6 +53,27 @@ namespace Halak
             Assert.AreEqual(
                 complexObject.ToString(),
                 @"{""name"":""Mike"",""jobs"":[""chef"",""programmer"",""designer""]}");
+        }
+
+        [TestMethod]
+        public void TestEuropeCultureEnvironment()
+        {
+            var originalCulture = CultureInfo.CurrentCulture;
+            var testCulture = new CultureInfo("de-DE");
+            CultureInfo.CurrentCulture = testCulture;
+
+            try
+            {
+                Assert.AreEqual((1234.5678).ToString(), "1234,5678");  // test culture change
+
+                Assert.AreEqual(new JValue(1234.5678).ToString(), "1234.5678");
+                Assert.AreEqual((string)new JValue.ObjectBuilder().Put("test", 1234.5678).Build()["test"], "1234.5678");
+                Assert.AreEqual((string)new JValue.ArrayBuilder().Push(1234.5678).Build()[0], "1234.5678");
+            }
+            finally
+            {
+                CultureInfo.CurrentCulture = originalCulture;
+            }
         }
     }
 }
