@@ -17,19 +17,10 @@ namespace Halak
                 this.startIndex = 0;
             }
 
-            internal ObjectBuilder(StringBuilder builder)
+            public ObjectBuilder(StringBuilder builder)
             {
                 this.builder = builder;
                 this.startIndex = builder.Length;
-            }
-
-            public void Reset()
-            {
-                if (builder != null)
-                {
-                    builder.Length = 0;
-                    startIndex = 0;
-                }
             }
 
             public ObjectBuilder Put(string key, bool value)
@@ -101,13 +92,12 @@ namespace Halak
                 return this;
             }
 
-            public ObjectBuilder PutArray<T>(string key, IEnumerable<T> values, Action<ArrayBuilder, T> put)
+            public ObjectBuilder PutArray<T>(string key, T value, Action<ArrayBuilder, T> put)
             {
                 Prepare();
                 AppendKey(key);
                 var subBuilder = new ArrayBuilder(builder);
-                foreach (var value in values)
-                    put(subBuilder, value);
+                put(subBuilder, value);
                 subBuilder.Close();
                 return this;
             }
