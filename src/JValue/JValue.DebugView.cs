@@ -27,13 +27,25 @@ namespace Halak
             }
         }
 
-        [DebuggerDisplay("{value.ToDebuggerDisplay(),nq}", Name = "[{key}]")]
-        private struct ObjectMember
+        [DebuggerDisplay("{value.ToDebuggerDisplay(),nq}")]
+        internal struct ArrayElement
         {
-			[DebuggerBrowsable(DebuggerBrowsableState.Never)]
-            private readonly string key;
             [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
-            private readonly JValue value;
+            public readonly JValue value;
+
+            public ArrayElement(JValue value)
+            {
+                this.value = value;
+            }
+        }
+
+        [DebuggerDisplay("{value.ToDebuggerDisplay(),nq}", Name = "[{key,nq}]")]
+        internal struct ObjectMember
+        {
+            [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+            public readonly string key;
+            [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
+            public readonly JValue value;
 
             public ObjectMember(string key, JValue value)
             {
@@ -42,7 +54,7 @@ namespace Halak
             }
         }
 
-        private sealed class DebugView
+        internal sealed class DebugView
         {
 			private readonly ObjectMember[] EmptyItems = new ObjectMember[0];
 
@@ -66,9 +78,9 @@ namespace Halak
                         case TypeCode.String:
                             return null;
                         case TypeCode.Array:
-                            return value.Array().ToArray();
+                            return value.Array().Select(it => new ArrayElement(it)).ToArray();
                         case TypeCode.Object:
-                            return value.Object().Select(it => new ObjectMember(it.Key.AsString(), it.Value)).ToArray();
+                            return value.Object().Select(it => new ObjectMember(it.Key.ToString(), it.Value)).ToArray();
                         default:
                             return null;
                     }
