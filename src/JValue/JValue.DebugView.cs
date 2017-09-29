@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Halak
 {
-    [DebuggerDisplay("{ToDebuggerDisplay(),nq}")]
+    [DebuggerDisplay("{ToDebuggerDisplay(),nq}", Type = "JValue.{Type}")]
     [DebuggerTypeProxy(typeof(DebugView))]
     partial struct JValue
     {
@@ -27,7 +27,7 @@ namespace Halak
             }
         }
 
-        [DebuggerDisplay("{value.ToDebuggerDisplay(),nq}")]
+        [DebuggerDisplay("{value.ToDebuggerDisplay(),nq}", Type = "JValue.{value.Type}")]
         internal struct ArrayElement
         {
             [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
@@ -39,7 +39,7 @@ namespace Halak
             }
         }
 
-        [DebuggerDisplay("{value.ToDebuggerDisplay(),nq}", Name = "[{key,nq}]")]
+        [DebuggerDisplay("{value.ToDebuggerDisplay(),nq}", Name = "[{key,nq}]", Type = "JValue.{value.Type}")]
         internal struct ObjectMember
         {
             [DebuggerBrowsable(DebuggerBrowsableState.Never)]
