@@ -178,8 +178,6 @@ namespace Halak
                     return AsBooleanActually() ? 1 : 0;
                 case TypeCode.Number:
                     return AsIntActually(defaultValue);
-                case TypeCode.String:
-                    return JsonHelper.Parse(source, startIndex + 1, length - 2, defaultValue);
                 default:
                     return defaultValue;
             }
@@ -217,8 +215,6 @@ namespace Halak
                     return AsBooleanActually() ? 1 : 0;
                 case TypeCode.Number:
                     return AsLongActually(defaultValue);
-                case TypeCode.String:
-                    return JsonHelper.Parse(source, startIndex + 1, length - 2, defaultValue);
                 default:
                     return defaultValue;
             }
@@ -240,8 +236,6 @@ namespace Halak
                     return AsBooleanActually() ? 1 : 0;
                 case TypeCode.Number:
                     return AsFloatActually(defaultValue);
-                case TypeCode.String:
-                    return JsonHelper.Parse(source, startIndex + 1, length - 2, defaultValue);
                 default:
                     return defaultValue;
             }
@@ -260,8 +254,6 @@ namespace Halak
                     return AsBooleanActually() ? 1.0 : 0.0;
                 case TypeCode.Number:
                     return AsDoubleActually(defaultValue);
-                case TypeCode.String:
-                    return JsonHelper.Parse(source, startIndex + 1, length - 2, defaultValue);
                 default:
                     return defaultValue;
             }
