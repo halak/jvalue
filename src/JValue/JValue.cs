@@ -766,16 +766,56 @@ namespace Halak
         #region System.IComparable<JValue>
         public int CompareTo(JValue other)
         {
-            var a = source ?? string.Empty;
-            var b = other.source ?? string.Empty;
-            return string.Compare(a, startIndex, b, other.startIndex, Math.Max(length, other.length), StringComparison.Ordinal);
+            if (Equals(other))
+                return 0;
+            else
+                return string.CompareOrdinal(
+                    source ?? string.Empty, startIndex,
+                    other.source ?? string.Empty, other.startIndex,
+                    Math.Max(length, other.length));
         }
         #endregion
 
         #region System.IEquatable<JValue>
         public bool Equals(JValue other)
         {
-            return CompareTo(other) == 0;
+            var t = Type;
+            if (t == other.Type)
+            {
+                switch (t)
+                {
+                    case TypeCode.Null:
+                        return true;
+                    case TypeCode.Boolean:
+                        return AsBooleanActually() == other.AsBooleanActually();
+                    case TypeCode.Number:
+                        return AsDoubleActually() == other.AsDoubleActually();
+                    case TypeCode.String:
+                        return EqualsString(other);
+                    default:
+                        return startIndex == other.startIndex &&
+                            length == other.length &&
+                            ReferenceEquals(source, other.source);
+                }
+            }
+            else
+                return false;
+        }
+
+        private bool EqualsString(JValue other)
+        {
+            var aEnd = startIndex + length - 1;
+            var bEnd = other.startIndex + other.length - 1;
+
+            var a = startIndex + 1;
+            var b = other.startIndex + 1;
+            for (; a < aEnd && b < bEnd; a++, b++)
+            {
+                if (JsonHelper.Unescape(source, ref a) != JsonHelper.Unescape(other.source, ref b))
+                    return false;
+            }
+
+            return a == aEnd && b == bEnd;
         }
         #endregion
         #endregion
