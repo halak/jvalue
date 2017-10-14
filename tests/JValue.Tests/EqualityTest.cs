@@ -10,18 +10,18 @@ namespace Halak
         [TestMethod]
         public void TestNullEquality()
         {
-            Assert.AreEqual(new JValue(), JValue.Null);
-            Assert.AreEqual(default(JValue), JValue.Null);
-            Assert.AreEqual(JValue.Parse("null"), JValue.Null);
+            Assert.AreEqual(JValue.Null, new JValue());
+            Assert.AreEqual(JValue.Null, default(JValue));
+            Assert.AreEqual(JValue.Null, JValue.Parse("null"));
             Assert.AreEqual(JValue.Null, JValue.Null);
         }
 
         [TestMethod]
         public void TestEscapedStringEquality()
         {
-            Assert.AreEqual(JValue.Parse(@"""\ub9c8\ub9b0"""), new JValue("마린"));
-            Assert.AreNotEqual(JValue.Parse(@"""\ub9c8\ub9b0"""), new JValue("마린A"));
-            Assert.AreNotEqual(JValue.Parse(@"""\ub9c8\ub9b0A"""), new JValue("마린"));
+            Assert.AreEqual(new JValue("마린"), JValue.Parse(@"""\ub9c8\ub9b0"""));
+            Assert.AreNotEqual(new JValue("마린A"), JValue.Parse(@"""\ub9c8\ub9b0"""));
+            Assert.AreNotEqual(new JValue("마린"), JValue.Parse(@"""\ub9c8\ub9b0A"""));
         }
 
         [TestMethod]

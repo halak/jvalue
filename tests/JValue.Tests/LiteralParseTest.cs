@@ -11,14 +11,14 @@ namespace Halak
         {
             int Parse(string s) => JsonHelper.Parse(s, 0, s.Length, 0);
 
-            Assert.AreEqual(Parse("10000"), 10000);
-            Assert.AreEqual(Parse("4294967295"), 0);  // overflow
-            Assert.AreEqual(Parse("2147483648"), 0);  // overflow
-            Assert.AreEqual(Parse("2147483647"), 2147483647);  // max
-            Assert.AreEqual(Parse("12387cs831"), 0);  // invalid
-            Assert.AreEqual(Parse("0"), 0);
-            Assert.AreEqual(Parse("-12938723"), -12938723);
-            Assert.AreEqual(Parse("3948222"), 3948222);
+            Assert.AreEqual(10000, Parse("10000"));
+            Assert.AreEqual(0, Parse("4294967295"));  // overflow
+            Assert.AreEqual(0, Parse("2147483648"));  // overflow
+            Assert.AreEqual(2147483647, Parse("2147483647"));  // max
+            Assert.AreEqual(0, Parse("12387cs831"));  // invalid
+            Assert.AreEqual(0, Parse("0"));
+            Assert.AreEqual(-12938723, Parse("-12938723"));
+            Assert.AreEqual(3948222, Parse("3948222"));
 
             var random = new Random();
             for (var i = 0; i < 1000; i++)
@@ -33,11 +33,11 @@ namespace Halak
         {
             double Parse(string s) => JsonHelper.Parse(s, 0, s.Length, 0.0);
 
-            Assert.AreEqual(Parse("10000"), 10000.0);
-            Assert.AreEqual(Parse("2147483647"), 2147483647.0);
-            Assert.AreEqual(Parse("0"), 0.0);
-            Assert.AreEqual(Parse("-1293.8723"), -1293.8723);
-            Assert.AreEqual(Parse("3948.222"), 3948.222);
+            Assert.AreEqual(10000.0, Parse("10000"));
+            Assert.AreEqual(2147483647.0, Parse("2147483647"));
+            Assert.AreEqual(0.0, Parse("0"));
+            Assert.AreEqual(-1293.8723, Parse("-1293.8723"));
+            Assert.AreEqual(3948.222, Parse("3948.222"));
 
             var min = -10000000.0;
             var max = +10000000.0;
@@ -48,7 +48,7 @@ namespace Halak
             {
                 var value = Math.Round(random.NextDouble() * (max - min) + min, 6);
 
-                Assert.AreEqual(Parse(value.ToString()), value);
+                Assert.AreEqual(value, Parse(value.ToString()));
                 var valueString = value.ToString(specifiers[random.Next(specifiers.Length)]);
                 Assert.AreEqual(
                     double.Parse(valueString),

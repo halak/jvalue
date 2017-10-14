@@ -10,12 +10,11 @@ namespace Halak
         [TestMethod]
         public void TestBasicValueSerializing()
         {
-            Assert.AreEqual(new JValue(true).ToString(), "true");
-            Assert.AreEqual(new JValue(false).ToString(), "false");
-            Assert.AreEqual(new JValue(10).Type, JValue.TypeCode.Number);
-            Assert.AreEqual(new JValue(10).AsInt(), 10);
-            Assert.AreEqual(new JValue("Hello\nWorld").AsString(), "Hello\nWorld");
-
+            Assert.AreEqual("true", new JValue(true).ToString());
+            Assert.AreEqual("false", new JValue(false).ToString());
+            Assert.AreEqual(JValue.TypeCode.Number, new JValue(10).Type);
+            Assert.AreEqual(10, new JValue(10).AsInt());
+            Assert.AreEqual("Hello\nWorld", new JValue("Hello\nWorld").AsString());
         }
 
         [TestMethod]
@@ -27,9 +26,9 @@ namespace Halak
                 .Push(30)
                 .Build();
 
-            Assert.AreEqual(simpleArray.ToString(), @"[10,20,30]");
-            Assert.AreEqual(simpleArray.Serialize(0), @"[10,20,30]");
-            Assert.AreEqual(simpleArray.Serialize(2), @"[10, 20, 30]");
+            Assert.AreEqual(@"[10,20,30]", simpleArray.ToString());
+            Assert.AreEqual(@"[10,20,30]", simpleArray.Serialize(0));
+            Assert.AreEqual(@"[10, 20, 30]", simpleArray.Serialize(2));
         }
 
         [TestMethod]
@@ -42,8 +41,8 @@ namespace Halak
                 .Put("alive", true)
                 .Build();
 
-            Assert.AreEqual(simpleObject.ToString(), @"{""id"":10,""name"":""John"",""age"":29,""alive"":true}");
-            Assert.AreEqual(simpleObject.Serialize(2), @"{""id"": 10, ""name"": ""John"", ""age"": 29, ""alive"": true}");
+            Assert.AreEqual(@"{""id"":10,""name"":""John"",""age"":29,""alive"":true}", simpleObject.ToString());
+            Assert.AreEqual(@"{""id"": 10, ""name"": ""John"", ""age"": 29, ""alive"": true}", simpleObject.Serialize(2));
 
             var complexObject = new JValue.ObjectBuilder()
                 .Put("name", "Mike")
@@ -51,8 +50,8 @@ namespace Halak
                 .Build();
 
             Assert.AreEqual(
-                complexObject.ToString(),
-                @"{""name"":""Mike"",""jobs"":[""chef"",""programmer"",""designer""]}");
+                @"{""name"":""Mike"",""jobs"":[""chef"",""programmer"",""designer""]}",
+                complexObject.ToString());
         }
 
         [TestMethod]
@@ -64,11 +63,11 @@ namespace Halak
 
             try
             {
-                Assert.AreEqual((1234.5678).ToString(), "1234,5678");  // test culture change
+                Assert.AreEqual("1234,5678", (1234.5678).ToString());  // test culture change
 
-                Assert.AreEqual(new JValue(1234.5678).ToString(), "1234.5678");
-                Assert.AreEqual((string)new JValue.ObjectBuilder().Put("test", 1234.5678).Build()["test"], "1234.5678");
-                Assert.AreEqual((string)new JValue.ArrayBuilder().Push(1234.5678).Build()[0], "1234.5678");
+                Assert.AreEqual("1234.5678", new JValue(1234.5678).ToString());
+                Assert.AreEqual("1234.5678", (string)new JValue.ObjectBuilder().Put("test", 1234.5678).Build()["test"]);
+                Assert.AreEqual("1234.5678", (string)new JValue.ArrayBuilder().Push(1234.5678).Build()[0]);
             }
             finally
             {

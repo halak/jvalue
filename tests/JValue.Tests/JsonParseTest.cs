@@ -18,17 +18,17 @@ namespace Halak
         [TestMethod]
         public void TestParsedValueType()
         {
-            Assert.AreEqual(JValue.Parse("true").Type, JValue.TypeCode.Boolean);
-            Assert.AreEqual(JValue.Parse("false").Type, JValue.TypeCode.Boolean);
-            Assert.AreEqual(JValue.Parse("10").Type, JValue.TypeCode.Number);
-            Assert.AreEqual(JValue.Parse("100").Type, JValue.TypeCode.Number);
-            Assert.AreEqual(JValue.Parse("10.0").Type, JValue.TypeCode.Number);
-            Assert.AreEqual(JValue.Parse("50.0").Type, JValue.TypeCode.Number);
-            Assert.AreEqual(JValue.Parse("\"Hello\"").Type, JValue.TypeCode.String);
-            Assert.AreEqual(JValue.Parse("\"World Hello\"").Type, JValue.TypeCode.String);
-            Assert.AreEqual(JValue.Parse("").Type, JValue.TypeCode.Null);
-            Assert.AreEqual(JValue.Parse("null").Type, JValue.TypeCode.Null);
-            Assert.AreEqual(new JValue().Type, JValue.TypeCode.Null);
+            Assert.AreEqual(JValue.TypeCode.Boolean, JValue.Parse("true").Type);
+            Assert.AreEqual(JValue.TypeCode.Boolean, JValue.Parse("false").Type);
+            Assert.AreEqual(JValue.TypeCode.Number, JValue.Parse("10").Type);
+            Assert.AreEqual(JValue.TypeCode.Number, JValue.Parse("100").Type);
+            Assert.AreEqual(JValue.TypeCode.Number, JValue.Parse("10.0").Type);
+            Assert.AreEqual(JValue.TypeCode.Number, JValue.Parse("  50.0     ").Type);
+            Assert.AreEqual(JValue.TypeCode.String, JValue.Parse("\"Hello\"").Type);
+            Assert.AreEqual(JValue.TypeCode.String, JValue.Parse("\"World Hello\"").Type);
+            Assert.AreEqual(JValue.TypeCode.Null, JValue.Parse("").Type);
+            Assert.AreEqual(JValue.TypeCode.Null, JValue.Parse("null").Type);
+            Assert.AreEqual(JValue.TypeCode.Null, new JValue().Type);
         }
 
         [TestMethod]
@@ -38,18 +38,18 @@ namespace Halak
             Assert.AreEqual(array.Type, JValue.TypeCode.Array);
 
             var elements = array.Array().ToArray();
-            Assert.AreEqual((int)elements[0], 10);
-            Assert.AreEqual((int)elements[1], 20);
-            Assert.AreEqual(elements[2].Type, JValue.TypeCode.Array);
-            Assert.AreEqual((int)elements[3], 30);
-            Assert.AreEqual((string)elements[4], "Hello");
-            Assert.AreEqual((string)elements[5], "World");
-            Assert.AreEqual((int)elements[6], 1);
+            Assert.AreEqual(10, (int)elements[0]);
+            Assert.AreEqual(20, (int)elements[1]);
+            Assert.AreEqual(JValue.TypeCode.Array, elements[2].Type);
+            Assert.AreEqual(30, (int)elements[3]);
+            Assert.AreEqual("Hello", (string)elements[4]);
+            Assert.AreEqual("World", (string)elements[5]);
+            Assert.AreEqual(1, (int)elements[6]);
 
             var subElements = array[2].AsArray();
-            Assert.AreEqual((int)subElements[0], 10);
-            Assert.AreEqual((int)subElements[1], 30);
-            Assert.AreEqual((int)subElements[2], 40);
+            Assert.AreEqual(10, (int)subElements[0]);
+            Assert.AreEqual(30, (int)subElements[1]);
+            Assert.AreEqual(40, (int)subElements[2]);
         }
 
         [TestMethod]
@@ -62,10 +62,10 @@ namespace Halak
                 ""job"": ""Programmer""
             }");
 
-            Assert.AreEqual((string)person["first_name"], "Mario");
-            Assert.AreEqual((string)person["last_name"], "Kim");
-            Assert.AreEqual((int)person["age"], 30);
-            Assert.AreEqual((string)person["job"], "Programmer");
+            Assert.AreEqual("Mario", (string)person["first_name"]);
+            Assert.AreEqual("Kim", (string)person["last_name"]);
+            Assert.AreEqual(30, (int)person["age"]);
+            Assert.AreEqual("Programmer", (string)person["job"]);
         }
 
         [TestMethod]
@@ -78,37 +78,36 @@ namespace Halak
                 ""price"": {""usd"":0.99, ""krw"":1000}
             }");
 
-            Assert.AreEqual(book["name"].AsString(), "Json guide");
-            Assert.AreEqual((int)book["pages"], 400);
+            Assert.AreEqual("Json guide", book["name"].AsString());
+            Assert.AreEqual(400, (int)book["pages"]);
 
+            Assert.AreEqual("computer", (string)book["tags"][0]);
+            Assert.AreEqual("data-interchange format", (string)book["tags"][1]);
+            Assert.AreEqual("easy", (string)book["tags"][2]);
+            Assert.AreEqual(JValue.TypeCode.Null, book["tags"][3].Type);
+            Assert.AreEqual("", (string)book["tags"][100]);
 
-            Assert.AreEqual((string)book["tags"][0], "computer");
-            Assert.AreEqual((string)book["tags"][1], "data-interchange format");
-            Assert.AreEqual((string)book["tags"][2], "easy");
-            Assert.AreEqual(book["tags"][3].Type, JValue.TypeCode.Null);
-            Assert.AreEqual((string)book["tags"][100], "");
-
-            Assert.AreEqual((double)book["price"]["usd"], 0.99);
-            Assert.AreEqual((int)book["price"]["krw"], 1000);
+            Assert.AreEqual(0.99, (double)book["price"]["usd"]);
+            Assert.AreEqual(1000, (int)book["price"]["krw"]);
 
             var app = JValue.Parse(@"{
                 ""nameRevision"": ""1.0"",
                 ""name"": ""hello json""
             }");
 
-            Assert.AreEqual((string)app["nameRevision"], "1.0");
-            Assert.AreEqual((string)app["name"], "hello json");
-            Assert.AreEqual(app["n"], JValue.Null);
-            Assert.AreEqual(app["nameNo"], JValue.Null);
+            Assert.AreEqual("1.0", (string)app["nameRevision"]);
+            Assert.AreEqual("hello json", (string)app["name"]);
+            Assert.AreEqual(JValue.Null, app["n"]);
+            Assert.AreEqual(JValue.Null, app["nameNo"]);
         }
 
         [TestMethod]
         public void TestEscapedStringParsing()
         {
-            Assert.AreEqual(JValue.Parse(@"""\ub9c8\ub9b0""").AsString(), "마린");
+            Assert.AreEqual("마린", JValue.Parse(@"""\ub9c8\ub9b0""").AsString());
 
             var fileTable = JValue.Parse("{\"C:\\\\hello\\\\world.txt\": \"awesome\nworld\"}");
-            Assert.AreEqual(fileTable["C:\\hello\\world.txt"].AsString(), "awesome\nworld");
+            Assert.AreEqual("awesome\nworld", fileTable["C:\\hello\\world.txt"].AsString());
         }
     }
 }
