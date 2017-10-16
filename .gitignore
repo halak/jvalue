@@ -5,6 +5,7 @@
 *DS_Store
 _ReSharper.*
 .nuget/
+.vs/
 [Bb]in/
 [Oo]bj/
 packages/
