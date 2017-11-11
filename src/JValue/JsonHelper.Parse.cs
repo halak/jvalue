@@ -12,16 +12,12 @@ namespace Halak
             if (s[startIndex] == '-' || s[startIndex] == '+')
                 i++;
 
-            var result = 0;
+            var result = 0L;
             length += startIndex;
             for (; i < length; i++)
             {
                 if ('0' <= s[i] && s[i] <= '9')
-                {
-                    result = (result * 10) + (s[i] - '0');
-                    if (result < 0)  // is overflow
-                        return defaultValue;
-                }
+                    result = (result * 10L) + (s[i] - '0');
                 else
                     return defaultValue;
             }
@@ -29,7 +25,10 @@ namespace Halak
             if (s[startIndex] == '-')
                 result = -result;
 
-            return result;
+            if (int.MinValue <= result && result <= int.MaxValue)
+                return (int)result;
+            else
+                return defaultValue;
         }
 
         public static long Parse(string s, int startIndex, int length, long defaultValue)

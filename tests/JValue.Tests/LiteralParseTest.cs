@@ -19,6 +19,8 @@ namespace Halak
             Assert.AreEqual(0, Parse("0"));
             Assert.AreEqual(-12938723, Parse("-12938723"));
             Assert.AreEqual(3948222, Parse("3948222"));
+            Assert.AreEqual(int.MinValue, Parse(int.MinValue.ToString()));
+            Assert.AreEqual(int.MaxValue, Parse(int.MaxValue.ToString()));
 
             var random = new Random();
             for (var i = 0; i < 1000; i++)
