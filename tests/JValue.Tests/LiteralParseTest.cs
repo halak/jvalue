@@ -21,11 +21,36 @@ namespace Halak
             Assert.AreEqual(3948222, Parse("3948222"));
             Assert.AreEqual(int.MinValue, Parse(int.MinValue.ToString()));
             Assert.AreEqual(int.MaxValue, Parse(int.MaxValue.ToString()));
+            Assert.AreEqual(0, Parse((int.MinValue - 1L).ToString()));
+            Assert.AreEqual(0, Parse((int.MaxValue + 1L).ToString()));
 
             var random = new Random();
             for (var i = 0; i < 1000; i++)
             {
                 var value = random.Next(int.MinValue, int.MaxValue);
+                Assert.AreEqual(Parse(value.ToString()), value);
+            }
+        }
+
+        [TestMethod]
+        public void TestLongParsing()
+        {
+            long Parse(string s) => JsonHelper.Parse(s, 0, s.Length, 0L);
+
+            Assert.AreEqual(10000L, Parse("10000"));
+            Assert.AreEqual(0L, Parse("12387cs831"));  // invalid
+            Assert.AreEqual(0L, Parse("0"));
+            Assert.AreEqual(-12938723L, Parse("-12938723"));
+            Assert.AreEqual(3948222L, Parse("3948222"));
+            Assert.AreEqual(long.MinValue, Parse(long.MinValue.ToString()));
+            Assert.AreEqual(long.MaxValue, Parse(long.MaxValue.ToString()));
+
+            var random = new Random();
+            for (var i = 0; i < 1000; i++)
+            {
+                var value =
+                    ((long)random.Next(int.MinValue, int.MaxValue) << 32) |
+                    ((long)random.Next(int.MinValue, int.MaxValue));
                 Assert.AreEqual(Parse(value.ToString()), value);
             }
         }

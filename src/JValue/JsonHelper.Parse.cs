@@ -8,53 +8,80 @@ namespace Halak
     {
         public static int Parse(string s, int startIndex, int length, int defaultValue)
         {
-            var i = startIndex;
-            if (s[startIndex] == '-' || s[startIndex] == '+')
-                i++;
-
-            var result = 0L;
             length += startIndex;
-            for (; i < length; i++)
+
+            var result = 0;
+            if (s[startIndex] != '-')
             {
-                if ('0' <= s[i] && s[i] <= '9')
-                    result = (result * 10L) + (s[i] - '0');
-                else
-                    return defaultValue;
+                if (s[startIndex] == '+')
+                    startIndex++;
+
+                for (var i = startIndex; i < length; i++)
+                {
+                    if ('0' <= s[i] && s[i] <= '9')
+                    {
+                        result = (result * 10) + (s[i] - '0');
+                        if (result < 0) // overflow
+                            return defaultValue;
+                    }
+                    else
+                        return defaultValue;
+                }
+            }
+            else
+            {
+                for (var i = startIndex + 1; i < length; i++)
+                {
+                    if ('0' <= s[i] && s[i] <= '9')
+                    {
+                        result = (result * 10) - (s[i] - '0');
+                        if (result > 0)  // underflow
+                            return defaultValue;
+                    }
+                    else
+                        return defaultValue;
+                }
             }
 
-            if (s[startIndex] == '-')
-                result = -result;
-
-            if (int.MinValue <= result && result <= int.MaxValue)
-                return (int)result;
-            else
-                return defaultValue;
+            return result;
         }
 
         public static long Parse(string s, int startIndex, int length, long defaultValue)
         {
-            var i = startIndex;
-            if (s[startIndex] == '-' || s[startIndex] == '+')
-                i++;
+            length += startIndex;
 
             var result = 0L;
-            length += startIndex;
-            for (; i < length; i++)
+            if (s[startIndex] != '-')
             {
-                if ('0' <= s[i] && s[i] <= '9')
+                if (s[startIndex] == '+')
+                    startIndex++;
+
+                for (var i = startIndex; i < length; i++)
                 {
-                    result = (result * 10) + (s[i] - '0');
-
-                    // long이 overflow할 정도 값이면
-                    // 이미 제대로된 이 Library에서 수용 가능한 JSON이 아니기 때문에,
-                    // overflow를 검사하지 않습니다.
+                    if ('0' <= s[i] && s[i] <= '9')
+                    {
+                        result = (result * 10L) + (s[i] - '0');
+                        if (result < 0L) // overflow
+                            return defaultValue;
+                    }
+                    else
+                        return defaultValue;
                 }
-                else
-                    return defaultValue;
             }
-
-            if (s[startIndex] == '-')
-                result = -result;
+            else
+            {
+                for (var i = startIndex + 1; i < length; i++)
+                {
+                    if ('0' <= s[i] && s[i] <= '9')
+                    {
+                        result = (result * 10L) - (s[i] - '0');
+                        if (result > 0L)  // underflow
+                            return defaultValue;
+                    }
+                    else
+                        return defaultValue;
+                }
+            }
 
             return result;
         }
