@@ -39,18 +39,20 @@ namespace Halak
                 .Put("name", "John")
                 .Put("age", 29)
                 .Put("alive", true)
+                .PutNull("friends")
                 .Build();
 
-            Assert.AreEqual(@"{""id"":10,""name"":""John"",""age"":29,""alive"":true}", simpleObject.ToString());
-            Assert.AreEqual(@"{""id"": 10, ""name"": ""John"", ""age"": 29, ""alive"": true}", simpleObject.Serialize(2));
+            Assert.AreEqual(@"{""id"":10,""name"":""John"",""age"":29,""alive"":true,""friends"":null}", simpleObject.ToString());
+            Assert.AreEqual(@"{""id"": 10, ""name"": ""John"", ""age"": 29, ""alive"": true, ""friends"": null}", simpleObject.Serialize(2));
 
             var complexObject = new JValue.ObjectBuilder()
                 .Put("name", "Mike")
                 .PutArray("jobs", jobs => jobs.Push("chef").Push("programmer").Push("designer"))
+                .PutNull("children")
                 .Build();
 
             Assert.AreEqual(
-                @"{""name"":""Mike"",""jobs"":[""chef"",""programmer"",""designer""]}",
+                @"{""name"":""Mike"",""jobs"":[""chef"",""programmer"",""designer""],""children"":null}",
                 complexObject.ToString());
         }
 

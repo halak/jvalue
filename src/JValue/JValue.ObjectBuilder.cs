@@ -23,6 +23,14 @@ namespace Halak
                 this.startIndex = builder.Length;
             }
 
+            public ObjectBuilder PutNull(string key)
+            {
+                Prepare();
+                AppendKey(key);
+                builder.Append("null");
+                return this;
+            }
+
             public ObjectBuilder Put(string key, bool value)
             {
                 Prepare();
