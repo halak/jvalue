@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Halak
 {
@@ -8,6 +6,9 @@ namespace Halak
     {
         public static int Parse(string s, int startIndex, int length, int defaultValue)
         {
+            if (length <= 0)
+                return defaultValue;
+
             length += startIndex;
 
             var result = 0;
@@ -48,6 +49,9 @@ namespace Halak
 
         public static long Parse(string s, int startIndex, int length, long defaultValue)
         {
+            if (length <= 0)
+                return defaultValue;
+
             length += startIndex;
 
             var result = 0L;
@@ -93,6 +97,9 @@ namespace Halak
 
         public static double Parse(string s, int startIndex, int length, double defaultValue)
         {
+            if (length <= 0)
+                return defaultValue;
+
             var i = startIndex;
             if (s[startIndex] == '-' || s[startIndex] == '+')
                 i++;

@@ -505,30 +505,10 @@ namespace Halak
             }
         }
 
-        private static int SkipWhitespaces(string source)
+        private int SkipWhitespaces(int index) { return SkipWhitespaces(source, index, startIndex + length); }
+        private static int SkipWhitespaces(string source) { return SkipWhitespaces(source, 0, source.Length); }
+        private static int SkipWhitespaces(string source, int index, int end)
         {
-            for (var i = 0; i < source.Length; i++)
-            {
-                switch (source[i])
-                {
-                    case ' ':
-                    case ':':
-                    case ',':
-                    case '\t':
-                    case '\r':
-                    case '\n':
-                        break;
-                    default:
-                        return i;
-                }
-            }
-
-            return source.Length;
-        }
-
-        private int SkipWhitespaces(int index)
-        {
-            var end = startIndex + length;
             for (; index < end; index++)
             {
                 switch (source[index])
@@ -540,8 +520,48 @@ namespace Halak
                     case '\r':
                     case '\n':
                         break;
+                    case '/':
+                        if (index + 1 < end)
+                        {
+                            if (source[index + 1] == '/')
+                                index = SkipSinglelineComment(source, index + 2, end);
+                            else if (source[index + 1] == '*')
+                                index = SkipMultilineComment(source, index + 2, end);
+                            else
+                                return index;
+                        }
+                        break;
                     default:
                         return index;
+                }
+            }
+
+            return end;
+        }
+
+        private static int SkipSinglelineComment(string source, int index, int end)
+        {
+            for (; index < end; index++)
+            {
+                switch (source[index])
+                {
+                    case '\r':
+                    case '\n':
+                        return index;
+                }
+            }
+
+            return end;
+        }
+
+        private static int SkipMultilineComment(string source, int index, int end)
+        {
+            for (; index < end; index++)
+            {
+                if (source[index] == '*')
+                {
+                    if (index + 1 < end && source[index + 1] == '/')
+                        return index + 2;
                 }
             }
 
