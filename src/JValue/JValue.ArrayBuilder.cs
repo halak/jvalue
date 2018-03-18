@@ -65,6 +65,13 @@ namespace Halak
                 return this;
             }
 
+            public ArrayBuilder Push(decimal value)
+            {
+                Prepare();
+                builder.Append(value.ToString(CultureInfo.InvariantCulture));
+                return this;
+            }
+
             public ArrayBuilder Push(string value)
             {
                 Prepare();

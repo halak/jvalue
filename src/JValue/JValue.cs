@@ -81,41 +81,13 @@ namespace Halak
             return new JValue(source, index, source.Length - index);
         }
 
-        public JValue(bool value)
-        {
-            source = value ? "true" : "false";
-            startIndex = 0;
-            length = source.Length;
-        }
-
-        public JValue(int value)
-        {
-            source = value.ToString(CultureInfo.InvariantCulture);
-            startIndex = 0;
-            length = source.Length;
-        }
-
-        public JValue(long value)
-        {
-            source = value.ToString(CultureInfo.InvariantCulture);
-            startIndex = 0;
-            length = source.Length;
-        }
-
-        public JValue(float value)
-        {
-            source = value.ToString(CultureInfo.InvariantCulture);
-            startIndex = 0;
-            length = source.Length;
-        }
-
-        public JValue(double value)
-        {
-            source = value.ToString(CultureInfo.InvariantCulture);
-            startIndex = 0;
-            length = source.Length;
-        }
-
+        public JValue(bool value) : this(value ? "true" : "false", false) { }
+        public JValue(int value) : this(value.ToString(CultureInfo.InvariantCulture), false) { }
+        public JValue(long value) : this(value.ToString(CultureInfo.InvariantCulture), false) { }
+        public JValue(ulong value) : this(value.ToString(CultureInfo.InvariantCulture), false) { }
+        public JValue(float value) : this(value.ToString(CultureInfo.InvariantCulture), false) { }
+        public JValue(double value) : this(value.ToString(CultureInfo.InvariantCulture), false) { }
+        public JValue(decimal value) : this(value.ToString(CultureInfo.InvariantCulture), false) { }
         public JValue(string value)
         {
             if (value != null)
@@ -133,6 +105,13 @@ namespace Halak
                 startIndex = 0;
                 length = 0;
             }
+        }
+
+        private JValue(string source, bool payload)
+        {
+            this.source = source;
+            this.startIndex = 0;
+            this.length = source.Length;
         }
 
         private JValue(string source, int startOffset, int length)
@@ -777,7 +756,7 @@ namespace Halak
         public override string ToString()
         {
             if (Type != TypeCode.Null)
-                return source.Substring(startIndex, length);
+                return (startIndex == 0 && length == source.Length) ? source : source.Substring(startIndex, length);
             else
                 return "null";
         }

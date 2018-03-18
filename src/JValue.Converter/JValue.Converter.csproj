@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>Halak</RootNamespace>
+    <Authors>Halak</Authors>
+    <Company>Halak</Company>
+    <Product>JValue</Product>
+    <Description>Semi-lightweight Json-Object converter for .NET</Description>
+    <AssemblyVersion>0.0.1.0</AssemblyVersion>
+    <FileVersion>0.0.1.0</FileVersion>
+    <Version>0.0.1</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Buffers" Version="4.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\JValue\JValue.csproj" />
+  </ItemGroup>
+
+</Project>

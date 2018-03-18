@@ -71,6 +71,14 @@ namespace Halak
                 return this;
             }
 
+            public ObjectBuilder Put(string key, decimal value)
+            {
+                Prepare();
+                AppendKey(key);
+                builder.Append(value.ToString(CultureInfo.InvariantCulture));
+                return this;
+            }
+
             public ObjectBuilder Put(string key, string value)
             {
                 Prepare();
