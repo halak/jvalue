@@ -7,8 +7,8 @@ namespace Halak
 {
     partial class JsonConverter
     {
-        private IEnumerable<KeyValuePair<ArraySegment<Type>, TypeContract>> GetBuiltinContracts()
-            => CreateBuiltinContracts().Select(it => new KeyValuePair<ArraySegment<Type>, TypeContract>(it.Types, it));
+        private IEnumerable<KeyValuePair<Type, TypeContract>> GetBuiltinContracts()
+            => CreateBuiltinContracts().Select(it => new KeyValuePair<Type, TypeContract>(it.Type, it));
 
         private TypeContract[] CreateBuiltinContracts()
         {
@@ -28,6 +28,7 @@ namespace Halak
                 new TypeContract<decimal>(v => new JValue(v)),
                 new TypeContract<string>(v => new JValue(v)),
                 new TypeContract<DateTime>(v => new JValue(v.ToString(DateTimeFormat))),
+                new CompositeObjectContract(this),
             };
         }
     }

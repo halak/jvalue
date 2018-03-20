@@ -25,7 +25,7 @@ namespace Halak
             targetMembers &= (MemberTypes.Property | MemberTypes.Field);
 
             this.stringBuilderPool = new ConcurrentBag<StringBuilder>();
-            this.contractTable = new ConcurrentDictionary<Type, TypeContract>(TypeComparer.Singleton);
+            this.contractTable = new ConcurrentDictionary<Type, TypeContract>(GetBuiltinContracts(), TypeComparer.Singleton);
             this.jsonMembersCache = new ConcurrentDictionary<Type, JsonMember[]>(TypeComparer.Singleton);
             this.contractFactory = Create;
             this.jsonMembersFactory = GetJsonMembersInternal;
