@@ -134,10 +134,10 @@ namespace Halak
             var value = JValue.Parse("\"123.456\"");
 
             Assert.AreEqual(true, (bool)value);
-            Assert.AreEqual(0, (int)value);
-            Assert.AreEqual(0L, (long)value);
-            Assert.AreEqual(0.0f, (float)value);
-            Assert.AreEqual(0.0, (double)value);
+            Assert.AreEqual(123, (int)value);
+            Assert.AreEqual(123L, (long)value);
+            Assert.AreEqual(123.456f, (float)value);
+            Assert.AreEqual(123.456, (double)value);
             Assert.IsNotNull(value.AsArray());
             Assert.IsNotNull(value.AsObject());
             Assert.IsTrue(value.AsArray().SequenceEqual(new List<JValue>()));

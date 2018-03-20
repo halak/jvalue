@@ -10,6 +10,9 @@ namespace Halak
     {
         private object[] anonymousObjects;
 
+        [Params(10, 1000, 10000)]
+        public int N;
+
         [GlobalSetup]
         public void Setup()
         {
@@ -26,7 +29,7 @@ namespace Halak
         {
             var halakJValue = new Halak.JsonConverter();
             var s = new StringBuilder(1024);
-            for (var i = 0; i < 100000; i++)
+            for (var i = 0; i < N; i++)
             {
                 foreach (var obj in anonymousObjects)
                 {
@@ -40,9 +43,9 @@ namespace Halak
         [Benchmark(Description = "Json.NET")]
         public StringBuilder TestJsonNET()
         {
-            var newtonJsonNET = Newtonsoft.Json.JsonSerializer.CreateDefault();
+            var newtonJsonNET = new Newtonsoft.Json.JsonSerializer() { ContractResolver =  new Newtonsoft.Json.Serialization.DefaultContractResolver() };
             var s = new StringBuilder(1024);
-            for (var i = 0; i < 100000; i++)
+            for (var i = 0; i < N; i++)
             {
                 foreach (var obj in anonymousObjects)
                 {

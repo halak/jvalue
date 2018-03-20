@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Buffers;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Linq;
@@ -11,14 +10,9 @@ namespace Halak
 {
     public sealed partial class JsonConverter
     {
-        private delegate JValue BuildValue<T>(T obj);
-        private delegate void BuildArray<T>(JValue.ArrayBuilder builder, T obj);
-        private delegate void BuildObject<T>(JValue.ObjectBuilder builder, T obj);
-
-        private readonly ArrayPool<Type> typeArrayPool;
         private readonly ConcurrentBag<StringBuilder> stringBuilderPool;
-        private readonly ConcurrentDictionary<ArraySegment<Type>, TypeContract> typeTable;
-        private readonly Func<ArraySegment<Type>, TypeContract> contractFactory;
+        private readonly ConcurrentDictionary<Type, TypeContract> contractTable;
+        private readonly Func<Type, TypeContract> contractFactory;
         private readonly ConcurrentDictionary<Type, JsonMember[]> jsonMembersCache;
         private readonly Func<Type, JsonMember[]> jsonMembersFactory;
         private readonly MemberTypes targetMembers;
@@ -30,58 +24,28 @@ namespace Halak
         {
             targetMembers &= (MemberTypes.Property | MemberTypes.Field);
 
-            this.typeArrayPool = ArrayPool<Type>.Shared;
             this.stringBuilderPool = new ConcurrentBag<StringBuilder>();
-            this.typeTable = new ConcurrentDictionary<ArraySegment<Type>, TypeContract>(GetBuiltinContracts(), TypesComparer.Singleton);
-            this.jsonMembersCache = new ConcurrentDictionary<Type, JsonMember[]>();
+            this.contractTable = new ConcurrentDictionary<Type, TypeContract>(TypeComparer.Singleton);
+            this.jsonMembersCache = new ConcurrentDictionary<Type, JsonMember[]>(TypeComparer.Singleton);
             this.contractFactory = Create;
             this.jsonMembersFactory = GetJsonMembersInternal;
             this.targetMembers = targetMembers;
             this.dateTimeFormat = Expression.Constant(dateTimeFormat);
         }
 
-        public JValue FromObject(object obj, Type type = null) => (obj != null) ? SerializeInternal(GetContract(type ?? obj.GetType()), obj) : JValue.Null;
-        public JValue FromObject<T>(T obj) => IsNotNull(obj) ? SerializeInternal(GetContract<T>(), obj) : JValue.Null;
+        public JValue FromObject(object obj) => (obj != null) ? SerializeInternal(GetContract(obj.GetType()), obj) : JValue.Null;
+        public JValue FromObject<T>(T obj) => IsNotNull(obj) ? SerializeInternal(GetContract<T>(obj.GetType()), obj) : JValue.Null;
         public JValue FromObject<T>(T? obj) where T : struct => obj.HasValue ? SerializeInternal(GetContract<T>(), obj.Value) : JValue.Null;
-        public JValue FromObject(CompositeObject obj)
-        {
-            if (obj.Elements == null || obj.Elements.Count == 0)
-                return JValue.Null;
-            var elements = obj.Elements;
 
-            var typeArray = typeArrayPool.Rent(obj.Elements.Count);
-            for (var i = 0; i < elements.Count; i++)
-                typeArray[i] = elements[i].GetType();
-            var contract = (TypeContract<CompositeObject>)GetContractAndReturnArray(new ArraySegment<Type>(typeArray, 0, obj.Elements.Count));
-            return SerializeInternal(contract, obj);
-        }
-
-        private TypeContract GetContract(Type type)
-        {
-            var typeArray = typeArrayPool.Rent(1);
-            typeArray[0] = type;
-            return GetContractAndReturnArray(new ArraySegment<Type>(typeArray, 0, 1));
-        }
-        private TypeContract<T> GetContract<T>() => (TypeContract<T>)GetContract(typeof(T));
-
-        private TypeContract GetContractAndReturnArray(ArraySegment<Type> types)
-        {
-            try
-            {
-                return typeTable.GetOrAdd(types, contractFactory);
-            }
-            finally
-            {
-                typeArrayPool.Return(types.Array);
-            }
-        }
+        private TypeContract GetContract(Type type) => contractTable.GetOrAdd(type, contractFactory);
+        private TypeContract<T> GetContract<T>(Type type = null) => (TypeContract<T>)GetContract(type ?? typeof(T));
 
         private JValue SerializeInternal(TypeContract contract, object obj)
         {
             var stringBuilder = RentStringBuilder();
             try
             {
-                return contract.Build(RentStringBuilder(), obj);
+                return contract.Build(stringBuilder, obj);
             }
             finally
             {
@@ -109,9 +73,6 @@ namespace Halak
             stringBuilderPool.Add(stringBuilder);
         }
 
-        private TypeContract Create(ArraySegment<Type> types)
-            => (types.Count == 1) ? Create(types.Array[types.Offset]) : CreateComposite(types);
-
         private TypeContract Create(Type type)
         {
             var jsonMembers = GetJsonMembers(type);
@@ -133,45 +94,6 @@ namespace Halak
             var typedContractType = typeof(TypeContract<>).MakeGenericType(type);
             var typedContractConstructor = typedContractType.GetConstructor(new Type[] { typedBuildObjectType });
             return (TypeContract)typedContractConstructor.Invoke(new object[] { compiledMethod });
-        }
-
-        private TypeContract CreateComposite(ArraySegment<Type> types)
-        {
-            types = Clone(types);
-
-            var jsonMembers = new Dictionary<string, (int InstanceIndex, JsonMember Member, int Order)>(StringComparer.Ordinal);
-            for (int i = 0, order = 0; i < types.Count; i++)
-            {
-                foreach (var member in GetJsonMembers(types.Array[i + types.Offset]))
-                {
-                    var memberOrder = order++;
-                    if ((true/* preserve confliced member order */) && jsonMembers.TryGetValue(member.Name, out var conflicted))
-                        memberOrder = conflicted.Order;
-
-                    jsonMembers[member.Name] = (i, member, memberOrder);
-                }
-            }
-
-            var parameters = EmitBuildObjectParameters(typeof(CompositeObject));
-
-            var elements = Expression.Property(parameters.Source, nameof(CompositeObject.Elements));
-            var statements = new List<Expression>(jsonMembers.Count * 2);
-            var instances = new ParameterExpression[types.Count];
-            for (var i = 0; i < types.Count; i++)
-            {
-                var type = types.Array[i + types.Offset];
-                var element = Expression.Property(elements, Types.IListObject.Indexer, Expression.Constant(i));
-                instances[i] = Expression.Variable(type, $"instance{i}");
-                statements.Add(Expression.Assign(instances[i], Expression.Convert(element, type)));
-            }
-
-            foreach (var (instanceIndex, member, _) in jsonMembers.Values.OrderBy(it => it.Order))
-                statements.Add(EmitPutStatement(parameters.Builder, instances[instanceIndex], member));
-
-            var compiledMethod = Expression.Lambda<BuildObject<CompositeObject>>(
-                Expression.Block(instances, statements), parameters.Builder, parameters.Source).Compile();
-
-            return new TypeContract<CompositeObject>(types, compiledMethod);
         }
 
         private JsonMember[] GetJsonMembers(Type type) => jsonMembersCache.GetOrAdd(type, jsonMembersFactory);
@@ -323,36 +245,24 @@ namespace Halak
             }
         }
 
-        private static ArraySegment<T> Clone<T>(ArraySegment<T> segment)
-        {
-            var clone = new T[segment.Count];
-            for (var i = 0; i < clone.Length; i++)
-                clone[i] = segment.Array[i + segment.Offset];
-            return new ArraySegment<T>(clone);
-        }
-
         private static bool IsNotNull<T>(T obj) => typeof(T).IsValueType ? true : !ReferenceEquals(obj, null);
 
+        private delegate JValue BuildValue<T>(T obj);
+        private delegate void BuildArray<T>(JValue.ArrayBuilder builder, T obj);
+        private delegate void BuildObject<T>(JValue.ObjectBuilder builder, T obj);
         private abstract class TypeContract
         {
-            private readonly ArraySegment<Type> types;
+            public Type Type { get; }
 
-            public ArraySegment<Type> Types => types;
-
-            public TypeContract(Type type)
-                : this(new ArraySegment<Type>(new[] { type }))
+            protected TypeContract(Type type)
             {
-            }
-
-            public TypeContract(ArraySegment<Type> types)
-            {
-                this.types = types;
+                Type = type;
             }
 
             public abstract JValue Build(StringBuilder stringBuilder, object obj);
         }
 
-        private sealed class TypeContract<T> : TypeContract
+        private class TypeContract<T> : TypeContract
         {
             private readonly BuildValue<T> buildValue;
             private readonly BuildArray<T> buildArray;
@@ -376,26 +286,20 @@ namespace Halak
                 this.buildObject = buildObject;
             }
 
-            public TypeContract(ArraySegment<Type> types, BuildObject<T> buildObject)
-                : base(types)
-            {
-                this.buildObject = buildObject;
-            }
-
-            public override JValue Build(StringBuilder stringBuilder, object obj) => Build(stringBuilder, (T)obj);
-            public JValue Build(StringBuilder stringBuilder, T obj)
+            public sealed override JValue Build(StringBuilder stringBuilder, object obj) => Build(stringBuilder, (T)obj);
+            public virtual JValue Build(StringBuilder stringBuilder, T obj)
             {
                 if (buildObject != null)
                 {
                     var builder = new JValue.ObjectBuilder(stringBuilder);
-                    BuildWith(builder, obj);
+                    BuildObject(builder, obj);
                     return builder.Build();
                 }
 
                 if (buildArray != null)
                 {
                     var builder = new JValue.ArrayBuilder(stringBuilder);
-                    BuildWith(builder, obj);
+                    BuildArray(builder, obj);
                     return builder.Build();
                 }
 
@@ -405,9 +309,9 @@ namespace Halak
                 throw new InvalidOperationException();
             }
 
-            public JValue BuildValue(T obj) => buildValue(obj);
-            public void BuildWith(JValue.ArrayBuilder builder, T obj) => buildArray(builder, obj);
-            public void BuildWith(JValue.ObjectBuilder builder, T obj) => buildObject(builder, obj);
+            private JValue BuildValue(T obj) => buildValue(obj);
+            private void BuildArray(JValue.ArrayBuilder builder, T obj) => buildArray(builder, obj);
+            private void BuildObject(JValue.ObjectBuilder builder, T obj) => buildObject(builder, obj);
         }
 
         private sealed class JsonMember
@@ -446,33 +350,12 @@ namespace Halak
             }
         }
 
-        private sealed class TypesComparer : IEqualityComparer<ArraySegment<Type>>
+        private sealed class TypeComparer : IEqualityComparer<Type>
         {
-            public static readonly TypesComparer Singleton = new TypesComparer();
+            public static readonly TypeComparer Singleton = new TypeComparer();
 
-            public bool Equals(ArraySegment<Type> x, ArraySegment<Type> y)
-            {
-                if (x.Count == y.Count)
-                {
-                    for (var i = 0; i < x.Count; i++)
-                    {
-                        if (x.Array[i + x.Offset] != y.Array[i + y.Offset])
-                            return false;
-                    }
-
-                    return true;
-                }
-                else
-                    return false;
-            }
-
-            public int GetHashCode(ArraySegment<Type> obj)
-            {
-                var hashCode = 0;
-                for (var i = 0; i < obj.Count; i++)
-                    hashCode ^= obj.Array[i + obj.Offset].GetHashCode();
-                return hashCode;
-            }
+            public bool Equals(Type x, Type y) => ReferenceEquals(x, y);
+            public int GetHashCode(Type obj) => obj.GetHashCode();
         }
     }
 }

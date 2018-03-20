@@ -157,6 +157,8 @@ namespace Halak
                     return AsBooleanActually() ? 1 : 0;
                 case TypeCode.Number:
                     return AsIntActually(defaultValue);
+                case TypeCode.String:
+                    return new JValue(source, startIndex + 1, length - 2).AsIntActually(defaultValue);  // TODO: escaped string issue
                 default:
                     return defaultValue;
             }
@@ -194,6 +196,8 @@ namespace Halak
                     return AsBooleanActually() ? 1 : 0;
                 case TypeCode.Number:
                     return AsLongActually(defaultValue);
+                case TypeCode.String:
+                    return new JValue(source, startIndex + 1, length - 2).AsLongActually(defaultValue);  // TODO: escaped string issue
                 default:
                     return defaultValue;
             }
@@ -215,6 +219,8 @@ namespace Halak
                     return AsBooleanActually() ? 1 : 0;
                 case TypeCode.Number:
                     return AsFloatActually(defaultValue);
+                case TypeCode.String:
+                    return new JValue(source, startIndex + 1, length - 2).AsFloatActually(defaultValue);  // TODO: escaped string issue
                 default:
                     return defaultValue;
             }
@@ -233,6 +239,8 @@ namespace Halak
                     return AsBooleanActually() ? 1.0 : 0.0;
                 case TypeCode.Number:
                     return AsDoubleActually(defaultValue);
+                case TypeCode.String:
+                    return new JValue(source, startIndex + 1, length - 2).AsDoubleActually(defaultValue);  // TODO: escaped string issue
                 default:
                     return defaultValue;
             }
