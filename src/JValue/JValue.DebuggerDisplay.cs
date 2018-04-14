@@ -5,11 +5,25 @@ using System.Linq;
 
 namespace Halak
 {
-    [DebuggerDisplay("{ToDebuggerDisplay(),nq}", Type = "JValue.{Type}")]
-    [DebuggerTypeProxy(typeof(DebugView))]
+    [DebuggerDisplay("{ToDebuggerDisplay(),nq}", Type = "{ToDebuggerType(),nq}")]
+    [DebuggerTypeProxy(typeof(DebuggerProxy))]
     partial struct JValue
     {
         private const int EllipsisCount = 64;
+
+        private string ToDebuggerType()
+        {
+            switch (Type)
+            {
+                case TypeCode.Null: return "JValue.Null";
+                case TypeCode.Boolean: return "JValue.Boolean";
+                case TypeCode.Number: return "JValue.Number";
+                case TypeCode.String: return "JValue.String";
+                case TypeCode.Array: return "JValue.Array";
+                case TypeCode.Object: return "JValue.Object";
+                default: return "JValue.Null";
+            }
+        }
 
         private string ToDebuggerDisplay()
         {
@@ -27,40 +41,50 @@ namespace Halak
             }
         }
 
-        [DebuggerDisplay("{value.ToDebuggerDisplay(),nq}", Type = "JValue.{value.Type}")]
-        internal struct ArrayElement
+        [DebuggerDisplay("{valueString,nq}", Type = "{valueTypeString,nq}")]
+        private struct ArrayElement
         {
             [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
             public readonly JValue value;
+            [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+            public readonly string valueString;
+            [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+            public readonly string valueTypeString;
 
             public ArrayElement(JValue value)
             {
                 this.value = value;
+                this.valueString = value.ToDebuggerDisplay();
+                this.valueTypeString = value.ToDebuggerType();
             }
         }
 
-        [DebuggerDisplay("{value.ToDebuggerDisplay(),nq}", Name = "[{key,nq}]", Type = "JValue.{value.Type}")]
-        internal struct ObjectMember
+        [DebuggerDisplay("{valueString,nq}", Name = "[{key,nq}]", Type = "{valueTypeString,nq}")]
+        private struct ObjectMember
         {
             [DebuggerBrowsable(DebuggerBrowsableState.Never)]
             public readonly string key;
             [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
             public readonly JValue value;
+            [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+            public readonly string valueString;
+            [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+            public readonly string valueTypeString;
 
             public ObjectMember(string key, JValue value)
             {
                 this.key = key;
                 this.value = value;
+                this.valueString = value.ToDebuggerDisplay();
+                this.valueTypeString = value.ToDebuggerType();
             }
         }
 
-        internal sealed class DebugView
+        private sealed class DebuggerProxy
         {
-			private readonly ObjectMember[] EmptyItems = new ObjectMember[0];
+            private readonly JValue value;
 
-            private JValue value;
-
-            public DebugView(JValue value)
+            public DebuggerProxy(JValue value)
             {
                 this.value = value;
             }
