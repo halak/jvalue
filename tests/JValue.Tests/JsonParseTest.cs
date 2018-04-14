@@ -16,6 +16,12 @@ namespace Halak
         }
 
         [TestMethod]
+        public void TestInvalidValueParsing()
+        {
+            Assert.AreEqual(-1, new JValue("environment").AsInt(-1));
+        }
+
+        [TestMethod]
         public void TestParsedValueType()
         {
             Assert.AreEqual(JValue.TypeCode.Boolean, JValue.Parse("true").Type);

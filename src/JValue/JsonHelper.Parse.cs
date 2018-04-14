@@ -104,8 +104,16 @@ namespace Halak
             if (s[startIndex] == '-' || s[startIndex] == '+')
                 i++;
 
-            var mantissa = 0L;
             length += startIndex;  // length => end
+            var mantissa = 0L;
+            if (i < length && '0' <= s[i] && s[i] <= '9')
+            {
+                mantissa = (mantissa * 10) + (s[i] - '0');
+                i++;
+            }
+            else
+                return defaultValue;
+
             for (; i < length; i++)
             {
                 if ('0' <= s[i] && s[i] <= '9')
