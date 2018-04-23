@@ -15,7 +15,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="JValue.DebuggerDisplay.cs" />
+    <None Include="JValue.Debugger.cs" />
   </ItemGroup>
 
 </Project>

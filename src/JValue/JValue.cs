@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
@@ -269,9 +270,9 @@ namespace Halak
         private string AsStringActually()
         {
             var sb = new StringBuilder(length);
-            var end = startIndex + length - 1;
-            for (var i = startIndex + 1; i < end; i++)
-                sb.Append(JsonHelper.Unescape(source, ref i));
+            var enumerator = GetCharEnumerator();
+            while (enumerator.MoveNext())
+                sb.Append(enumerator.Current);
 
             return sb.ToString();
         }
@@ -393,7 +394,7 @@ namespace Halak
                     var vStart = SkipWhitespaces(kEnd + 1);
                     var vEnd = SkipValue(vStart);
 
-                    if (EqualsKey(key, source, kStart + 1, kEnd - 1))
+                    if (EqualsKey(key, source, kStart, kEnd - kStart - 2))
                         return new JValue(source, vStart, vEnd - vStart);
 
                     kStart = SkipWhitespaces(vEnd + 1);
@@ -403,20 +404,25 @@ namespace Halak
             return JValue.Null;
         }
 
-        private static bool EqualsKey(string a, string b, int bStart, int bEnd)
+        private static bool EqualsKey(string a, string b, int bStart, int bLength)
         {
-            if (a.Length > bEnd - bStart)
+            if (a.Length > bLength)
                 return false;
 
             var aIndex = 0;
-            var bIndex = bStart;
-            for (; aIndex < a.Length && bIndex < bEnd; aIndex++, bIndex++)
+            var bEnumerator = new CharEnumerator(b, bStart);
+            for (; ; )
             {
-                if (a[aIndex] != JsonHelper.Unescape(b, ref bIndex))
-                    return false;
+                var x = aIndex < a.Length;
+                var y = bEnumerator.MoveNext();
+                if (x && y)
+                {
+                    if (a[aIndex++] != bEnumerator.Current)
+                        return false;
+                }
+                else
+                    return x == y;
             }
-
-            return aIndex == a.Length && bIndex == bEnd;
         }
         #endregion
 
@@ -473,6 +479,8 @@ namespace Halak
                 }
             }
         }
+
+        public CharEnumerator GetCharEnumerator() => new CharEnumerator(this);
 
         private int SkipValue(int index)
         {
@@ -814,15 +822,21 @@ namespace Halak
             var aEnd = startIndex + length - 1;
             var bEnd = other.startIndex + other.length - 1;
 
-            var a = startIndex + 1;
-            var b = other.startIndex + 1;
-            for (; a < aEnd && b < bEnd; a++, b++)
-            {
-                if (JsonHelper.Unescape(source, ref a) != JsonHelper.Unescape(other.source, ref b))
-                    return false;
-            }
+            var aEnumerator = GetCharEnumerator();
+            var bEnumerator = other.GetCharEnumerator();
 
-            return a == aEnd && b == bEnd;
+            for(; ;)
+            {
+                var a = aEnumerator.MoveNext();
+                var b = bEnumerator.MoveNext();
+                if (a && b)
+                {
+                    if (aEnumerator.Current != bEnumerator.Current)
+                        return false;
+                }
+                else
+                    return a == b;
+            }
         }
         #endregion
         #endregion
@@ -850,5 +864,89 @@ namespace Halak
         public static bool operator >(JValue left, JValue right) { return left.CompareTo(right) > 0; }
         public static bool operator >=(JValue left, JValue right) { return left.CompareTo(right) >= 0; }
         #endregion
+
+        public struct CharEnumerator : IEnumerator<char>
+        {
+            private readonly string source;
+            private readonly int startIndex;
+            private char current;
+            private int index;
+
+            public char Current => current;
+            object IEnumerator.Current => Current;
+
+            internal CharEnumerator(JValue value) : this(value.source, value.startIndex) { }
+            internal CharEnumerator(string source, int startIndex)
+            {
+                this.source = source;
+                this.startIndex = startIndex;
+                this.current = '\0';
+                this.index = startIndex;
+            }
+
+            public bool MoveNext()
+            {
+                if (index >= 0)
+                {
+                    current = source[++index];
+
+                    if (current != '\\')
+                    {
+                        if (current != '"')
+                            return true;
+                        else
+                        {
+                            index = -1;
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        index++;
+
+                        switch (source[index])
+                        {
+                            case '"': current = '"'; break;
+                            case '/': current = '/'; break;
+                            case '\\': current = '\\'; break;
+                            case 'n': current = '\n'; break;
+                            case 't': current = '\t'; break;
+                            case 'r': current = '\r'; break;
+                            case 'b': current = '\n'; break;
+                            case 'f': current = '\f'; break;
+                            case 'u':
+                                var a = source[++index];
+                                var b = source[++index];
+                                var c = source[++index];
+                                var d = source[++index];
+                                current = (char)((Hex(a) * 4096) + (Hex(b) * 256) + (Hex(c) * 16) + (Hex(d)));
+                                break;
+                        }
+
+                        return true;
+                    }
+                }
+                else
+                    return false;
+            }
+
+            public void Reset()
+            {
+                current = '\0';
+                index = startIndex;
+            }
+
+            public void Dispose() { }
+
+            private static int Hex(char c)
+            {
+                return
+                    ('0' <= c && c <= '9') ?
+                        c - '0' :
+                    ('a' <= c && c <= 'f') ?
+                        c - 'a' + 10 :
+                        c - 'A' + 10;
+            }
+        }
     }
 }
