@@ -3,10 +3,10 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.0</TargetFramework>
+    <RootNamespace>Halak</RootNamespace>
+    <Product>JValue</Product>
     <Authors>Halak</Authors>
     <Company>Halak</Company>
-    <Product>JValue</Product>
-    <RootNamespace>Halak</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,8 +15,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\JValue.Converter\JValue.Converter.csproj" />
     <ProjectReference Include="..\..\src\JValue\JValue.csproj" />
+    <ProjectReference Include="..\..\src\JValue.Converter\JValue.Converter.csproj" />
   </ItemGroup>
 
 </Project>

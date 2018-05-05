@@ -2,20 +2,14 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard1.0</TargetFramework>
-    <Description>Lightweight Json parser for .NET</Description>
-    <Company>Halak</Company>
-    <Authors>Halak</Authors>
-    <RootNamespace>Halak</RootNamespace>
+    <OutputType>Library</OutputType>
+    <Version>1.1.1</Version>
     <AssemblyVersion>1.1.1.0</AssemblyVersion>
     <FileVersion>1.1.1.0</FileVersion>
-    <Version>1.1.1</Version>
-    <ApplicationIcon />
-    <OutputType>Library</OutputType>
-    <StartupObject />
+    <RootNamespace>Halak</RootNamespace>
+    <Company>Halak</Company>
+    <Authors>Halak</Authors>
+    <Description>Lightweight Json parser for .NET</Description>
   </PropertyGroup>
-
-  <ItemGroup>
-    <None Include="JValue.Debugger.cs" />
-  </ItemGroup>
-
+  
 </Project>
