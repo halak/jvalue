@@ -27,7 +27,7 @@ namespace Halak
             {
                 Prepare();
                 AppendKey(key);
-                builder.Append("null");
+                builder.Append(JsonHelper.NullString);
                 return this;
             }
 
@@ -35,7 +35,7 @@ namespace Halak
             {
                 Prepare();
                 AppendKey(key);
-                builder.Append(value ? "true" : "false");
+                builder.Append(value ? JsonHelper.TrueString : JsonHelper.FalseString);
                 return this;
             }
 
@@ -43,7 +43,7 @@ namespace Halak
             {
                 Prepare();
                 AppendKey(key);
-                builder.Append(value.ToString(CultureInfo.InvariantCulture));
+                JsonHelper.AppendInt32(builder, value);
                 return this;
             }
 
@@ -51,7 +51,7 @@ namespace Halak
             {
                 Prepare();
                 AppendKey(key);
-                builder.Append(value.ToString(CultureInfo.InvariantCulture));
+                JsonHelper.AppendInt64(builder, value);
                 return this;
             }
 
@@ -83,7 +83,7 @@ namespace Halak
             {
                 Prepare();
                 AppendKey(key);
-                JsonHelper.EscapeTo(builder, value);
+                JsonHelper.AppendEscapedString(builder, value);
                 return this;
             }
 
@@ -94,7 +94,7 @@ namespace Halak
                 if (value.Type != TypeCode.Null)
                     builder.Append(value.source, value.startIndex, value.length);
                 else
-                    builder.Append("null");
+                    builder.Append(JsonHelper.NullString);
                 return this;
             }
 
@@ -162,7 +162,7 @@ namespace Halak
 
             private void AppendKey(string key)
             {
-                JsonHelper.EscapeTo(builder, key);
+                JsonHelper.AppendEscapedString(builder, key);
                 builder.Append(':');
             }
 

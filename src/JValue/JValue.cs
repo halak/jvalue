@@ -27,6 +27,8 @@ namespace Halak
 
         #region Static Fields
         public static readonly JValue Null = new JValue();
+        public static readonly JValue True = new JValue(true);
+        public static readonly JValue False = new JValue(false);
         #endregion
 
         #region Fields
@@ -82,7 +84,7 @@ namespace Halak
             return new JValue(source, index, source.Length - index);
         }
 
-        public JValue(bool value) : this(value ? "true" : "false", false) { }
+        public JValue(bool value) : this(value ? JsonHelper.TrueString : JsonHelper.FalseString, false) { }
         public JValue(int value) : this(value.ToString(CultureInfo.InvariantCulture), false) { }
         public JValue(long value) : this(value.ToString(CultureInfo.InvariantCulture), false) { }
         public JValue(ulong value) : this(value.ToString(CultureInfo.InvariantCulture), false) { }
@@ -94,7 +96,7 @@ namespace Halak
             if (value != null)
             {
                 var builder = new StringBuilder(value.Length + 2);
-                JsonHelper.EscapeTo(builder, value);
+                JsonHelper.AppendEscapedString(builder, value);
 
                 source = builder.ToString();
                 startIndex = 0;
@@ -150,16 +152,16 @@ namespace Halak
             return source[startIndex] == 't';
         }
 
-        public int AsInt(int defaultValue = 0)
+        public int AsInt32(int defaultValue = 0)
         {
             switch (Type)
             {
                 case TypeCode.Boolean:
                     return AsBooleanActually() ? 1 : 0;
                 case TypeCode.Number:
-                    return AsIntActually(defaultValue);
+                    return AsInt32Actually(defaultValue);
                 case TypeCode.String:
-                    return new JValue(source, startIndex + 1, length - 2).AsIntActually(defaultValue);  // TODO: escaped string issue
+                    return new JValue(source, startIndex + 1, length - 2).AsInt32Actually(defaultValue);  // TODO: escaped string issue
                 default:
                     return defaultValue;
             }
@@ -181,7 +183,7 @@ namespace Halak
             return true;
         }
 
-        private int AsIntActually(int defaultValue = 0)
+        private int AsInt32Actually(int defaultValue = 0)
         {
             if (IsInteger())
                 return JsonHelper.Parse(source, startIndex, length, defaultValue);
@@ -189,22 +191,22 @@ namespace Halak
                 return (int)JsonHelper.Parse(source, startIndex, length, (double)defaultValue);
         }
 
-        public long AsLong(long defaultValue = 0)
+        public long AsInt64(long defaultValue = 0)
         {
             switch (Type)
             {
                 case TypeCode.Boolean:
                     return AsBooleanActually() ? 1 : 0;
                 case TypeCode.Number:
-                    return AsLongActually(defaultValue);
+                    return AsInt64Actually(defaultValue);
                 case TypeCode.String:
-                    return new JValue(source, startIndex + 1, length - 2).AsLongActually(defaultValue);  // TODO: escaped string issue
+                    return new JValue(source, startIndex + 1, length - 2).AsInt64Actually(defaultValue);  // TODO: escaped string issue
                 default:
                     return defaultValue;
             }
         }
 
-        private long AsLongActually(long defaultValue = 0L)
+        private long AsInt64Actually(long defaultValue = 0L)
         {
             if (IsInteger())
                 return JsonHelper.Parse(source, startIndex, length, defaultValue);
@@ -212,22 +214,22 @@ namespace Halak
                 return (long)JsonHelper.Parse(source, startIndex, length, (double)defaultValue);
         }
 
-        public float AsFloat(float defaultValue = 0.0f)
+        public float AsSingle(float defaultValue = 0.0f)
         {
             switch (Type)
             {
                 case TypeCode.Boolean:
                     return AsBooleanActually() ? 1 : 0;
                 case TypeCode.Number:
-                    return AsFloatActually(defaultValue);
+                    return AsSingleActually(defaultValue);
                 case TypeCode.String:
-                    return new JValue(source, startIndex + 1, length - 2).AsFloatActually(defaultValue);  // TODO: escaped string issue
+                    return new JValue(source, startIndex + 1, length - 2).AsSingleActually(defaultValue);  // TODO: escaped string issue
                 default:
                     return defaultValue;
             }
         }
 
-        private float AsFloatActually(float defaultValue = 0.0f)
+        private float AsSingleActually(float defaultValue = 0.0f)
         {
             return JsonHelper.Parse(source, startIndex, length, defaultValue);
         }
@@ -257,7 +259,7 @@ namespace Halak
             switch (Type)
             {
                 case TypeCode.Boolean:
-                    return AsBooleanActually() ? "true" : "false";
+                    return AsBooleanActually() ? JsonHelper.TrueString : JsonHelper.FalseString;
                 case TypeCode.Number:
                     return source.Substring(startIndex, length);
                 case TypeCode.String:
@@ -307,7 +309,7 @@ namespace Halak
         /// <code>
         /// var x = new JValue("[1,2,3,4,5,6,7,8,9]");
         /// Trace.Assert(x[0] == 1);
-        /// Trace.Assert(x[1].AsInt() == 2);
+        /// Trace.Assert(x[1].AsInt32() == 2);
         /// Trace.Assert(x[-1] == 9);
         /// Trace.Assert(x[-2] == 8);
         /// </code>
@@ -774,7 +776,7 @@ namespace Halak
             if (Type != TypeCode.Null)
                 return (startIndex == 0 && length == source.Length) ? source : source.Substring(startIndex, length);
             else
-                return "null";
+                return JsonHelper.NullString;
         }
         #endregion
 
@@ -843,9 +845,9 @@ namespace Halak
 
         #region Implicit Conversion
         public static implicit operator bool(JValue value) { return value.AsBoolean(); }
-        public static implicit operator int(JValue value) { return value.AsInt(); }
-        public static implicit operator long(JValue value) { return value.AsLong(); }
-        public static implicit operator float(JValue value) { return value.AsFloat(); }
+        public static implicit operator int(JValue value) { return value.AsInt32(); }
+        public static implicit operator long(JValue value) { return value.AsInt64(); }
+        public static implicit operator float(JValue value) { return value.AsSingle(); }
         public static implicit operator double(JValue value) { return value.AsDouble(); }
         public static implicit operator string(JValue value) { return value.AsString(); }
         public static implicit operator JValue(bool value) { return new JValue(value); }
@@ -938,6 +940,7 @@ namespace Halak
 
             public void Dispose() { }
 
+            // FORCE-INLINE
             private static int Hex(char c)
             {
                 return

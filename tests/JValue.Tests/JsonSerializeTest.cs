@@ -13,7 +13,7 @@ namespace Halak
             Assert.AreEqual("true", new JValue(true).ToString());
             Assert.AreEqual("false", new JValue(false).ToString());
             Assert.AreEqual(JValue.TypeCode.Number, new JValue(10).Type);
-            Assert.AreEqual(10, new JValue(10).AsInt());
+            Assert.AreEqual(10, new JValue(10).AsInt32());
             Assert.AreEqual("Hello\nWorld", new JValue("Hello\nWorld").AsString());
         }
 
@@ -74,6 +74,24 @@ namespace Halak
             finally
             {
                 CultureInfo.CurrentCulture = originalCulture;
+            }
+        }
+
+        [TestMethod]
+        public void TestStringBuilderExtension()
+        {
+            foreach (var value in new[] { int.MinValue, int.MaxValue, 0, -1234, 5677, 23472634, -12391823, 23487621 })
+            {
+                var expected = value.ToString(CultureInfo.InvariantCulture);
+                var actual = new JValue.ArrayBuilder().Push(value).Build()[0].ToString();
+                Assert.AreEqual(expected, actual);
+            }
+
+            foreach (var value in new[] { long.MinValue, long.MaxValue, 0L, -1234L, 239482734L, 2359237498237492837L, -3871623123L })
+            {
+                var expected = value.ToString(CultureInfo.InvariantCulture);
+                var actual = new JValue.ArrayBuilder().Push(value).Build()[0].ToString();
+                Assert.AreEqual(expected, actual);
             }
         }
     }

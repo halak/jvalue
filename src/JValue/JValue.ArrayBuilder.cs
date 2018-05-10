@@ -26,28 +26,28 @@ namespace Halak
             public ArrayBuilder PushNull()
             {
                 Prepare();
-                builder.Append("null");
+                builder.Append(JsonHelper.NullString);
                 return this;
             }
 
             public ArrayBuilder Push(bool value)
             {
                 Prepare();
-                builder.Append(value ? "true" : "false");
+                builder.Append(value ? JsonHelper.TrueString : JsonHelper.FalseString);
                 return this;
             }
 
             public ArrayBuilder Push(int value)
             {
                 Prepare();
-                builder.Append(value.ToString(CultureInfo.InvariantCulture));
+                JsonHelper.AppendInt32(builder, value);
                 return this;
             }
 
             public ArrayBuilder Push(long value)
             {
                 Prepare();
-                builder.Append(value.ToString(CultureInfo.InvariantCulture));
+                JsonHelper.AppendInt64(builder, value);
                 return this;
             }
 
@@ -75,7 +75,7 @@ namespace Halak
             public ArrayBuilder Push(string value)
             {
                 Prepare();
-                JsonHelper.EscapeTo(builder, value);
+                JsonHelper.AppendEscapedString(builder, value);
                 return this;
             }
 
@@ -85,7 +85,7 @@ namespace Halak
                 if (value.Type != TypeCode.Null)
                     builder.Append(value.source, value.startIndex, value.length);
                 else
-                    builder.Append("null");
+                    builder.Append(JsonHelper.NullString);
                 return this;
             }
 

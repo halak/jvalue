@@ -12,13 +12,13 @@ namespace Halak
         {
             Assert.IsTrue(JValue.Parse("true"));
             Assert.IsFalse(JValue.Parse("false"));
-            Assert.AreEqual(JValue.Parse("10").AsInt(), 10);
+            Assert.AreEqual(JValue.Parse("10").AsInt32(), 10);
         }
 
         [TestMethod]
         public void TestInvalidValueParsing()
         {
-            Assert.AreEqual(-1, new JValue("environment").AsInt(-1));
+            Assert.AreEqual(-1, new JValue("environment").AsInt32(-1));
         }
 
         [TestMethod]
@@ -133,8 +133,8 @@ namespace Halak
                 ]
             }");
 
-            Assert.AreEqual(100, commented["Life"].AsInt());
-            Assert.AreEqual(10, commented["Mana"].AsInt());
+            Assert.AreEqual(100, commented["Life"].AsInt32());
+            Assert.AreEqual(10, commented["Mana"].AsInt32());
             Assert.AreEqual("Sword", commented["Items"][0].AsString());
             Assert.AreEqual("Shield", commented["Items"][1].AsString());
         }
