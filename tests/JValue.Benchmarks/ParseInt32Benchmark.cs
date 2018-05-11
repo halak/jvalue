@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Globalization;
 using BenchmarkDotNet.Attributes;
 
 namespace Halak
@@ -12,6 +11,7 @@ namespace Halak
         private string negativeNumber;
         private string minNumber;
         private string maxNumber;
+        private NumberFormatInfo invariantInfo;
 
         [GlobalSetup]
         public void Setup()
@@ -21,6 +21,7 @@ namespace Halak
             negativeNumber = "-1123";
             minNumber = int.MinValue.ToString();
             maxNumber = int.MaxValue.ToString();
+            invariantInfo = NumberFormatInfo.InvariantInfo;
         }
 
         [Benchmark(Description = "int.Parse", Baseline = true)]
@@ -44,6 +45,17 @@ namespace Halak
             int.TryParse(minNumber, out d);
             int.TryParse(maxNumber, out e);
             return a + b + c + d + e;
+        }
+
+        [Benchmark(Description = "int.Parse(Invariant)")]
+        public int SystemInt32ParseInvariant()
+        {
+            return
+                int.Parse(shortNumber, invariantInfo) +
+                int.Parse(longNumber, invariantInfo) +
+                int.Parse(negativeNumber, invariantInfo) +
+                int.Parse(minNumber, invariantInfo) +
+                int.Parse(maxNumber, invariantInfo);
         }
 
         [Benchmark(Description = "JValue.Parse")]

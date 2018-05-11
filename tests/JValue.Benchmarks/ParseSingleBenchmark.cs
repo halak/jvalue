@@ -1,34 +1,41 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Globalization;
 using BenchmarkDotNet.Attributes;
 
 namespace Halak
 {
     public class ParseSingleBenchmark
     {
-        private string source1;
-        private string source2;
+        private string number1;
+        private string number2;
+        private NumberFormatInfo invariantInfo;
 
         [GlobalSetup]
         public void Setup()
         {
-            source1 = "1234.56789";
-            source2 = "1.1234e+10";
+            number1 = "1234.56789";
+            number2 = "1.1234e+10";
+            invariantInfo = NumberFormatInfo.InvariantInfo;
         }
 
         [Benchmark(Description = "float.Parse", Baseline = true)]
         public float SystemSingleParse()
         {
-            return float.Parse(source1) + float.Parse(source2);
+            return float.Parse(number1) + float.Parse(number2);
+        }
+
+        [Benchmark(Description = "float.Parse(Invariant)")]
+        public float SystemSingleParseInvariant()
+        {
+            return float.Parse(number1, invariantInfo) + float.Parse(number2, invariantInfo);
         }
 
         [Benchmark(Description = "JValue.Parse")]
         public float JValueParse()
         {
             return
-                JsonHelper.Parse(source1, 0, source1.Length, 0.0f) +
-                JsonHelper.Parse(source2, 0, source2.Length, 0.0f);
+                JsonHelper.Parse(number1, 0, number1.Length, 0.0f) +
+                JsonHelper.Parse(number2, 0, number2.Length, 0.0f);
         }
     }
 }

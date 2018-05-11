@@ -44,6 +44,8 @@ namespace Halak
             Assert.AreEqual(3948222L, Parse("3948222"));
             Assert.AreEqual(long.MinValue, Parse(long.MinValue.ToString()));
             Assert.AreEqual(long.MaxValue, Parse(long.MaxValue.ToString()));
+            Assert.AreEqual(int.MinValue - 1L, Parse((int.MinValue - 1L).ToString()));
+            Assert.AreEqual(int.MaxValue + 1L, Parse((int.MaxValue + 1L).ToString()));
 
             var random = new Random();
             for (var i = 0; i < 1000; i++)
@@ -65,6 +67,9 @@ namespace Halak
             Assert.AreEqual(0.0, Parse("0"));
             Assert.AreEqual(-1293.8723, Parse("-1293.8723"));
             Assert.AreEqual(3948.222, Parse("3948.222"));
+            Assert.AreEqual(123.45e+6, Parse("123.45e+6"));
+            Assert.AreEqual(123.45e6, Parse("123.45e6"));
+            Assert.AreEqual(1E3, Parse("1E3"));
 
             var min = -10000000.0;
             var max = +10000000.0;
@@ -77,10 +82,7 @@ namespace Halak
 
                 Assert.AreEqual(value, Parse(value.ToString()));
                 var valueString = value.ToString(specifiers[random.Next(specifiers.Length)]);
-                Assert.AreEqual(
-                    double.Parse(valueString),
-                    JsonHelper.Parse(valueString, 0, valueString.Length, 0.0),
-                    0.0000001);
+                Assert.AreEqual(double.Parse(valueString), Parse(valueString), 0.000001);
             }
         }
     }

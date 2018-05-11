@@ -144,13 +144,25 @@ namespace Halak
 
             // defaultValue => result
             if (exponent != 0)
-                defaultValue = mantissa / Math.Pow(10.0, exponent);
+                defaultValue = mantissa / Pow10(exponent);
             else
                 defaultValue = mantissa;
+
             if (s[startIndex] == '-')
                 defaultValue = -defaultValue;
 
             return defaultValue;
         }
+
+        public static double Pow10(int d) => (((d + Power10Bias) & int.MaxValue) < Power10Count ? Power10[d + Power10Bias] : Pow10Actually(d));
+        private static double Pow10Actually(int d) => Math.Pow(10.0, d);
+
+        private const int Power10Bias = 12;
+        private const int Power10Count = 24;
+        private static readonly double[] Power10 = new[]
+        {
+            1E-12, 1E-11, 1E-10, 1E-9, 1E-8, 1E-7, 1E-6, 1E-5, 1E-4, 1E-3, 1E-2, 1E-1,
+            1E+0, 1E+1, 1E+2, 1E+3, 1E+4, 1E+5, 1E+6, 1E+7, 1E+8, 1E+9, 1E+10, 1E+11,
+        };
     }
 }
