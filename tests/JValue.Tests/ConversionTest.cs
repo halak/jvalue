@@ -19,10 +19,10 @@ namespace Halak
             Assert.AreEqual(0.0f, (float)value);
             Assert.AreEqual(0.0, (double)value);
             Assert.AreEqual("", (string)value);
-            Assert.IsNotNull(value.AsArray());
-            Assert.IsNotNull(value.AsObject());
-            Assert.IsTrue(value.AsArray().SequenceEqual(new List<JValue>()));
-            Assert.IsTrue(value.AsObject().SequenceEqual(new Dictionary<JValue, JValue>()));
+            Assert.IsNotNull(value.ToArray());
+            Assert.IsNotNull(value.ToObject());
+            Assert.IsTrue(value.ToArray().SequenceEqual(new List<JValue>()));
+            Assert.IsTrue(value.ToObject().SequenceEqual(new Dictionary<JValue, JValue>()));
         }
 
         [TestMethod]
@@ -35,10 +35,10 @@ namespace Halak
             Assert.AreEqual(0.0f, (float)value);
             Assert.AreEqual(0.0, (double)value);
             Assert.AreEqual("false", (string)value);
-            Assert.IsNotNull(value.AsArray());
-            Assert.IsNotNull(value.AsObject());
-            Assert.IsTrue(value.AsArray().SequenceEqual(new List<JValue>()));
-            Assert.IsTrue(value.AsObject().SequenceEqual(new Dictionary<JValue, JValue>()));
+            Assert.IsNotNull(value.ToArray());
+            Assert.IsNotNull(value.ToObject());
+            Assert.IsTrue(value.ToArray().SequenceEqual(new List<JValue>()));
+            Assert.IsTrue(value.ToObject().SequenceEqual(new Dictionary<JValue, JValue>()));
         }
 
         [TestMethod]
@@ -51,10 +51,10 @@ namespace Halak
             Assert.AreEqual(1.0f, (float)value);
             Assert.AreEqual(1.0, (double)value);
             Assert.AreEqual("true", (string)value);
-            Assert.IsNotNull(value.AsArray());
-            Assert.IsNotNull(value.AsObject());
-            Assert.IsTrue(value.AsArray().SequenceEqual(new List<JValue>()));
-            Assert.IsTrue(value.AsObject().SequenceEqual(new Dictionary<JValue, JValue>()));
+            Assert.IsNotNull(value.ToArray());
+            Assert.IsNotNull(value.ToObject());
+            Assert.IsTrue(value.ToArray().SequenceEqual(new List<JValue>()));
+            Assert.IsTrue(value.ToObject().SequenceEqual(new Dictionary<JValue, JValue>()));
         }
 
         [TestMethod]
@@ -64,10 +64,10 @@ namespace Halak
 
             Assert.AreEqual(false, (bool)value);
             Assert.AreEqual("0", (string)value);
-            Assert.IsNotNull(value.AsArray());
-            Assert.IsNotNull(value.AsObject());
-            Assert.IsTrue(value.AsArray().SequenceEqual(new List<JValue>()));
-            Assert.IsTrue(value.AsObject().SequenceEqual(new Dictionary<JValue, JValue>()));
+            Assert.IsNotNull(value.ToArray());
+            Assert.IsNotNull(value.ToObject());
+            Assert.IsTrue(value.ToArray().SequenceEqual(new List<JValue>()));
+            Assert.IsTrue(value.ToObject().SequenceEqual(new Dictionary<JValue, JValue>()));
         }
 
         [TestMethod]
@@ -77,10 +77,10 @@ namespace Halak
 
             Assert.AreEqual(true, (bool)value);
             Assert.AreEqual("1", (string)value);
-            Assert.IsNotNull(value.AsArray());
-            Assert.IsNotNull(value.AsObject());
-            Assert.IsTrue(value.AsArray().SequenceEqual(new List<JValue>()));
-            Assert.IsTrue(value.AsObject().SequenceEqual(new Dictionary<JValue, JValue>()));
+            Assert.IsNotNull(value.ToArray());
+            Assert.IsNotNull(value.ToObject());
+            Assert.IsTrue(value.ToArray().SequenceEqual(new List<JValue>()));
+            Assert.IsTrue(value.ToObject().SequenceEqual(new Dictionary<JValue, JValue>()));
         }
 
         [TestMethod]
@@ -90,10 +90,10 @@ namespace Halak
 
             Assert.AreEqual(true, (bool)value);
             Assert.AreEqual("2", (string)value);
-            Assert.IsNotNull(value.AsArray());
-            Assert.IsNotNull(value.AsObject());
-            Assert.IsTrue(value.AsArray().SequenceEqual(new List<JValue>()));
-            Assert.IsTrue(value.AsObject().SequenceEqual(new Dictionary<JValue, JValue>()));
+            Assert.IsNotNull(value.ToArray());
+            Assert.IsNotNull(value.ToObject());
+            Assert.IsTrue(value.ToArray().SequenceEqual(new List<JValue>()));
+            Assert.IsTrue(value.ToObject().SequenceEqual(new Dictionary<JValue, JValue>()));
         }
 
         [TestMethod]
@@ -106,10 +106,10 @@ namespace Halak
             Assert.AreEqual(0L, (long)value);
             Assert.AreEqual(0.0f, (float)value);
             Assert.AreEqual(0.0, (double)value);
-            Assert.IsNotNull(value.AsArray());
-            Assert.IsNotNull(value.AsObject());
-            Assert.IsTrue(value.AsArray().SequenceEqual(new List<JValue>()));
-            Assert.IsTrue(value.AsObject().SequenceEqual(new Dictionary<JValue, JValue>()));
+            Assert.IsNotNull(value.ToArray());
+            Assert.IsNotNull(value.ToObject());
+            Assert.IsTrue(value.ToArray().SequenceEqual(new List<JValue>()));
+            Assert.IsTrue(value.ToObject().SequenceEqual(new Dictionary<JValue, JValue>()));
         }
 
         [TestMethod]
@@ -122,10 +122,10 @@ namespace Halak
             Assert.AreEqual(0L, (long)value);
             Assert.AreEqual(0.0f, (float)value);
             Assert.AreEqual(0.0, (double)value);
-            Assert.IsNotNull(value.AsArray());
-            Assert.IsNotNull(value.AsObject());
-            Assert.IsTrue(value.AsArray().SequenceEqual(new List<JValue>()));
-            Assert.IsTrue(value.AsObject().SequenceEqual(new Dictionary<JValue, JValue>()));
+            Assert.IsNotNull(value.ToArray());
+            Assert.IsNotNull(value.ToObject());
+            Assert.IsTrue(value.ToArray().SequenceEqual(new List<JValue>()));
+            Assert.IsTrue(value.ToObject().SequenceEqual(new Dictionary<JValue, JValue>()));
         }
 
         [TestMethod]
@@ -138,10 +138,10 @@ namespace Halak
             Assert.AreEqual(123L, (long)value);
             Assert.AreEqual(123.456f, (float)value);
             Assert.AreEqual(123.456, (double)value);
-            Assert.IsNotNull(value.AsArray());
-            Assert.IsNotNull(value.AsObject());
-            Assert.IsTrue(value.AsArray().SequenceEqual(new List<JValue>()));
-            Assert.IsTrue(value.AsObject().SequenceEqual(new Dictionary<JValue, JValue>()));
+            Assert.IsNotNull(value.ToArray());
+            Assert.IsNotNull(value.ToObject());
+            Assert.IsTrue(value.ToArray().SequenceEqual(new List<JValue>()));
+            Assert.IsTrue(value.ToObject().SequenceEqual(new Dictionary<JValue, JValue>()));
         }
 
         [TestMethod]
@@ -150,10 +150,10 @@ namespace Halak
             var value = JValue.Parse("\"hello world\"");
 
             Assert.AreEqual(true, (bool)value);
-            Assert.IsNotNull(value.AsArray());
-            Assert.IsNotNull(value.AsObject());
-            Assert.IsTrue(value.AsArray().SequenceEqual(new List<JValue>()));
-            Assert.IsTrue(value.AsObject().SequenceEqual(new Dictionary<JValue, JValue>()));
+            Assert.IsNotNull(value.ToArray());
+            Assert.IsNotNull(value.ToObject());
+            Assert.IsTrue(value.ToArray().SequenceEqual(new List<JValue>()));
+            Assert.IsTrue(value.ToObject().SequenceEqual(new Dictionary<JValue, JValue>()));
         }
     }
 }

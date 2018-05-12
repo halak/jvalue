@@ -126,17 +126,17 @@ namespace Halak
         #endregion
 
         #region Methods
-        #region As
-        public bool AsBoolean(bool defaultValue = false)
+        #region Convert
+        public bool ToBoolean(bool defaultValue = false)
         {
             switch (Type)
             {
                 case TypeCode.Null:
                     return defaultValue;
                 case TypeCode.Boolean:
-                    return AsBooleanActually();
+                    return ToBooleanActually();
                 case TypeCode.Number:
-                    return AsDoubleActually() != 0.0;
+                    return ToDoubleActually() != 0.0;
                 case TypeCode.String:
                     return length != 2;  // two quotation marks
                 case TypeCode.Array:
@@ -147,21 +147,21 @@ namespace Halak
             }
         }
 
-        private bool AsBooleanActually()
+        private bool ToBooleanActually()
         {
             return source[startIndex] == 't';
         }
 
-        public int AsInt32(int defaultValue = 0)
+        public int ToInt32(int defaultValue = 0)
         {
             switch (Type)
             {
                 case TypeCode.Boolean:
-                    return AsBooleanActually() ? 1 : 0;
+                    return ToBooleanActually() ? 1 : 0;
                 case TypeCode.Number:
-                    return AsInt32Actually(defaultValue);
+                    return ToInt32Actually(defaultValue);
                 case TypeCode.String:
-                    return new JValue(source, startIndex + 1, length - 2).AsInt32Actually(defaultValue);  // TODO: escaped string issue
+                    return ConvertForNumberParsing().ToInt32Actually(defaultValue);
                 default:
                     return defaultValue;
             }
@@ -183,7 +183,7 @@ namespace Halak
             return true;
         }
 
-        private int AsInt32Actually(int defaultValue = 0)
+        private int ToInt32Actually(int defaultValue = 0)
         {
             if (IsInteger())
                 return JsonHelper.Parse(source, startIndex, length, defaultValue);
@@ -191,22 +191,22 @@ namespace Halak
                 return (int)JsonHelper.Parse(source, startIndex, length, (double)defaultValue);
         }
 
-        public long AsInt64(long defaultValue = 0)
+        public long ToInt64(long defaultValue = 0)
         {
             switch (Type)
             {
                 case TypeCode.Boolean:
-                    return AsBooleanActually() ? 1 : 0;
+                    return ToBooleanActually() ? 1 : 0;
                 case TypeCode.Number:
-                    return AsInt64Actually(defaultValue);
+                    return ToInt64Actually(defaultValue);
                 case TypeCode.String:
-                    return new JValue(source, startIndex + 1, length - 2).AsInt64Actually(defaultValue);  // TODO: escaped string issue
+                    return ConvertForNumberParsing().ToInt64Actually(defaultValue);
                 default:
                     return defaultValue;
             }
         }
 
-        private long AsInt64Actually(long defaultValue = 0L)
+        private long ToInt64Actually(long defaultValue = 0L)
         {
             if (IsInteger())
                 return JsonHelper.Parse(source, startIndex, length, defaultValue);
@@ -214,62 +214,87 @@ namespace Halak
                 return (long)JsonHelper.Parse(source, startIndex, length, (double)defaultValue);
         }
 
-        public float AsSingle(float defaultValue = 0.0f)
+        public float ToSingle(float defaultValue = 0.0f)
         {
             switch (Type)
             {
                 case TypeCode.Boolean:
-                    return AsBooleanActually() ? 1 : 0;
+                    return ToBooleanActually() ? 1 : 0;
                 case TypeCode.Number:
-                    return AsSingleActually(defaultValue);
+                    return ToSingleActually(defaultValue);
                 case TypeCode.String:
-                    return new JValue(source, startIndex + 1, length - 2).AsSingleActually(defaultValue);  // TODO: escaped string issue
+                    return ConvertForNumberParsing().ToSingleActually(defaultValue);
                 default:
                     return defaultValue;
             }
         }
 
-        private float AsSingleActually(float defaultValue = 0.0f)
+        private float ToSingleActually(float defaultValue = 0.0f)
         {
             return JsonHelper.Parse(source, startIndex, length, defaultValue);
         }
 
-        public double AsDouble(double defaultValue = 0.0)
+        public double ToDouble(double defaultValue = 0.0)
         {
             switch (Type)
             {
                 case TypeCode.Boolean:
-                    return AsBooleanActually() ? 1.0 : 0.0;
+                    return ToBooleanActually() ? 1.0 : 0.0;
                 case TypeCode.Number:
-                    return AsDoubleActually(defaultValue);
+                    return ToDoubleActually(defaultValue);
                 case TypeCode.String:
-                    return new JValue(source, startIndex + 1, length - 2).AsDoubleActually(defaultValue);  // TODO: escaped string issue
+                    return ConvertForNumberParsing().ToDoubleActually(defaultValue);
                 default:
                     return defaultValue;
             }
         }
 
-        private double AsDoubleActually(double defaultValue = 0.0)
+        private double ToDoubleActually(double defaultValue = 0.0)
         {
             return JsonHelper.Parse(source, startIndex, length, defaultValue);
         }
 
-        public string AsString(string defaultValue = "")
+        public decimal ToDecimal(decimal defaultValue = 0.0m)
         {
             switch (Type)
             {
                 case TypeCode.Boolean:
-                    return AsBooleanActually() ? JsonHelper.TrueString : JsonHelper.FalseString;
+                    return ToBooleanActually() ? 1.0m : 0.0m;
+                case TypeCode.Number:
+                    return ToDecimalActually(defaultValue);
+                case TypeCode.String:
+                    return ConvertForNumberParsing().ToDecimalActually(defaultValue);
+                default:
+                    return defaultValue;
+            }
+        }
+
+        private decimal ToDecimalActually(decimal defaultValue = 0.0m)
+        {
+            var styles = NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint | NumberStyles.AllowExponent;
+            var value = decimal.Zero;
+            if (decimal.TryParse(ToString(), styles, CultureInfo.InvariantCulture, out value))
+                return value;
+            else
+                return defaultValue;
+        }
+
+        public string ToUnescapedString(string defaultValue = "")
+        {
+            switch (Type)
+            {
+                case TypeCode.Boolean:
+                    return ToBooleanActually() ? JsonHelper.TrueString : JsonHelper.FalseString;
                 case TypeCode.Number:
                     return source.Substring(startIndex, length);
                 case TypeCode.String:
-                    return AsStringActually();
+                    return ToUnescapedStringActually();
                 default:
                     return defaultValue;
             }
         }
 
-        private string AsStringActually()
+        private string ToUnescapedStringActually()
         {
             var sb = new StringBuilder(length);
             var enumerator = GetCharEnumerator();
@@ -279,7 +304,19 @@ namespace Halak
             return sb.ToString();
         }
 
-        public List<JValue> AsArray()
+        private JValue ConvertForNumberParsing()
+        {
+            var end = startIndex + length - 1;
+            for (var i = startIndex + 1; i < end; i++)
+            {
+                if (source[i] == '\\')
+                    return new JValue(ToUnescapedStringActually(), false);
+            }
+
+            return new JValue(source, startIndex + 1, length - 2);
+        }
+
+        public List<JValue> ToArray()
         {
             var result = new List<JValue>(GetElementCount());
             foreach (var item in Array())
@@ -288,7 +325,7 @@ namespace Halak
             return result;
         }
 
-        public Dictionary<JValue, JValue> AsObject()
+        public Dictionary<JValue, JValue> ToObject()
         {
             var result = new Dictionary<JValue, JValue>(GetElementCount());
             foreach (var item in Object())
@@ -314,7 +351,7 @@ namespace Halak
         /// Trace.Assert(x[-2] == 8);
         /// </code>
         /// </example>
-        public JValue Get(int index)
+        private JValue Get(int index)
         {
             // TODO: OPTIMIZE
 
@@ -383,7 +420,7 @@ namespace Halak
         /// Trace.Assert(x["hello"]["world"] == 10);
         /// </code>
         /// </example>
-        public JValue Get(string key)
+        private JValue Get(string key)
         {
             if (Type == TypeCode.Object)
             {
@@ -758,18 +795,8 @@ namespace Halak
         #endregion
 
         #region System.Object
-        public override int GetHashCode()
-        {
-            return source.GetHashCode() + startIndex;
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (obj is JValue)
-                return Equals((JValue)obj);
-            else
-                return false;
-        }
+        public override int GetHashCode() { return source.GetHashCode() + startIndex; }
+        public override bool Equals(object obj) { return (obj is JValue) && Equals((JValue)obj); }
 
         public override string ToString()
         {
@@ -804,9 +831,9 @@ namespace Halak
                     case TypeCode.Null:
                         return true;
                     case TypeCode.Boolean:
-                        return AsBooleanActually() == other.AsBooleanActually();
+                        return ToBooleanActually() == other.ToBooleanActually();
                     case TypeCode.Number:
-                        return AsDoubleActually() == other.AsDoubleActually();
+                        return ToDoubleActually() == other.ToDoubleActually();
                     case TypeCode.String:
                         return EqualsString(other);
                     default:
@@ -844,17 +871,19 @@ namespace Halak
         #endregion
 
         #region Implicit Conversion
-        public static implicit operator bool(JValue value) { return value.AsBoolean(); }
-        public static implicit operator int(JValue value) { return value.AsInt32(); }
-        public static implicit operator long(JValue value) { return value.AsInt64(); }
-        public static implicit operator float(JValue value) { return value.AsSingle(); }
-        public static implicit operator double(JValue value) { return value.AsDouble(); }
-        public static implicit operator string(JValue value) { return value.AsString(); }
+        public static implicit operator bool(JValue value) { return value.ToBoolean(); }
+        public static implicit operator int(JValue value) { return value.ToInt32(); }
+        public static implicit operator long(JValue value) { return value.ToInt64(); }
+        public static implicit operator float(JValue value) { return value.ToSingle(); }
+        public static implicit operator double(JValue value) { return value.ToDouble(); }
+        public static implicit operator decimal(JValue value) { return value.ToDecimal(); }
+        public static implicit operator string(JValue value) { return value.ToUnescapedString(); }
         public static implicit operator JValue(bool value) { return new JValue(value); }
         public static implicit operator JValue(int value) { return new JValue(value); }
         public static implicit operator JValue(long value) { return new JValue(value); }
         public static implicit operator JValue(float value) { return new JValue(value); }
         public static implicit operator JValue(double value) { return new JValue(value); }
+        public static implicit operator JValue(decimal value) { return new JValue(value); }
         public static implicit operator JValue(string value) { return new JValue(value); }
         #endregion
 

@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -12,13 +12,13 @@ namespace Halak
         {
             Assert.IsTrue(JValue.Parse("true"));
             Assert.IsFalse(JValue.Parse("false"));
-            Assert.AreEqual(JValue.Parse("10").AsInt32(), 10);
+            Assert.AreEqual(JValue.Parse("10").ToInt32(), 10);
         }
 
         [TestMethod]
         public void TestInvalidValueParsing()
         {
-            Assert.AreEqual(-1, new JValue("environment").AsInt32(-1));
+            Assert.AreEqual(-1, new JValue("environment").ToInt32(-1));
         }
 
         [TestMethod]
@@ -52,7 +52,7 @@ namespace Halak
             Assert.AreEqual("World", (string)elements[5]);
             Assert.AreEqual(1, (int)elements[6]);
 
-            var subElements = array[2].AsArray();
+            var subElements = array[2].ToArray();
             Assert.AreEqual(10, (int)subElements[0]);
             Assert.AreEqual(30, (int)subElements[1]);
             Assert.AreEqual(40, (int)subElements[2]);
@@ -84,7 +84,7 @@ namespace Halak
                 ""price"": {""usd"":0.99, ""krw"":1000}
             }");
 
-            Assert.AreEqual("Json guide", book["name"].AsString());
+            Assert.AreEqual("Json guide", book["name"].ToUnescapedString());
             Assert.AreEqual(400, (int)book["pages"]);
 
             Assert.AreEqual("computer", (string)book["tags"][0]);
@@ -110,10 +110,10 @@ namespace Halak
         [TestMethod]
         public void TestEscapedStringParsing()
         {
-            Assert.AreEqual("¸¶¸°", JValue.Parse(@"""\ub9c8\ub9b0""").AsString());
+            Assert.AreEqual("ë§ˆë¦°", JValue.Parse(@"""\ub9c8\ub9b0""").ToUnescapedString());
 
             var fileTable = JValue.Parse("{\"C:\\\\hello\\\\world.txt\": \"awesome\nworld\"}");
-            Assert.AreEqual("awesome\nworld", fileTable["C:\\hello\\world.txt"].AsString());
+            Assert.AreEqual("awesome\nworld", fileTable["C:\\hello\\world.txt"].ToUnescapedString());
         }
 
         [TestMethod]
@@ -133,10 +133,10 @@ namespace Halak
                 ]
             }");
 
-            Assert.AreEqual(100, commented["Life"].AsInt32());
-            Assert.AreEqual(10, commented["Mana"].AsInt32());
-            Assert.AreEqual("Sword", commented["Items"][0].AsString());
-            Assert.AreEqual("Shield", commented["Items"][1].AsString());
+            Assert.AreEqual(100, commented["Life"].ToInt32());
+            Assert.AreEqual(10, commented["Mana"].ToInt32());
+            Assert.AreEqual("Sword", commented["Items"][0].ToUnescapedString());
+            Assert.AreEqual("Shield", commented["Items"][1].ToUnescapedString());
         }
     }
 }

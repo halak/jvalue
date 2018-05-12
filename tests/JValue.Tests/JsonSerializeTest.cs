@@ -13,8 +13,8 @@ namespace Halak
             Assert.AreEqual("true", new JValue(true).ToString());
             Assert.AreEqual("false", new JValue(false).ToString());
             Assert.AreEqual(JValue.TypeCode.Number, new JValue(10).Type);
-            Assert.AreEqual(10, new JValue(10).AsInt32());
-            Assert.AreEqual("Hello\nWorld", new JValue("Hello\nWorld").AsString());
+            Assert.AreEqual(10, new JValue(10).ToInt32());
+            Assert.AreEqual("Hello\nWorld", new JValue("Hello\nWorld").ToUnescapedString());
         }
 
         [TestMethod]
