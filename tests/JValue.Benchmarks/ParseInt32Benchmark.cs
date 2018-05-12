@@ -62,11 +62,11 @@ namespace Halak
         public int JValueParse()
         {
             return
-                JsonHelper.Parse(shortNumber, 0, shortNumber.Length, 0) +
-                JsonHelper.Parse(longNumber, 0, longNumber.Length, 0) +
-                JsonHelper.Parse(negativeNumber, 0, negativeNumber.Length, 0) +
-                JsonHelper.Parse(minNumber, 0, minNumber.Length, 0) +
-                JsonHelper.Parse(maxNumber, 0, maxNumber.Length, 0);
+                JsonHelper.ParseInt32(shortNumber, 0, shortNumber.Length) +
+                JsonHelper.ParseInt32(longNumber, 0, longNumber.Length) +
+                JsonHelper.ParseInt32(negativeNumber, 0, negativeNumber.Length) +
+                JsonHelper.ParseInt32(minNumber, 0, minNumber.Length) +
+                JsonHelper.ParseInt32(maxNumber, 0, maxNumber.Length);
         }
     }
 }

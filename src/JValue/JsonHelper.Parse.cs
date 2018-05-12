@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Globalization;
 
 namespace Halak
 {
     public static partial class JsonHelper
     {
-        public static int Parse(string s, int startIndex, int length, int defaultValue)
+        public static int ParseInt32(string s, int startIndex, int length, int defaultValue = default(int))
         {
             if (length <= 0)
                 return defaultValue;
@@ -47,7 +48,7 @@ namespace Halak
             return result;
         }
 
-        public static long Parse(string s, int startIndex, int length, long defaultValue)
+        public static long ParseInt64(string s, int startIndex, int length, long defaultValue = default(long))
         {
             if (length <= 0)
                 return defaultValue;
@@ -90,12 +91,12 @@ namespace Halak
             return result;
         }
 
-        public static float Parse(string s, int startIndex, int length, float defaultValue)
+        public static float ParseSingle(string s, int startIndex, int length, float defaultValue = default(float))
         {
-            return (float)Parse(s, startIndex, length, (double)defaultValue);
+            return (float)ParseDouble(s, startIndex, length, (double)defaultValue);
         }
 
-        public static double Parse(string s, int startIndex, int length, double defaultValue)
+        public static double ParseDouble(string s, int startIndex, int length, double defaultValue = default(double))
         {
             if (length <= 0)
                 return defaultValue;
@@ -140,7 +141,7 @@ namespace Halak
             }
 
             if (i < length)
-                exponent -= Parse(s, i + 1, length - (i + 1), 0);
+                exponent -= ParseInt32(s, i + 1, length - (i + 1), 0);
 
             // defaultValue => result
             if (exponent != 0)
@@ -154,7 +155,20 @@ namespace Halak
             return defaultValue;
         }
 
-        public static double Pow10(int d) => (((d + Power10Bias) & int.MaxValue) < Power10Count ? Power10[d + Power10Bias] : Pow10Actually(d));
+        public static decimal ParseDecimal(string s, int startIndex, int length, decimal defaultValue = default(decimal))
+        {
+            if (startIndex != 0 || s.Length != length)
+                s = s.Substring(startIndex, length);
+
+            var styles = NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint | NumberStyles.AllowExponent;
+            var value = decimal.Zero;
+            if (decimal.TryParse(s, styles, CultureInfo.InvariantCulture, out value))
+                return value;
+            else
+                return defaultValue;
+        }
+
+        private static double Pow10(int d) => (((d + Power10Bias) & int.MaxValue) < Power10Count ? Power10[d + Power10Bias] : Pow10Actually(d));
         private static double Pow10Actually(int d) => Math.Pow(10.0, d);
 
         private const int Power10Bias = 12;

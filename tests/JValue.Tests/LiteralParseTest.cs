@@ -9,7 +9,7 @@ namespace Halak
         [TestMethod]
         public void TestIntParsing()
         {
-            int Parse(string s) => JsonHelper.Parse(s, 0, s.Length, 0);
+            int Parse(string s) => JsonHelper.ParseInt32(s, 0, s.Length);
 
             Assert.AreEqual(10000, Parse("10000"));
             Assert.AreEqual(0, Parse("4294967295"));  // overflow
@@ -35,7 +35,7 @@ namespace Halak
         [TestMethod]
         public void TestLongParsing()
         {
-            long Parse(string s) => JsonHelper.Parse(s, 0, s.Length, 0L);
+            long Parse(string s) => JsonHelper.ParseInt64(s, 0, s.Length);
 
             Assert.AreEqual(10000L, Parse("10000"));
             Assert.AreEqual(0L, Parse("12387cs831"));  // invalid
@@ -60,7 +60,7 @@ namespace Halak
         [TestMethod]
         public void TestDoubleParsing()
         {
-            double Parse(string s) => JsonHelper.Parse(s, 0, s.Length, 0.0);
+            double Parse(string s) => JsonHelper.ParseDouble(s, 0, s.Length);
 
             Assert.AreEqual(10000.0, Parse("10000"));
             Assert.AreEqual(2147483647.0, Parse("2147483647"));

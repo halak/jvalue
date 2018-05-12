@@ -136,7 +136,7 @@ namespace Halak
                 case TypeCode.Boolean:
                     return ToBooleanActually();
                 case TypeCode.Number:
-                    return ToDoubleActually() != 0.0;
+                    return ToDoubleActually(0.0) != 0.0;
                 case TypeCode.String:
                     return length != 2;  // two quotation marks
                 case TypeCode.Array:
@@ -147,10 +147,7 @@ namespace Halak
             }
         }
 
-        private bool ToBooleanActually()
-        {
-            return source[startIndex] == 't';
-        }
+        private bool ToBooleanActually() { return source[startIndex] == 't'; }
 
         public int ToInt32(int defaultValue = 0)
         {
@@ -183,12 +180,12 @@ namespace Halak
             return true;
         }
 
-        private int ToInt32Actually(int defaultValue = 0)
+        private int ToInt32Actually(int defaultValue)
         {
             if (IsInteger())
-                return JsonHelper.Parse(source, startIndex, length, defaultValue);
+                return JsonHelper.ParseInt32(source, startIndex, length, defaultValue);
             else
-                return (int)JsonHelper.Parse(source, startIndex, length, (double)defaultValue);
+                return (int)JsonHelper.ParseDouble(source, startIndex, length, defaultValue);
         }
 
         public long ToInt64(long defaultValue = 0)
@@ -206,12 +203,12 @@ namespace Halak
             }
         }
 
-        private long ToInt64Actually(long defaultValue = 0L)
+        private long ToInt64Actually(long defaultValue)
         {
             if (IsInteger())
-                return JsonHelper.Parse(source, startIndex, length, defaultValue);
+                return JsonHelper.ParseInt64(source, startIndex, length, defaultValue);
             else
-                return (long)JsonHelper.Parse(source, startIndex, length, (double)defaultValue);
+                return (long)JsonHelper.ParseDouble(source, startIndex, length, defaultValue);
         }
 
         public float ToSingle(float defaultValue = 0.0f)
@@ -229,10 +226,7 @@ namespace Halak
             }
         }
 
-        private float ToSingleActually(float defaultValue = 0.0f)
-        {
-            return JsonHelper.Parse(source, startIndex, length, defaultValue);
-        }
+        private float ToSingleActually(float defaultValue) { return JsonHelper.ParseSingle(source, startIndex, length, defaultValue); }
 
         public double ToDouble(double defaultValue = 0.0)
         {
@@ -249,10 +243,7 @@ namespace Halak
             }
         }
 
-        private double ToDoubleActually(double defaultValue = 0.0)
-        {
-            return JsonHelper.Parse(source, startIndex, length, defaultValue);
-        }
+        private double ToDoubleActually(double defaultValue) { return JsonHelper.ParseDouble(source, startIndex, length, defaultValue); }
 
         public decimal ToDecimal(decimal defaultValue = 0.0m)
         {
@@ -269,15 +260,7 @@ namespace Halak
             }
         }
 
-        private decimal ToDecimalActually(decimal defaultValue = 0.0m)
-        {
-            var styles = NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint | NumberStyles.AllowExponent;
-            var value = decimal.Zero;
-            if (decimal.TryParse(ToString(), styles, CultureInfo.InvariantCulture, out value))
-                return value;
-            else
-                return defaultValue;
-        }
+        private decimal ToDecimalActually(decimal defaultValue) { return JsonHelper.ParseDecimal(source, startIndex, length, defaultValue); }
 
         public string ToUnescapedString(string defaultValue = "")
         {
@@ -833,7 +816,7 @@ namespace Halak
                     case TypeCode.Boolean:
                         return ToBooleanActually() == other.ToBooleanActually();
                     case TypeCode.Number:
-                        return ToDoubleActually() == other.ToDoubleActually();
+                        return ToDoubleActually(0.0) == other.ToDoubleActually(0.0);
                     case TypeCode.String:
                         return EqualsString(other);
                     default:
