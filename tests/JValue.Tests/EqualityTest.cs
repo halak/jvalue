@@ -1,5 +1,4 @@
-using System;
-using System.Linq;
+ï»¿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Halak
@@ -19,9 +18,9 @@ namespace Halak
         [TestMethod]
         public void TestEscapedStringEquality()
         {
-            Assert.AreEqual(new JValue("¸¶¸°"), JValue.Parse(@"""\ub9c8\ub9b0"""));
-            Assert.AreNotEqual(new JValue("¸¶¸°A"), JValue.Parse(@"""\ub9c8\ub9b0"""));
-            Assert.AreNotEqual(new JValue("¸¶¸°"), JValue.Parse(@"""\ub9c8\ub9b0A"""));
+            Assert.AreEqual(new JValue("ë§ˆë¦°"), JValue.Parse(@"""\ub9c8\ub9b0"""));
+            Assert.AreNotEqual(new JValue("ë§ˆë¦°A"), JValue.Parse(@"""\ub9c8\ub9b0"""));
+            Assert.AreNotEqual(new JValue("ë§ˆë¦°"), JValue.Parse(@"""\ub9c8\ub9b0A"""));
         }
 
         [TestMethod]
