@@ -117,10 +117,10 @@ namespace Halak
             this.length = source.Length;
         }
 
-        private JValue(string source, int startOffset, int length)
+        private JValue(string source, int startIndex, int length)
         {
             this.source = source;
-            this.startIndex = startOffset;
+            this.startIndex = startIndex;
             this.length = length;
         }
         #endregion

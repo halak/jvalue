@@ -62,11 +62,33 @@ namespace Halak
         public int JValueParse()
         {
             return
-                JsonHelper.ParseInt32(shortNumber, 0, shortNumber.Length) +
-                JsonHelper.ParseInt32(longNumber, 0, longNumber.Length) +
-                JsonHelper.ParseInt32(negativeNumber, 0, negativeNumber.Length) +
-                JsonHelper.ParseInt32(minNumber, 0, minNumber.Length) +
-                JsonHelper.ParseInt32(maxNumber, 0, maxNumber.Length);
+                JsonHelper.ParseInt32Old(shortNumber, 0, shortNumber.Length) +
+                JsonHelper.ParseInt32Old(longNumber, 0, longNumber.Length) +
+                JsonHelper.ParseInt32Old(negativeNumber, 0, negativeNumber.Length) +
+                JsonHelper.ParseInt32Old(minNumber, 0, minNumber.Length) +
+                JsonHelper.ParseInt32Old(maxNumber, 0, maxNumber.Length);
+        }
+
+        [Benchmark(Description = "JValue.ParseNew")]
+        public int JValueParseNew()
+        {
+            return
+                JsonHelper.ParseInt32New(shortNumber, 0, shortNumber.Length) +
+                JsonHelper.ParseInt32New(longNumber, 0, longNumber.Length) +
+                JsonHelper.ParseInt32New(negativeNumber, 0, negativeNumber.Length) +
+                JsonHelper.ParseInt32New(minNumber, 0, minNumber.Length) +
+                JsonHelper.ParseInt32New(maxNumber, 0, maxNumber.Length);
+        }
+
+        [Benchmark(Description = "JValue.ParseNewNew")]
+        public int JValueParseNewNew()
+        {
+            return
+                JsonHelper.ParseInt32NewNew(shortNumber, 0) +
+                JsonHelper.ParseInt32NewNew(longNumber, 0) +
+                JsonHelper.ParseInt32NewNew(negativeNumber, 0) +
+                JsonHelper.ParseInt32NewNew(minNumber, 0) +
+                JsonHelper.ParseInt32NewNew(maxNumber, 0);
         }
     }
 }

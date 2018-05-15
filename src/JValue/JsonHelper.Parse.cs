@@ -5,6 +5,150 @@ namespace Halak
 {
     public static partial class JsonHelper
     {
+        private const int Int32Precision = 10;
+
+        public static int ParseInt32NewNew(string s, int index, int defaultValue = default(int))
+        {
+            const uint BeforeOverflow = uint.MaxValue / 10 - 1;
+
+            var parser = new JsonNumberParser(s, index);
+
+            var value = 0U;
+            while (parser.HasIntegerPartDigit && value <= BeforeOverflow)
+                value = (value * 10) + parser.ReadDigitInIntegerPart();
+
+            if (parser.IsFinished == false)
+            {
+                if (parser.HasIntegerPartDigit)
+                {
+                    value *= 10;
+                    do
+                    {
+                        parser.ReadDigitInIntegerPart();
+                    } while (parser.HasIntegerPartDigit);
+                }
+
+                var exponent = 0;
+                while (parser.HasFractionalPartDigit && value <= BeforeOverflow)
+                {
+                    value = (value * 10) + parser.ReadDigitInFractionalPart();
+                    exponent--;
+                }
+
+                while (parser.HasFractionalPartDigit)
+                {
+                    parser.ReadDigitInFractionalPart();
+                    exponent--;
+                }
+
+                if (parser.HasExponent)
+                    exponent += parser.ReadExponent();
+
+                if (parser.HasError)
+                    return defaultValue;
+
+                if (exponent != 0)
+                {
+                    var integerPart = parser.Digits + exponent;
+                    if (integerPart > 0)
+                    {
+                        if (integerPart <= Int32Precision)
+                        {
+                            if (exponent > 0)
+                                value *= JNumberParser.Pow10ToUInt32(exponent);
+                            else
+                                value /= JNumberParser.Pow10ToUInt32(-exponent);
+                        }
+                        else
+                            return defaultValue;
+                    }
+                    else
+                        return 0;
+                }
+            }
+
+            if (parser.HasError)
+                return defaultValue;
+
+            if (parser.IsPositive)
+                return value <= int.MaxValue ? (int)value : defaultValue;
+            else
+            {
+                if (value < unchecked((uint)int.MinValue))
+                    return -(int)value;
+                else if (value == unchecked((uint)int.MinValue))
+                    return int.MinValue;
+                else
+                    return defaultValue;
+            }
+        }
+
+        public static int ParseInt32New(string s, int startIndex, int length, int defaultValue = default(int))
+        {
+            return JNumberParser.Analyze(s, startIndex, length).ToInt32(defaultValue);
+        }
+
+        private static bool IsInteger(string source, int startIndex, int length)
+        {
+            for (var i = startIndex; i < startIndex + length; i++)
+            {
+                switch (source[i])
+                {
+                    case '.':
+                    case 'e':
+                    case 'E':
+                        return false;
+                }
+            }
+
+            return true;
+        }
+
+        public static int ParseInt32Old(string s, int startIndex, int length, int defaultValue = default(int))
+        {
+            if (IsInteger(s, startIndex, length) == false)
+                return defaultValue;
+            if (length <= 0)
+                return defaultValue;
+
+            length += startIndex;
+
+            var result = 0;
+            if (s[startIndex] != '-')
+            {
+                if (s[startIndex] == '+')
+                    startIndex++;
+
+                for (var i = startIndex; i < length; i++)
+                {
+                    if ('0' <= s[i] && s[i] <= '9')
+                    {
+                        result = (result * 10) + (s[i] - '0');
+                        if (result < 0) // overflow
+                            return defaultValue;
+                    }
+                    else
+                        return defaultValue;
+                }
+            }
+            else
+            {
+                for (var i = startIndex + 1; i < length; i++)
+                {
+                    if ('0' <= s[i] && s[i] <= '9')
+                    {
+                        result = (result * 10) - (s[i] - '0');
+                        if (result > 0)  // underflow
+                            return defaultValue;
+                    }
+                    else
+                        return defaultValue;
+                }
+            }
+
+            return result;
+        }
+
         public static int ParseInt32(string s, int startIndex, int length, int defaultValue = default(int))
         {
             if (length <= 0)

@@ -7,7 +7,7 @@ namespace Halak
     public class LiteralParseTest
     {
         [TestMethod]
-        public void TestIntParsing()
+        public void ParseInt32()
         {
             int Parse(string s) => JsonHelper.ParseInt32(s, 0, s.Length);
 
@@ -33,7 +33,7 @@ namespace Halak
         }
 
         [TestMethod]
-        public void TestLongParsing()
+        public void ParseInt64()
         {
             long Parse(string s) => JsonHelper.ParseInt64(s, 0, s.Length);
 
@@ -58,7 +58,7 @@ namespace Halak
         }
 
         [TestMethod]
-        public void TestDoubleParsing()
+        public void ParseDouble()
         {
             double Parse(string s) => JsonHelper.ParseDouble(s, 0, s.Length);
 
