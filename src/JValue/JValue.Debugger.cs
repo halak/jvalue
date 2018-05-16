@@ -90,7 +90,7 @@ namespace Halak
 
             [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
             public object Items
-			{
+            {
                 get
                 {
                     switch (value.Type)
@@ -107,8 +107,8 @@ namespace Halak
                         default:
                             return null;
                     }
-				}
-			}
+                }
+            }
         }
     }
 }

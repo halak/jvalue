@@ -43,7 +43,7 @@ namespace Halak
         [Benchmark(Description = "Json.NET")]
         public StringBuilder TestJsonNET()
         {
-            var newtonJsonNET = new Newtonsoft.Json.JsonSerializer() { ContractResolver =  new Newtonsoft.Json.Serialization.DefaultContractResolver() };
+            var newtonJsonNET = new Newtonsoft.Json.JsonSerializer() { ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver() };
             var s = new StringBuilder(1024);
             for (var i = 0; i < N; i++)
             {

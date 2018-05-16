@@ -1,0 +1,15 @@
+root = true
+
+[*]
+indent_style = space
+
+[*.cs]
+indent_size = 4
+insert_final_newline = true
+charset = utf-8-bom
+
+[*.csproj]
+indent_size = 2
+
+[*.json]
+indent_size = 2
