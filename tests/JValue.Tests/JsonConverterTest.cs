@@ -22,7 +22,7 @@ namespace Halak
             Assert.AreEqual(@"{""X"":10,""Y"":20}",
                 ToJsonString(new { X = 10.0f, Y = 20.0f }));
             Assert.AreEqual(@"{""Name"":""Halak"",""Birthday"":""1988-06-12T00:00:00.0000000"",""Money"":100.0}",
-                ToJsonString(new { Name = "Halak", Birthday = new DateTime(1988, 06, 12), Money = 100.0m}));
+                ToJsonString(new { Name = "Halak", Birthday = new DateTime(1988, 06, 12), Money = 100.0m }));
         }
 
         [TestMethod]

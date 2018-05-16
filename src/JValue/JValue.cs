@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
@@ -837,7 +837,7 @@ namespace Halak
             var aEnumerator = GetCharEnumerator();
             var bEnumerator = other.GetCharEnumerator();
 
-            for(; ;)
+            for (; ; )
             {
                 var a = aEnumerator.MoveNext();
                 var b = bEnumerator.MoveNext();

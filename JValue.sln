@@ -15,7 +15,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JValue.Tests", "tests\JValu
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JValue.Benchmarks", "tests\JValue.Benchmarks\JValue.Benchmarks.csproj", "{AA1C6F78-E880-478B-8BD5-13392021E892}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JValue.Converter", "src\JValue.Converter\JValue.Converter.csproj", "{DE672957-8049-4D6F-906B-97D9E2EBF261}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JValue.Converter", "src\JValue.Converter\JValue.Converter.csproj", "{DE672957-8049-4D6F-906B-97D9E2EBF261}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{CD5AA8CE-C9FE-4A11-BF37-459D931928EB}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
