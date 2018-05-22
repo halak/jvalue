@@ -61,7 +61,7 @@ namespace Halak
         public void ParseDouble()
         {
             double Parse(string s) => JsonHelper.ParseDouble(s);
-            
+
             Assert.AreEqual(10000.0, Parse("10000"));
             Assert.AreEqual(2147483647.0, Parse("2147483647"));
             Assert.AreEqual(0.0, Parse("0"));

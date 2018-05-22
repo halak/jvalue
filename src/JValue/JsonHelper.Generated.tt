@@ -76,7 +76,7 @@ namespace Halak
                         else
                         {
                             mantissa *= 10;
-                            index = SkipIntegerPart(s, index + 1);
+                            index = SkipIntegerPart(s, end, index + 1);
                             c = (index < end) ? s[index] : '\0';
                             break;
                         }
@@ -131,7 +131,7 @@ namespace Halak
                         else
                         {
                             mantissa *= 10;
-                            index = SkipFractionalPart(s, index + 1);
+                            index = SkipFractionalPart(s, end, index + 1);
                             break;
                         }
                     }
@@ -159,21 +159,23 @@ namespace Halak
             if (c == 'e' || c == 'E')
             {
                 exponentSignIndex = index++;
-                exponent += ReadExponentIfSmall(s, ref index);
+                exponent += ReadExponentIfSmall(s, end, ref index);
             }
-<#          if (item.IsFloatingPoint) { #>
 
+<#          if (item.IsFloatingPoint) { #>
             var value = exponent != 0 ? Pow10((<#= item.Declare #>)mantissa, exponent) : mantissa;
             if (<#= item.Declare #>.IsInfinity(value) == false && <#= item.Declare #>.IsNaN(value) == false)
                 return isPositive ? value : -value;
             else
                 return <#= item.DefaultValue #>;  // overflow
 <#          } else { #>
-            if (digits + exponent > 0)
+            digits += exponent;
+            if (digits <= 0)
+                return Zero;
+            else if (digits > <#= item.Precision #>)
+                return <#= item.DefaultValue #>;  // overflow
+            else
             {
-                if (exponent > 10)
-                    return <#= item.DefaultValue #>;
-
                 if (exponent != 0)
                     mantissa = Pow10(mantissa, exponent);
 
@@ -182,8 +184,6 @@ namespace Halak
                 else
                     return (mantissa <= MaxNegativeValue) ? (<#= item.Return #>)(0 - mantissa) : <#= item.DefaultValue #>;
             }
-            else
-                return Zero;
 <#          } #>
         }
 <# if (i < items.Length - 1) { /* Margin */ #>
@@ -206,6 +206,7 @@ public struct Item
     public bool IsNullable { get; }
     public string DefaultValue { get; }
     public bool IsFloatingPoint { get; }
+    public int Precision { get; }
 
     public Item(Type type, Type storageType, bool isFloatingPoint = false)
     {
@@ -217,6 +218,7 @@ public struct Item
         this.IsNullable = Nullable(type);
         this.DefaultValue = IsNullable ? "null" : "defaultValue";
         this.IsFloatingPoint = isFloatingPoint;
+        this.Precision = (int)Math.Ceiling(Math.Log10(Math.Pow(2, System.Runtime.InteropServices.Marshal.SizeOf(storageType) * 8)));
     }
 
     private static string GetName(Type type)

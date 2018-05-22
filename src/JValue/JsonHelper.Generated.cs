@@ -47,7 +47,7 @@ namespace Halak
                         else
                         {
                             mantissa *= 10;
-                            index = SkipIntegerPart(s, index + 1);
+                            index = SkipIntegerPart(s, end, index + 1);
                             c = (index < end) ? s[index] : '\0';
                             break;
                         }
@@ -101,7 +101,7 @@ namespace Halak
                         else
                         {
                             mantissa *= 10;
-                            index = SkipFractionalPart(s, index + 1);
+                            index = SkipFractionalPart(s, end, index + 1);
                             break;
                         }
                     }
@@ -129,13 +129,16 @@ namespace Halak
             if (c == 'e' || c == 'E')
             {
                 exponentSignIndex = index++;
-                exponent += ReadExponentIfSmall(s, ref index);
+                exponent += ReadExponentIfSmall(s, end, ref index);
             }
-            if (digits + exponent > 0)
-            {
-                if (exponent > 10)
-                    return defaultValue;
 
+            digits += exponent;
+            if (digits <= 0)
+                return Zero;
+            else if (digits > 10)
+                return defaultValue;  // overflow
+            else
+            {
                 if (exponent != 0)
                     mantissa = Pow10(mantissa, exponent);
 
@@ -144,8 +147,6 @@ namespace Halak
                 else
                     return (mantissa <= MaxNegativeValue) ? (int)(0 - mantissa) : defaultValue;
             }
-            else
-                return Zero;
         }
 
         public static int? ParseNullableInt32(string s)
@@ -191,7 +192,7 @@ namespace Halak
                         else
                         {
                             mantissa *= 10;
-                            index = SkipIntegerPart(s, index + 1);
+                            index = SkipIntegerPart(s, end, index + 1);
                             c = (index < end) ? s[index] : '\0';
                             break;
                         }
@@ -245,7 +246,7 @@ namespace Halak
                         else
                         {
                             mantissa *= 10;
-                            index = SkipFractionalPart(s, index + 1);
+                            index = SkipFractionalPart(s, end, index + 1);
                             break;
                         }
                     }
@@ -273,13 +274,16 @@ namespace Halak
             if (c == 'e' || c == 'E')
             {
                 exponentSignIndex = index++;
-                exponent += ReadExponentIfSmall(s, ref index);
+                exponent += ReadExponentIfSmall(s, end, ref index);
             }
-            if (digits + exponent > 0)
-            {
-                if (exponent > 10)
-                    return null;
 
+            digits += exponent;
+            if (digits <= 0)
+                return Zero;
+            else if (digits > 10)
+                return null;  // overflow
+            else
+            {
                 if (exponent != 0)
                     mantissa = Pow10(mantissa, exponent);
 
@@ -288,8 +292,6 @@ namespace Halak
                 else
                     return (mantissa <= MaxNegativeValue) ? (int?)(0 - mantissa) : null;
             }
-            else
-                return Zero;
         }
 
         public static long ParseInt64(string s, long defaultValue = default(long))
@@ -335,7 +337,7 @@ namespace Halak
                         else
                         {
                             mantissa *= 10;
-                            index = SkipIntegerPart(s, index + 1);
+                            index = SkipIntegerPart(s, end, index + 1);
                             c = (index < end) ? s[index] : '\0';
                             break;
                         }
@@ -389,7 +391,7 @@ namespace Halak
                         else
                         {
                             mantissa *= 10;
-                            index = SkipFractionalPart(s, index + 1);
+                            index = SkipFractionalPart(s, end, index + 1);
                             break;
                         }
                     }
@@ -417,13 +419,16 @@ namespace Halak
             if (c == 'e' || c == 'E')
             {
                 exponentSignIndex = index++;
-                exponent += ReadExponentIfSmall(s, ref index);
+                exponent += ReadExponentIfSmall(s, end, ref index);
             }
-            if (digits + exponent > 0)
-            {
-                if (exponent > 10)
-                    return defaultValue;
 
+            digits += exponent;
+            if (digits <= 0)
+                return Zero;
+            else if (digits > 20)
+                return defaultValue;  // overflow
+            else
+            {
                 if (exponent != 0)
                     mantissa = Pow10(mantissa, exponent);
 
@@ -432,8 +437,6 @@ namespace Halak
                 else
                     return (mantissa <= MaxNegativeValue) ? (long)(0 - mantissa) : defaultValue;
             }
-            else
-                return Zero;
         }
 
         public static long? ParseNullableInt64(string s)
@@ -479,7 +482,7 @@ namespace Halak
                         else
                         {
                             mantissa *= 10;
-                            index = SkipIntegerPart(s, index + 1);
+                            index = SkipIntegerPart(s, end, index + 1);
                             c = (index < end) ? s[index] : '\0';
                             break;
                         }
@@ -533,7 +536,7 @@ namespace Halak
                         else
                         {
                             mantissa *= 10;
-                            index = SkipFractionalPart(s, index + 1);
+                            index = SkipFractionalPart(s, end, index + 1);
                             break;
                         }
                     }
@@ -561,13 +564,16 @@ namespace Halak
             if (c == 'e' || c == 'E')
             {
                 exponentSignIndex = index++;
-                exponent += ReadExponentIfSmall(s, ref index);
+                exponent += ReadExponentIfSmall(s, end, ref index);
             }
-            if (digits + exponent > 0)
-            {
-                if (exponent > 10)
-                    return null;
 
+            digits += exponent;
+            if (digits <= 0)
+                return Zero;
+            else if (digits > 20)
+                return null;  // overflow
+            else
+            {
                 if (exponent != 0)
                     mantissa = Pow10(mantissa, exponent);
 
@@ -576,8 +582,6 @@ namespace Halak
                 else
                     return (mantissa <= MaxNegativeValue) ? (long?)(0 - mantissa) : null;
             }
-            else
-                return Zero;
         }
 
         public static float ParseSingle(string s, float defaultValue = default(float))
@@ -620,7 +624,7 @@ namespace Halak
                         else
                         {
                             mantissa *= 10;
-                            index = SkipIntegerPart(s, index + 1);
+                            index = SkipIntegerPart(s, end, index + 1);
                             c = (index < end) ? s[index] : '\0';
                             break;
                         }
@@ -666,7 +670,7 @@ namespace Halak
                         else
                         {
                             mantissa *= 10;
-                            index = SkipFractionalPart(s, index + 1);
+                            index = SkipFractionalPart(s, end, index + 1);
                             break;
                         }
                     }
@@ -694,7 +698,7 @@ namespace Halak
             if (c == 'e' || c == 'E')
             {
                 exponentSignIndex = index++;
-                exponent += ReadExponentIfSmall(s, ref index);
+                exponent += ReadExponentIfSmall(s, end, ref index);
             }
 
             var value = exponent != 0 ? Pow10((float)mantissa, exponent) : mantissa;
@@ -744,7 +748,7 @@ namespace Halak
                         else
                         {
                             mantissa *= 10;
-                            index = SkipIntegerPart(s, index + 1);
+                            index = SkipIntegerPart(s, end, index + 1);
                             c = (index < end) ? s[index] : '\0';
                             break;
                         }
@@ -790,7 +794,7 @@ namespace Halak
                         else
                         {
                             mantissa *= 10;
-                            index = SkipFractionalPart(s, index + 1);
+                            index = SkipFractionalPart(s, end, index + 1);
                             break;
                         }
                     }
@@ -818,7 +822,7 @@ namespace Halak
             if (c == 'e' || c == 'E')
             {
                 exponentSignIndex = index++;
-                exponent += ReadExponentIfSmall(s, ref index);
+                exponent += ReadExponentIfSmall(s, end, ref index);
             }
 
             var value = exponent != 0 ? Pow10((float)mantissa, exponent) : mantissa;
@@ -868,7 +872,7 @@ namespace Halak
                         else
                         {
                             mantissa *= 10;
-                            index = SkipIntegerPart(s, index + 1);
+                            index = SkipIntegerPart(s, end, index + 1);
                             c = (index < end) ? s[index] : '\0';
                             break;
                         }
@@ -914,7 +918,7 @@ namespace Halak
                         else
                         {
                             mantissa *= 10;
-                            index = SkipFractionalPart(s, index + 1);
+                            index = SkipFractionalPart(s, end, index + 1);
                             break;
                         }
                     }
@@ -942,7 +946,7 @@ namespace Halak
             if (c == 'e' || c == 'E')
             {
                 exponentSignIndex = index++;
-                exponent += ReadExponentIfSmall(s, ref index);
+                exponent += ReadExponentIfSmall(s, end, ref index);
             }
 
             var value = exponent != 0 ? Pow10((double)mantissa, exponent) : mantissa;
@@ -992,7 +996,7 @@ namespace Halak
                         else
                         {
                             mantissa *= 10;
-                            index = SkipIntegerPart(s, index + 1);
+                            index = SkipIntegerPart(s, end, index + 1);
                             c = (index < end) ? s[index] : '\0';
                             break;
                         }
@@ -1038,7 +1042,7 @@ namespace Halak
                         else
                         {
                             mantissa *= 10;
-                            index = SkipFractionalPart(s, index + 1);
+                            index = SkipFractionalPart(s, end, index + 1);
                             break;
                         }
                     }
@@ -1066,7 +1070,7 @@ namespace Halak
             if (c == 'e' || c == 'E')
             {
                 exponentSignIndex = index++;
-                exponent += ReadExponentIfSmall(s, ref index);
+                exponent += ReadExponentIfSmall(s, end, ref index);
             }
 
             var value = exponent != 0 ? Pow10((double)mantissa, exponent) : mantissa;

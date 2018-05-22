@@ -19,7 +19,7 @@ namespace Halak
             Assert.AreEqual("0", new JNumber(0).ToString());
             Assert.AreEqual("1234", new JNumber(1234).ToString());
             Assert.AreEqual("-5833", new JNumber(-5833).ToString());
-            
+
             Assert.AreEqual("-123", new JNumber(-123.456m).IntegerPart.ToString());
             Assert.AreEqual("456", new JNumber(-123.456m).FractionalPart.ToString());
         }
