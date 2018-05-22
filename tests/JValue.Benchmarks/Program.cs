@@ -7,38 +7,6 @@ namespace Halak
     {
         static void Main(string[] args)
         {
-            void AreEqual(int expected, string s)
-            {
-                var actual = JsonHelper.ParseInt32NewNew(s, 0);
-                if (actual != expected)
-                {
-                    Console.WriteLine($"expected: {expected}, actual: {actual}");
-                }
-            }
-
-            AreEqual(1, "123e-2");
-            AreEqual(0, "123e+100");
-            AreEqual(1230000, "123e+4");
-            AreEqual(100000000, "1.0e8");
-            AreEqual(100000000, "1.0e+8");
-            AreEqual(100000000, "1e8");
-
-            AreEqual(10000, "10000");
-            AreEqual(0, "4294967295");  // overflow
-            AreEqual(0, "2147483648");  // overflow
-            AreEqual(2147483647, "2147483647");  // max
-            AreEqual(0, "12387cs831");  // invalid
-            AreEqual(0, "0");
-            AreEqual(-12938723, "-12938723");
-            AreEqual(3948222, "3948222");
-            AreEqual(int.MinValue, int.MinValue.ToString());
-            AreEqual(int.MaxValue, int.MaxValue.ToString());
-            AreEqual(0, (int.MinValue - 1L).ToString());
-            AreEqual(0, (int.MaxValue + 1L).ToString());
-
-
-
-
             var switcher = new BenchmarkSwitcher(new[] {
                 typeof(ParseInt32Benchmark),
                 typeof(ParseSingleBenchmark),

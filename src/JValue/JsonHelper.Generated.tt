@@ -1,0 +1,240 @@
+﻿<#@ template hostspecific="false" language="C#" #>
+<#@ output extension=".cs" #>
+<#
+var items = new[]
+{
+    new Item(typeof(int), typeof(uint)),
+    new Item(typeof(int?), typeof(uint)),
+    new Item(typeof(long), typeof(ulong)),
+    new Item(typeof(long?), typeof(ulong)),
+    new Item(typeof(float), typeof(uint), isFloatingPoint: true),
+    new Item(typeof(float?), typeof(uint), isFloatingPoint: true),
+    new Item(typeof(double), typeof(ulong), isFloatingPoint: true),
+    new Item(typeof(double?), typeof(ulong), isFloatingPoint: true),
+};
+#>
+using System;
+
+namespace Halak
+{
+    partial class JsonHelper
+    {
+<#
+        for (var i = 0; i < items.Length; i++)
+        {
+            var item = items[i];
+#>
+        public static <#= item.Return #> Parse<#= item.Name #>(string s, int startIndex = 0<# if (item.IsNullable == false) { #>, <#= item.Return #> <#= item.DefaultValue #> = default(<#= item.Return #>)<# } #>)
+        {
+            const <#= item.Declare #> Zero = default(<#= item.Declare #>);
+            const <#= item.Store #> BeforeOverflow = <#= item.Store #>.MaxValue / 10 - 1;
+<#          if (item.IsFloatingPoint == false) { #> 
+            const <#= item.Store #> MaxPositiveValue = <#= item.Declare #>.MaxValue;
+            const <#= item.Store #> MaxNegativeValue = unchecked((<#= item.Store #>)<#= item.Declare #>.MinValue);
+<#          } #>
+            if (s == null || startIndex >= s.Length)
+                return <#= item.DefaultValue #>;  // empty string
+
+            var index = s[startIndex] == '-' ? startIndex + 1 : startIndex;
+            var firstIntegerPartDigitIndex = index;
+            var isPositive = index == startIndex;
+
+            var mantissa = default(<#= item.Store #>);
+            var c = s[index];
+            if ('1' <= c && c <= '9')
+            {
+                mantissa = ToDigit(c);
+                index++;
+
+                for (; index < s.Length; index++)
+                {
+                    c = s[index];
+                    if (IsDigit(c))
+                    {
+                        if (mantissa <= BeforeOverflow)
+                            mantissa = (mantissa * 10) + ToDigit(c);
+                        else
+                        {
+                            mantissa *= 10;
+                            index = SkipIntegerPart(s, index + 1);
+                            c = (index < s.Length) ? s[index] : '\0';
+                            break;
+                        }
+                    }
+                    else if (c == '.' || c == 'e' || c == 'E')
+                        break;
+                    else if (IsTerminal(c))
+                    {
+                        index = s.Length;
+                        break;
+                    }
+                    else
+                        return <#= item.DefaultValue #>;  // unexpected character
+                }
+<#              if (item.IsFloatingPoint == false) { #> 
+                if (index == s.Length)
+                {
+                    if (isPositive)
+                        return (mantissa <= MaxPositiveValue) ? (<#= item.Return #>)(mantissa) : <#= item.DefaultValue #>;
+                    else
+                        return (mantissa <= MaxNegativeValue) ? (<#= item.Return #>)(0 - mantissa) : <#= item.DefaultValue #>;
+                }
+<#              } #>
+            }
+            else if (c == '0')
+            {
+                firstIntegerPartDigitIndex++;
+
+                c = (++index < s.Length) ? s[index] : '\0';
+                if (c == '.' || c == 'e' || c == 'E')
+                { }
+                else if (IsTerminal(c))
+                    return Zero;
+                else
+                    return <#= item.DefaultValue #>;  // unexpected character
+            }
+            else
+                return <#= item.DefaultValue #>;  // unexpected character
+
+            var decimalPointIndex = -1;
+            if (c == '.')
+            {
+                decimalPointIndex = index++;
+
+                for (; index < s.Length; index++)
+                {
+                    c = s[index];
+                    if (IsDigit(c))
+                    {
+                        if (mantissa <= BeforeOverflow)
+                            mantissa = (mantissa * 10) + ToDigit(c);
+                        else
+                        {
+                            mantissa *= 10;
+                            index = SkipFractionalPart(s, index + 1);
+                            break;
+                        }
+                    }
+                    else if (c == 'e' || c == 'E' || IsTerminal(c))
+                        break;
+                    else
+                        return <#= item.DefaultValue #>;  // unexpected character
+                }
+            }
+            
+            var digits = 0;
+            var exponent = 0;
+            if (decimalPointIndex >= 0)
+            {
+                digits = index - firstIntegerPartDigitIndex - 1;
+                exponent = -(index - (decimalPointIndex + 1));
+            }
+            else
+            {
+                digits = index - firstIntegerPartDigitIndex;
+                exponent = 0;
+            }
+
+            var exponentSignIndex = -1;
+            if (c == 'e' || c == 'E')
+            {
+                exponentSignIndex = index++;
+                exponent += ReadExponentIfSmall(s, ref index);
+            }
+<#          if (item.IsFloatingPoint) { #>
+
+            var value = exponent != 0 ? Pow10((<#= item.Declare #>)mantissa, exponent) : mantissa;
+            if (<#= item.Declare #>.IsInfinity(value) == false && <#= item.Declare #>.IsNaN(value) == false)
+                return isPositive ? value : -value;
+            else
+                return <#= item.DefaultValue #>;  // overflow
+<#          } else { #>
+            if (digits + exponent > 0)
+            {
+                if (exponent > 10)
+                    return <#= item.DefaultValue #>;
+
+                if (exponent != 0)
+                    mantissa = Pow10(mantissa, exponent);
+
+                if (isPositive)
+                    return (mantissa <= MaxPositiveValue) ? (<#= item.Return #>)(mantissa) : <#= item.DefaultValue #>;
+                else
+                    return (mantissa <= MaxNegativeValue) ? (<#= item.Return #>)(0 - mantissa) : <#= item.DefaultValue #>;
+            }
+            else
+                return Zero;
+<#          } #>
+        }
+<# if (i < items.Length - 1) { /* Margin */ #>
+
+<# } #>
+<#
+        }
+#>
+    }
+}
+
+<#+
+public struct Item
+{
+    public Type Type { get; }
+    public string Name { get; }
+    public string Return { get; }
+    public string Declare { get; }
+    public string Store { get; }
+    public bool IsNullable { get; }
+    public string DefaultValue { get; }
+    public bool IsFloatingPoint { get; }
+
+    public Item(Type type, Type storageType, bool isFloatingPoint = false)
+    {
+        this.Type = type;
+        this.Name = GetName(type);
+        this.Return = GetShortName(type);
+        this.Declare = GetShortName(TrimNullable(type));
+        this.Store = GetShortName(storageType);
+        this.IsNullable = Nullable(type);
+        this.DefaultValue = IsNullable ? "null" : "defaultValue";
+        this.IsFloatingPoint = isFloatingPoint;
+    }
+
+    private static string GetName(Type type)
+    {
+        if (Nullable(type))
+            return "Nullable" + GetName(TrimNullable(type));
+        else
+            return type.Name;
+    }
+
+    private static string GetShortName(Type type)
+    {
+        if (Nullable(type))
+            return GetShortName(TrimNullable(type)) + "?";
+        else
+        {
+            switch (Type.GetTypeCode(type))
+            {
+                case TypeCode.Boolean: return "bool";
+                case TypeCode.Char: return "char";
+                case TypeCode.SByte: return "sbyte";
+                case TypeCode.Byte: return "byte";
+                case TypeCode.Int16: return "short";
+                case TypeCode.UInt16: return "ushort";
+                case TypeCode.Int32: return "int";
+                case TypeCode.UInt32: return "uint";
+                case TypeCode.Int64: return "long";
+                case TypeCode.UInt64: return "ulong";
+                case TypeCode.Single: return "float";
+                case TypeCode.Double: return "double";
+                case TypeCode.Decimal: return "decimal";
+                case TypeCode.String: return "string";
+                default: return type.FullName;
+            }
+        }
+    }
+
+    private static bool Nullable(Type type) => type.IsGenericType && type.GetGenericTypeDefinition() == typeof(System.Nullable<>);
+    private static Type TrimNullable(Type type) => Nullable(type) ? type.GetGenericArguments()[0] : type;
+}
+#>

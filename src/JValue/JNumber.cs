@@ -1,278 +1,241 @@
 ﻿using System;
+using System.Globalization;
 
 namespace Halak
 {
-    public struct JNumber
+    public struct JNumber : IEquatable<JNumber>
     {
-        private readonly JValue integerPart;
-        private readonly JValue fractionalPart;
-        private readonly JValue exponent;
+        public static readonly JNumber NaN = new JNumber();
+        public static readonly JNumber Zero = new JNumber(0);
+        public static readonly JNumber One = new JNumber(1);
 
-        public JValue IntegerPart { get { return integerPart; } }
-        public JValue FractionalPart { get { return fractionalPart; } }
-        public JValue Exponent { get { return exponent; } }
+        private readonly string source;
+        private readonly int startIndex;
+        private readonly int length;
+        private readonly int toDecimalPoint;
+        private readonly int toExponent;
 
-        public JNumber(JValue integerPart, JValue fractionalPart, JValue exponent)
-        {
-            this.integerPart = integerPart;
-            this.fractionalPart = fractionalPart;
-            this.exponent = exponent;
-        }
-    }
-
-    public struct JNumberParser
-    {
-        public static readonly JNumberParser NaN = new JNumberParser();
-        public static readonly JNumberParser Zero = new JNumberParser(0, 1, 0, Flags.Valid);
-
-        [Flags]
-        private enum Flags : byte
-        {
-            Valid = 0x80,
-            Negative = 0x40,
-            Overflow = 0x20,
-        }
-
-        private readonly uint coefficient;
-        private readonly Flags flags;
-        private readonly byte digits;
-        private readonly short exponent;
-
-        public bool IsNaN { get { return flags == 0; } }
+        public bool IsNaN { get { return source == null; } }
         public bool IsPositive { get { return !IsNegative; } }
-        public bool IsNegative { get { return (flags & Flags.Negative) != 0; } }
-        public bool IsOverflow { get { return (flags & Flags.Overflow) != 0; } }
-        public int Digits { get { return digits; } }
-        public int Exponent { get { return exponent; } }
-
-        private JNumberParser(uint coefficient, int digits, int exponent, Flags flags)
+        public bool IsNegative { get { return source != null && source[startIndex] == '-'; } }
+        public JValue IntegerPart { get { return new JValue(source, startIndex, toDecimalPoint); } }
+        public JValue FractionalPart
         {
-            if (digits > 10 || (digits == 10 && coefficient < 1000000000U))
-                flags |= Flags.Overflow;
-
-            this.coefficient = coefficient;
-            this.digits = (byte)digits;
-            this.exponent = (short)exponent;
-            this.flags = flags;
+            get { return HasFractionalPart ? new JValue(source, FractionalPartIndex, FractionalPartLength) : JValue.Null; }
         }
-
-        public int ToInt32(int defaultValue = 0)
+        public JValue Exponent
         {
-            if (IsNaN || IsOverflow)
-                return defaultValue;
-
-            var i = coefficient;
-            var e = Exponent;
-            if (e != 0)
+            get
             {
-                var il = Digits + e;
-                if (il > 0)
+                if (HasExponent)
                 {
-                    if (il <= UInt32Powers10.Length)
-                    {
-                        if (e > 0)
-                        {
-                            i *= Pow10ToUInt32(e);
-                        }
-                        else
-                        {
-                            i /= Pow10ToUInt32(-e);
-                        }
-                    }
-                    else
-                        return defaultValue;
+                    var exponentIndex = startIndex + toExponent + 1;
+                    if (exponentIndex == '+')
+                        exponentIndex++;
+
+                    return new JValue(source, exponentIndex, (startIndex + length) - exponentIndex);
                 }
                 else
-                    return 0;
+                    return JValue.Null;
             }
-
-            if (IsPositive)
-                return i <= int.MaxValue ? (int)i : defaultValue;
-            else
-                return i <= 0x80000000 ? (int)-i : defaultValue;
         }
 
-        public static JNumberParser Analyze(string s) { return Analyze(s, 0, s.Length); }
-        public static JNumberParser Analyze(string s, int startIndex) { return Analyze(s, startIndex, s.Length - startIndex); }
-        public static JNumberParser Analyze(string s, int startIndex, int length)
-        {
-            if (length <= 0)
-                return NaN;
+        public bool HasFractionalPart { get { return toDecimalPoint < length; } }
+        public bool HasExponent { get { return toExponent < length; } }
+        private int FractionalPartIndex { get { return startIndex + toDecimalPoint + 1; } }
+        private int FractionalPartLength { get { return toExponent - toDecimalPoint - 1; } }
 
-            var index = startIndex;
+        public JNumber(int value) : this(value.ToString(CultureInfo.InvariantCulture), fromInteger: true) { }
+        public JNumber(long value) : this(value.ToString(CultureInfo.InvariantCulture), fromInteger: true) { }
+        public JNumber(float value) : this(value.ToString(CultureInfo.InvariantCulture)) { }
+        public JNumber(double value) : this(value.ToString(CultureInfo.InvariantCulture)) { }
+        public JNumber(decimal value) : this(value.ToString(CultureInfo.InvariantCulture)) { }
+        private JNumber(string source) : this(source, 0, source.Length, FindDecimalPoint(source), FindExponent(source)) { }
+        private JNumber(string source, bool fromInteger) : this(source, 0, source.Length, source.Length, source.Length) { }
+        private JNumber(string source, int startIndex, int length, int toDecimalPoint, int toExponent)
+        {
+            this.source = source;
+            this.startIndex = startIndex;
+            this.length = length;
+            this.toDecimalPoint = toDecimalPoint;
+            this.toExponent = toExponent;
+        }
+        
+        public int ToInt32(int defaultValue = default(int)) { return JsonHelper.ParseInt32(source, startIndex, defaultValue); }
+        public int? ToNullableInt32() { return JsonHelper.ParseNullableInt32(source, startIndex); }
+        public long ToInt64(long defaultValue = default(long)) { return JsonHelper.ParseInt64(source, startIndex, defaultValue); }
+        public long? ToNullableInt64() { return JsonHelper.ParseNullableInt64(source, startIndex); }
+        public float ToSingle(float defaultValue = default(float)) { return JsonHelper.ParseSingle(source, startIndex, defaultValue); }
+        public float? ToNullableSingle() { return JsonHelper.ParseNullableSingle(source, startIndex); }
+        public double ToDouble(double defaultValue = default(double)) { return JsonHelper.ParseDouble(source, startIndex, defaultValue); }
+        public double? ToNullableDouble() { return JsonHelper.ParseNullableDouble(source, startIndex); }
+        public decimal ToDecimal(decimal defaultValue = default(decimal)) { return JsonHelper.ParseDecimal(source, startIndex, length, defaultValue); }
+        public decimal? ToNullableDecimal() { return JsonHelper.ParseNullableDecimal(source, startIndex, length); }
+
+        public override bool Equals(object obj) { return obj is JNumber && Equals(this, (JNumber)obj); }
+        public bool Equals(JNumber other) { return Equals(this, other); }
+        public override int GetHashCode()
+        {
+            if (source == null)
+                return -1;
+
+            var hashCode = GetHashCode(source[startIndex]);
             var end = startIndex + length;
-            var flags = Flags.Valid;
-            var c = s[index++];
-            if (c == '-')
-            {
-                flags |= Flags.Negative;
-                c = s[index++];
-            }
-            if (IsDigit(c) == false)
-                return NaN;
+            for (var i = startIndex + 1; i < end; i++)
+                hashCode = ((hashCode << 5) + hashCode) ^ GetHashCode(source[i]);
 
-            var coefficient = 0U;
-            var digits = 0;
-            var exponent = 0;
-            if (c == '0')
+            return (int)hashCode;
+        }
+
+        public override string ToString() { return source != null ? source.Substring(startIndex, length) : "NaN"; }
+
+        public static bool TryParse(string s, int startIndex, out JNumber value)
+        {
+            value = NaN;
+
+            if (startIndex >= s.Length)
+                return false;
+
+            var i = startIndex;
+            var c = s[i++];
+            var decimalPoint = -1;
+            var exponentIndex = -1;
+            if (c == '-' || JsonHelper.IsDigit(c))
+            { /* DO NOTHING */ }
+            else if (c == '0' && (i < s.Length && s[i++] == '.'))
             {
-                if (index == end || IsTerminal(s[index]))
-                    return Zero;
-                else if (s[index++] == '.')
-                    goto FractionalPart;
-                else
-                    return NaN;
+                decimalPoint = i - 1;
+                goto FractionalPart;
             }
             else
+                return false;
+
+            for (; i < s.Length; i++)
             {
-                digits++;
-                coefficient = ToUInt32(c);
-            }
-
-            if (index == end)
-                return new JNumberParser(coefficient, digits, exponent, flags);
-
-            const uint CoefficientBeforeOverflow = uint.MaxValue / 10 - 1;
-
-            // --------------------------------------------------
-            // IntegerPart
-            do
-            {
-                c = s[index++];
-                if (IsDigit(c))
-                {
-                    digits++;
-
-                    if (coefficient <= CoefficientBeforeOverflow)
-                        coefficient = (coefficient * 10) + ToUInt32(c);
-                }
+                c = s[i];
+                if (JsonHelper.IsDigit(c))
+                    continue;
                 else if (c == '.')
+                {
+                    decimalPoint = i++;
                     goto FractionalPart;
-                else if (c == 'E' || c == 'e')
-                    goto ExponentPart;
-                else if (IsTerminal(c))
-                    break;
-                else
-                    return NaN;
-            } while (index < end);
-
-            return new JNumberParser(coefficient, digits, 0, flags);
-
-            // --------------------------------------------------
-            FractionalPart:
-            if (index == end)
-                return NaN;
-            if (digits == 0)
-            {
-                // Skip Leading-zero
-                do
-                {
-                    c = s[index];
-                    if (c == '0')
-                    {
-                        exponent--;
-                        index++;
-                    }
-                    else if ('1' <= c && c <= '9')
-                        break;
-                    else if (c == 'E' || c == 'e')
-                        goto ExponentPart;
-                    else if (IsTerminal(c))
-                        return Zero;
-                    else
-                        return NaN;
-                } while (index < end);
-            }
-
-            do
-            {
-                c = s[index++];
-                if (IsDigit(c))
-                {
-                    digits++;
-                    exponent--;
-
-                    if (coefficient <= CoefficientBeforeOverflow)
-                        coefficient = (coefficient * 10) + ToUInt32(c);
                 }
-                else if (c == 'E' || c == 'e')
+                else if (c == 'e' || c == 'E')
+                {
+                    exponentIndex = i++;
                     goto ExponentPart;
-                else if (IsTerminal(c))
-                    break;
+                }
+                else if (JsonHelper.IsTerminal(c))
+                    goto Exit;
                 else
-                    return NaN;
-            } while (index < end);
+                    return false;
+            }
 
-            return new JNumberParser(coefficient, digits, exponent, flags);
+            goto Exit;
 
-            // --------------------------------------------------
+            FractionalPart:
+            for (; i < s.Length; i++)
+            {
+                c = s[i];
+                if (JsonHelper.IsDigit(c))
+                    continue;
+                else if (c == 'e' || c == 'E')
+                {
+                    exponentIndex = i++;
+                    goto ExponentPart;
+                }
+                else
+                    return false;
+            }
+
+            goto Exit;
+
             ExponentPart:
-            if (index == end)
-                return NaN;
+            c = s[i++];
+            if (c != '+' && c != '-' && JsonHelper.IsDigit(c) == false)
+                return false;
 
-            var negativeExponentSign = false;
-            c = s[index++];
-            if ((c == '-' || c == '+') && index < end)
-            {
-                negativeExponentSign = (c == '-');
-                c = s[index++];
-            }
-            if (IsDigit(c) == false)
-                return NaN;
-
-            var explicitExponent = ToUInt32(c);
-            while (index < end)
-            {
-                c = s[index++];
-                if (IsDigit(c))
-                    explicitExponent = (explicitExponent * 10) + ToUInt32(c);
-                else if (IsTerminal(c))
-                    break;
-                else
-                    return NaN;
+            for (; i < s.Length; i++)
+            {                
+                if (JsonHelper.IsDigit(s[i]) == false)
+                    return false;
             }
 
-            if (digits > 0)
-            {
-                if (negativeExponentSign)
-                    exponent -= (int)explicitExponent;
-                else
-                    exponent += (int)explicitExponent;
-
-                return new JNumberParser(coefficient, digits, exponent, flags);
-            }
-            else
-                return Zero;
+            Exit:
+            value = new JNumber(
+                s,
+                startIndex,
+                i - startIndex,
+                (decimalPoint != -1 ? decimalPoint : i) - startIndex,
+                (exponentIndex != -1 ? exponentIndex : i) - startIndex);
+            return true;
+        }
+        
+        public static bool Equals(JNumber left, JNumber right)
+        {
+            return
+                left.length == right.length &&
+                string.CompareOrdinal(left.source, left.startIndex, right.source, right.startIndex, left.length) == 0;
         }
 
-        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public static bool IsDigit(char c) { return '0' <= c && c <= '9'; }
-        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public static bool IsTerminal(char c) { return c == ',' || c == '}' || c == ']' || c == ' ' || c == '\n' || c == '\r' || c == '\t' ; }
-        public static uint ToUInt32(char c) { return (uint)(c - '0'); }
-
-        public override int GetHashCode() { return (int)coefficient ^ (exponent << 16 | (int)flags << 8 | digits); }
-        public override string ToString()
+        private static uint GetHashCode(char c)
         {
-            if (IsNaN)
-                return double.NaN.ToString();
-
-            if (IsOverflow == false)
+            switch (c)
             {
-                if (exponent > 0)
-                    return (coefficient * Math.Pow(10.0, exponent) * (IsNegative ? -1.0 : 1.0)).ToString();
-                else
-                    return new Decimal((int)coefficient, 0, 0, IsNegative, (byte)(-exponent)).ToString();
+                case '0': return 0xD0DEB4A3;
+                case '1': return 0xC949F3C9;
+                case '2': return 0x88184C40;
+                case '3': return 0xE920F181;
+                case '4': return 0xBB0CC3A8;
+                case '5': return 0x2098A99C;
+                case '6': return 0x8291F7B0;
+                case '7': return 0xFBF5112D;
+                case '8': return 0xC3BB87D6;
+                case '9': return 0x4AF33460;
+                case '.': return 0x403FBC07;
+                case '+': return 0xA2922785;
+                case '-': return 0x9F91692A;
+                case 'e': return 0xC0DFD050;
+                case 'E': return 0x2F2B6D75;
+                default: return 0;
             }
-            else
-                return string.Concat("JNumber(", 0, ", ", 0, ")");
         }
 
-        public static uint Pow10ToUInt32(int d) => UInt32Powers10[d];
-
-        private static readonly uint[] UInt32Powers10 = new[]
+        private static int FindDecimalPoint(string s)
         {
-            1U, 10U, 100U, 1000U, 10000U, 100000U, 1000000U, 10000000U, 100000000U, 1000000000U,
-        };
+            for (var i = 0; i < s.Length; i++)
+            {
+                if (s[i] == '.')
+                    return i;
+            }
+
+            return s.Length;
+        }
+
+        private static int FindExponent(string s)
+        {
+            for (var i = s.Length - 1; i >= 0; i--)
+            {
+                switch (s[i])
+                {
+                    case 'e':
+                    case 'E':
+                        return i;
+                }
+            }
+
+            return s.Length;
+        }
+
+        public static bool operator ==(JNumber left, JNumber right) { return Equals(left, right); }
+        public static bool operator !=(JNumber left, JNumber right) { return !Equals(left, right); }
+
+        public static implicit operator JNumber(byte value) => new JNumber(value);
+        public static implicit operator JNumber(short value) => new JNumber(value);
+        public static implicit operator JNumber(int value) => new JNumber(value);
+        public static implicit operator JNumber(long value) => new JNumber(value);
+        public static implicit operator JNumber(float value) => new JNumber(value);
+        public static implicit operator JNumber(double value) => new JNumber(value);
+        public static implicit operator JNumber(decimal value) => new JNumber(value);
     }
 }

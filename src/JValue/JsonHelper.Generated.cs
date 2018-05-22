@@ -1,0 +1,984 @@
+﻿using System;
+
+namespace Halak
+{
+    partial class JsonHelper
+    {
+        public static int ParseInt32(string s, int startIndex = 0, int defaultValue = default(int))
+        {
+            const int Zero = default(int);
+            const uint BeforeOverflow = uint.MaxValue / 10 - 1;
+ 
+            const uint MaxPositiveValue = int.MaxValue;
+            const uint MaxNegativeValue = unchecked((uint)int.MinValue);
+            if (s == null || startIndex >= s.Length)
+                return defaultValue;  // empty string
+
+            var index = s[startIndex] == '-' ? startIndex + 1 : startIndex;
+            var firstIntegerPartDigitIndex = index;
+            var isPositive = index == startIndex;
+
+            var mantissa = default(uint);
+            var c = s[index];
+            if ('1' <= c && c <= '9')
+            {
+                mantissa = ToDigit(c);
+                index++;
+
+                for (; index < s.Length; index++)
+                {
+                    c = s[index];
+                    if (IsDigit(c))
+                    {
+                        if (mantissa <= BeforeOverflow)
+                            mantissa = (mantissa * 10) + ToDigit(c);
+                        else
+                        {
+                            mantissa *= 10;
+                            index = SkipIntegerPart(s, index + 1);
+                            c = (index < s.Length) ? s[index] : '\0';
+                            break;
+                        }
+                    }
+                    else if (c == '.' || c == 'e' || c == 'E')
+                        break;
+                    else if (IsTerminal(c))
+                    {
+                        index = s.Length;
+                        break;
+                    }
+                    else
+                        return defaultValue;  // unexpected character
+                }
+ 
+                if (index == s.Length)
+                {
+                    if (isPositive)
+                        return (mantissa <= MaxPositiveValue) ? (int)(mantissa) : defaultValue;
+                    else
+                        return (mantissa <= MaxNegativeValue) ? (int)(0 - mantissa) : defaultValue;
+                }
+            }
+            else if (c == '0')
+            {
+                firstIntegerPartDigitIndex++;
+
+                c = (++index < s.Length) ? s[index] : '\0';
+                if (c == '.' || c == 'e' || c == 'E')
+                { }
+                else if (IsTerminal(c))
+                    return Zero;
+                else
+                    return defaultValue;  // unexpected character
+            }
+            else
+                return defaultValue;  // unexpected character
+
+            var decimalPointIndex = -1;
+            if (c == '.')
+            {
+                decimalPointIndex = index++;
+
+                for (; index < s.Length; index++)
+                {
+                    c = s[index];
+                    if (IsDigit(c))
+                    {
+                        if (mantissa <= BeforeOverflow)
+                            mantissa = (mantissa * 10) + ToDigit(c);
+                        else
+                        {
+                            mantissa *= 10;
+                            index = SkipFractionalPart(s, index + 1);
+                            break;
+                        }
+                    }
+                    else if (c == 'e' || c == 'E' || IsTerminal(c))
+                        break;
+                    else
+                        return defaultValue;  // unexpected character
+                }
+            }
+            
+            var digits = 0;
+            var exponent = 0;
+            if (decimalPointIndex >= 0)
+            {
+                digits = index - firstIntegerPartDigitIndex - 1;
+                exponent = -(index - (decimalPointIndex + 1));
+            }
+            else
+            {
+                digits = index - firstIntegerPartDigitIndex;
+                exponent = 0;
+            }
+
+            var exponentSignIndex = -1;
+            if (c == 'e' || c == 'E')
+            {
+                exponentSignIndex = index++;
+                exponent += ReadExponentIfSmall(s, ref index);
+            }
+            if (digits + exponent > 0)
+            {
+                if (exponent > 10)
+                    return defaultValue;
+
+                if (exponent != 0)
+                    mantissa = Pow10(mantissa, exponent);
+
+                if (isPositive)
+                    return (mantissa <= MaxPositiveValue) ? (int)(mantissa) : defaultValue;
+                else
+                    return (mantissa <= MaxNegativeValue) ? (int)(0 - mantissa) : defaultValue;
+            }
+            else
+                return Zero;
+        }
+
+        public static int? ParseNullableInt32(string s, int startIndex = 0)
+        {
+            const int Zero = default(int);
+            const uint BeforeOverflow = uint.MaxValue / 10 - 1;
+ 
+            const uint MaxPositiveValue = int.MaxValue;
+            const uint MaxNegativeValue = unchecked((uint)int.MinValue);
+            if (s == null || startIndex >= s.Length)
+                return null;  // empty string
+
+            var index = s[startIndex] == '-' ? startIndex + 1 : startIndex;
+            var firstIntegerPartDigitIndex = index;
+            var isPositive = index == startIndex;
+
+            var mantissa = default(uint);
+            var c = s[index];
+            if ('1' <= c && c <= '9')
+            {
+                mantissa = ToDigit(c);
+                index++;
+
+                for (; index < s.Length; index++)
+                {
+                    c = s[index];
+                    if (IsDigit(c))
+                    {
+                        if (mantissa <= BeforeOverflow)
+                            mantissa = (mantissa * 10) + ToDigit(c);
+                        else
+                        {
+                            mantissa *= 10;
+                            index = SkipIntegerPart(s, index + 1);
+                            c = (index < s.Length) ? s[index] : '\0';
+                            break;
+                        }
+                    }
+                    else if (c == '.' || c == 'e' || c == 'E')
+                        break;
+                    else if (IsTerminal(c))
+                    {
+                        index = s.Length;
+                        break;
+                    }
+                    else
+                        return null;  // unexpected character
+                }
+ 
+                if (index == s.Length)
+                {
+                    if (isPositive)
+                        return (mantissa <= MaxPositiveValue) ? (int?)(mantissa) : null;
+                    else
+                        return (mantissa <= MaxNegativeValue) ? (int?)(0 - mantissa) : null;
+                }
+            }
+            else if (c == '0')
+            {
+                firstIntegerPartDigitIndex++;
+
+                c = (++index < s.Length) ? s[index] : '\0';
+                if (c == '.' || c == 'e' || c == 'E')
+                { }
+                else if (IsTerminal(c))
+                    return Zero;
+                else
+                    return null;  // unexpected character
+            }
+            else
+                return null;  // unexpected character
+
+            var decimalPointIndex = -1;
+            if (c == '.')
+            {
+                decimalPointIndex = index++;
+
+                for (; index < s.Length; index++)
+                {
+                    c = s[index];
+                    if (IsDigit(c))
+                    {
+                        if (mantissa <= BeforeOverflow)
+                            mantissa = (mantissa * 10) + ToDigit(c);
+                        else
+                        {
+                            mantissa *= 10;
+                            index = SkipFractionalPart(s, index + 1);
+                            break;
+                        }
+                    }
+                    else if (c == 'e' || c == 'E' || IsTerminal(c))
+                        break;
+                    else
+                        return null;  // unexpected character
+                }
+            }
+            
+            var digits = 0;
+            var exponent = 0;
+            if (decimalPointIndex >= 0)
+            {
+                digits = index - firstIntegerPartDigitIndex - 1;
+                exponent = -(index - (decimalPointIndex + 1));
+            }
+            else
+            {
+                digits = index - firstIntegerPartDigitIndex;
+                exponent = 0;
+            }
+
+            var exponentSignIndex = -1;
+            if (c == 'e' || c == 'E')
+            {
+                exponentSignIndex = index++;
+                exponent += ReadExponentIfSmall(s, ref index);
+            }
+            if (digits + exponent > 0)
+            {
+                if (exponent > 10)
+                    return null;
+
+                if (exponent != 0)
+                    mantissa = Pow10(mantissa, exponent);
+
+                if (isPositive)
+                    return (mantissa <= MaxPositiveValue) ? (int?)(mantissa) : null;
+                else
+                    return (mantissa <= MaxNegativeValue) ? (int?)(0 - mantissa) : null;
+            }
+            else
+                return Zero;
+        }
+
+        public static long ParseInt64(string s, int startIndex = 0, long defaultValue = default(long))
+        {
+            const long Zero = default(long);
+            const ulong BeforeOverflow = ulong.MaxValue / 10 - 1;
+ 
+            const ulong MaxPositiveValue = long.MaxValue;
+            const ulong MaxNegativeValue = unchecked((ulong)long.MinValue);
+            if (s == null || startIndex >= s.Length)
+                return defaultValue;  // empty string
+
+            var index = s[startIndex] == '-' ? startIndex + 1 : startIndex;
+            var firstIntegerPartDigitIndex = index;
+            var isPositive = index == startIndex;
+
+            var mantissa = default(ulong);
+            var c = s[index];
+            if ('1' <= c && c <= '9')
+            {
+                mantissa = ToDigit(c);
+                index++;
+
+                for (; index < s.Length; index++)
+                {
+                    c = s[index];
+                    if (IsDigit(c))
+                    {
+                        if (mantissa <= BeforeOverflow)
+                            mantissa = (mantissa * 10) + ToDigit(c);
+                        else
+                        {
+                            mantissa *= 10;
+                            index = SkipIntegerPart(s, index + 1);
+                            c = (index < s.Length) ? s[index] : '\0';
+                            break;
+                        }
+                    }
+                    else if (c == '.' || c == 'e' || c == 'E')
+                        break;
+                    else if (IsTerminal(c))
+                    {
+                        index = s.Length;
+                        break;
+                    }
+                    else
+                        return defaultValue;  // unexpected character
+                }
+ 
+                if (index == s.Length)
+                {
+                    if (isPositive)
+                        return (mantissa <= MaxPositiveValue) ? (long)(mantissa) : defaultValue;
+                    else
+                        return (mantissa <= MaxNegativeValue) ? (long)(0 - mantissa) : defaultValue;
+                }
+            }
+            else if (c == '0')
+            {
+                firstIntegerPartDigitIndex++;
+
+                c = (++index < s.Length) ? s[index] : '\0';
+                if (c == '.' || c == 'e' || c == 'E')
+                { }
+                else if (IsTerminal(c))
+                    return Zero;
+                else
+                    return defaultValue;  // unexpected character
+            }
+            else
+                return defaultValue;  // unexpected character
+
+            var decimalPointIndex = -1;
+            if (c == '.')
+            {
+                decimalPointIndex = index++;
+
+                for (; index < s.Length; index++)
+                {
+                    c = s[index];
+                    if (IsDigit(c))
+                    {
+                        if (mantissa <= BeforeOverflow)
+                            mantissa = (mantissa * 10) + ToDigit(c);
+                        else
+                        {
+                            mantissa *= 10;
+                            index = SkipFractionalPart(s, index + 1);
+                            break;
+                        }
+                    }
+                    else if (c == 'e' || c == 'E' || IsTerminal(c))
+                        break;
+                    else
+                        return defaultValue;  // unexpected character
+                }
+            }
+            
+            var digits = 0;
+            var exponent = 0;
+            if (decimalPointIndex >= 0)
+            {
+                digits = index - firstIntegerPartDigitIndex - 1;
+                exponent = -(index - (decimalPointIndex + 1));
+            }
+            else
+            {
+                digits = index - firstIntegerPartDigitIndex;
+                exponent = 0;
+            }
+
+            var exponentSignIndex = -1;
+            if (c == 'e' || c == 'E')
+            {
+                exponentSignIndex = index++;
+                exponent += ReadExponentIfSmall(s, ref index);
+            }
+            if (digits + exponent > 0)
+            {
+                if (exponent > 10)
+                    return defaultValue;
+
+                if (exponent != 0)
+                    mantissa = Pow10(mantissa, exponent);
+
+                if (isPositive)
+                    return (mantissa <= MaxPositiveValue) ? (long)(mantissa) : defaultValue;
+                else
+                    return (mantissa <= MaxNegativeValue) ? (long)(0 - mantissa) : defaultValue;
+            }
+            else
+                return Zero;
+        }
+
+        public static long? ParseNullableInt64(string s, int startIndex = 0)
+        {
+            const long Zero = default(long);
+            const ulong BeforeOverflow = ulong.MaxValue / 10 - 1;
+ 
+            const ulong MaxPositiveValue = long.MaxValue;
+            const ulong MaxNegativeValue = unchecked((ulong)long.MinValue);
+            if (s == null || startIndex >= s.Length)
+                return null;  // empty string
+
+            var index = s[startIndex] == '-' ? startIndex + 1 : startIndex;
+            var firstIntegerPartDigitIndex = index;
+            var isPositive = index == startIndex;
+
+            var mantissa = default(ulong);
+            var c = s[index];
+            if ('1' <= c && c <= '9')
+            {
+                mantissa = ToDigit(c);
+                index++;
+
+                for (; index < s.Length; index++)
+                {
+                    c = s[index];
+                    if (IsDigit(c))
+                    {
+                        if (mantissa <= BeforeOverflow)
+                            mantissa = (mantissa * 10) + ToDigit(c);
+                        else
+                        {
+                            mantissa *= 10;
+                            index = SkipIntegerPart(s, index + 1);
+                            c = (index < s.Length) ? s[index] : '\0';
+                            break;
+                        }
+                    }
+                    else if (c == '.' || c == 'e' || c == 'E')
+                        break;
+                    else if (IsTerminal(c))
+                    {
+                        index = s.Length;
+                        break;
+                    }
+                    else
+                        return null;  // unexpected character
+                }
+ 
+                if (index == s.Length)
+                {
+                    if (isPositive)
+                        return (mantissa <= MaxPositiveValue) ? (long?)(mantissa) : null;
+                    else
+                        return (mantissa <= MaxNegativeValue) ? (long?)(0 - mantissa) : null;
+                }
+            }
+            else if (c == '0')
+            {
+                firstIntegerPartDigitIndex++;
+
+                c = (++index < s.Length) ? s[index] : '\0';
+                if (c == '.' || c == 'e' || c == 'E')
+                { }
+                else if (IsTerminal(c))
+                    return Zero;
+                else
+                    return null;  // unexpected character
+            }
+            else
+                return null;  // unexpected character
+
+            var decimalPointIndex = -1;
+            if (c == '.')
+            {
+                decimalPointIndex = index++;
+
+                for (; index < s.Length; index++)
+                {
+                    c = s[index];
+                    if (IsDigit(c))
+                    {
+                        if (mantissa <= BeforeOverflow)
+                            mantissa = (mantissa * 10) + ToDigit(c);
+                        else
+                        {
+                            mantissa *= 10;
+                            index = SkipFractionalPart(s, index + 1);
+                            break;
+                        }
+                    }
+                    else if (c == 'e' || c == 'E' || IsTerminal(c))
+                        break;
+                    else
+                        return null;  // unexpected character
+                }
+            }
+            
+            var digits = 0;
+            var exponent = 0;
+            if (decimalPointIndex >= 0)
+            {
+                digits = index - firstIntegerPartDigitIndex - 1;
+                exponent = -(index - (decimalPointIndex + 1));
+            }
+            else
+            {
+                digits = index - firstIntegerPartDigitIndex;
+                exponent = 0;
+            }
+
+            var exponentSignIndex = -1;
+            if (c == 'e' || c == 'E')
+            {
+                exponentSignIndex = index++;
+                exponent += ReadExponentIfSmall(s, ref index);
+            }
+            if (digits + exponent > 0)
+            {
+                if (exponent > 10)
+                    return null;
+
+                if (exponent != 0)
+                    mantissa = Pow10(mantissa, exponent);
+
+                if (isPositive)
+                    return (mantissa <= MaxPositiveValue) ? (long?)(mantissa) : null;
+                else
+                    return (mantissa <= MaxNegativeValue) ? (long?)(0 - mantissa) : null;
+            }
+            else
+                return Zero;
+        }
+
+        public static float ParseSingle(string s, int startIndex = 0, float defaultValue = default(float))
+        {
+            const float Zero = default(float);
+            const uint BeforeOverflow = uint.MaxValue / 10 - 1;
+            if (s == null || startIndex >= s.Length)
+                return defaultValue;  // empty string
+
+            var index = s[startIndex] == '-' ? startIndex + 1 : startIndex;
+            var firstIntegerPartDigitIndex = index;
+            var isPositive = index == startIndex;
+
+            var mantissa = default(uint);
+            var c = s[index];
+            if ('1' <= c && c <= '9')
+            {
+                mantissa = ToDigit(c);
+                index++;
+
+                for (; index < s.Length; index++)
+                {
+                    c = s[index];
+                    if (IsDigit(c))
+                    {
+                        if (mantissa <= BeforeOverflow)
+                            mantissa = (mantissa * 10) + ToDigit(c);
+                        else
+                        {
+                            mantissa *= 10;
+                            index = SkipIntegerPart(s, index + 1);
+                            c = (index < s.Length) ? s[index] : '\0';
+                            break;
+                        }
+                    }
+                    else if (c == '.' || c == 'e' || c == 'E')
+                        break;
+                    else if (IsTerminal(c))
+                    {
+                        index = s.Length;
+                        break;
+                    }
+                    else
+                        return defaultValue;  // unexpected character
+                }
+            }
+            else if (c == '0')
+            {
+                firstIntegerPartDigitIndex++;
+
+                c = (++index < s.Length) ? s[index] : '\0';
+                if (c == '.' || c == 'e' || c == 'E')
+                { }
+                else if (IsTerminal(c))
+                    return Zero;
+                else
+                    return defaultValue;  // unexpected character
+            }
+            else
+                return defaultValue;  // unexpected character
+
+            var decimalPointIndex = -1;
+            if (c == '.')
+            {
+                decimalPointIndex = index++;
+
+                for (; index < s.Length; index++)
+                {
+                    c = s[index];
+                    if (IsDigit(c))
+                    {
+                        if (mantissa <= BeforeOverflow)
+                            mantissa = (mantissa * 10) + ToDigit(c);
+                        else
+                        {
+                            mantissa *= 10;
+                            index = SkipFractionalPart(s, index + 1);
+                            break;
+                        }
+                    }
+                    else if (c == 'e' || c == 'E' || IsTerminal(c))
+                        break;
+                    else
+                        return defaultValue;  // unexpected character
+                }
+            }
+            
+            var digits = 0;
+            var exponent = 0;
+            if (decimalPointIndex >= 0)
+            {
+                digits = index - firstIntegerPartDigitIndex - 1;
+                exponent = -(index - (decimalPointIndex + 1));
+            }
+            else
+            {
+                digits = index - firstIntegerPartDigitIndex;
+                exponent = 0;
+            }
+
+            var exponentSignIndex = -1;
+            if (c == 'e' || c == 'E')
+            {
+                exponentSignIndex = index++;
+                exponent += ReadExponentIfSmall(s, ref index);
+            }
+
+            var value = exponent != 0 ? Pow10((float)mantissa, exponent) : mantissa;
+            if (float.IsInfinity(value) == false && float.IsNaN(value) == false)
+                return isPositive ? value : -value;
+            else
+                return defaultValue;  // overflow
+        }
+
+        public static float? ParseNullableSingle(string s, int startIndex = 0)
+        {
+            const float Zero = default(float);
+            const uint BeforeOverflow = uint.MaxValue / 10 - 1;
+            if (s == null || startIndex >= s.Length)
+                return null;  // empty string
+
+            var index = s[startIndex] == '-' ? startIndex + 1 : startIndex;
+            var firstIntegerPartDigitIndex = index;
+            var isPositive = index == startIndex;
+
+            var mantissa = default(uint);
+            var c = s[index];
+            if ('1' <= c && c <= '9')
+            {
+                mantissa = ToDigit(c);
+                index++;
+
+                for (; index < s.Length; index++)
+                {
+                    c = s[index];
+                    if (IsDigit(c))
+                    {
+                        if (mantissa <= BeforeOverflow)
+                            mantissa = (mantissa * 10) + ToDigit(c);
+                        else
+                        {
+                            mantissa *= 10;
+                            index = SkipIntegerPart(s, index + 1);
+                            c = (index < s.Length) ? s[index] : '\0';
+                            break;
+                        }
+                    }
+                    else if (c == '.' || c == 'e' || c == 'E')
+                        break;
+                    else if (IsTerminal(c))
+                    {
+                        index = s.Length;
+                        break;
+                    }
+                    else
+                        return null;  // unexpected character
+                }
+            }
+            else if (c == '0')
+            {
+                firstIntegerPartDigitIndex++;
+
+                c = (++index < s.Length) ? s[index] : '\0';
+                if (c == '.' || c == 'e' || c == 'E')
+                { }
+                else if (IsTerminal(c))
+                    return Zero;
+                else
+                    return null;  // unexpected character
+            }
+            else
+                return null;  // unexpected character
+
+            var decimalPointIndex = -1;
+            if (c == '.')
+            {
+                decimalPointIndex = index++;
+
+                for (; index < s.Length; index++)
+                {
+                    c = s[index];
+                    if (IsDigit(c))
+                    {
+                        if (mantissa <= BeforeOverflow)
+                            mantissa = (mantissa * 10) + ToDigit(c);
+                        else
+                        {
+                            mantissa *= 10;
+                            index = SkipFractionalPart(s, index + 1);
+                            break;
+                        }
+                    }
+                    else if (c == 'e' || c == 'E' || IsTerminal(c))
+                        break;
+                    else
+                        return null;  // unexpected character
+                }
+            }
+            
+            var digits = 0;
+            var exponent = 0;
+            if (decimalPointIndex >= 0)
+            {
+                digits = index - firstIntegerPartDigitIndex - 1;
+                exponent = -(index - (decimalPointIndex + 1));
+            }
+            else
+            {
+                digits = index - firstIntegerPartDigitIndex;
+                exponent = 0;
+            }
+
+            var exponentSignIndex = -1;
+            if (c == 'e' || c == 'E')
+            {
+                exponentSignIndex = index++;
+                exponent += ReadExponentIfSmall(s, ref index);
+            }
+
+            var value = exponent != 0 ? Pow10((float)mantissa, exponent) : mantissa;
+            if (float.IsInfinity(value) == false && float.IsNaN(value) == false)
+                return isPositive ? value : -value;
+            else
+                return null;  // overflow
+        }
+
+        public static double ParseDouble(string s, int startIndex = 0, double defaultValue = default(double))
+        {
+            const double Zero = default(double);
+            const ulong BeforeOverflow = ulong.MaxValue / 10 - 1;
+            if (s == null || startIndex >= s.Length)
+                return defaultValue;  // empty string
+
+            var index = s[startIndex] == '-' ? startIndex + 1 : startIndex;
+            var firstIntegerPartDigitIndex = index;
+            var isPositive = index == startIndex;
+
+            var mantissa = default(ulong);
+            var c = s[index];
+            if ('1' <= c && c <= '9')
+            {
+                mantissa = ToDigit(c);
+                index++;
+
+                for (; index < s.Length; index++)
+                {
+                    c = s[index];
+                    if (IsDigit(c))
+                    {
+                        if (mantissa <= BeforeOverflow)
+                            mantissa = (mantissa * 10) + ToDigit(c);
+                        else
+                        {
+                            mantissa *= 10;
+                            index = SkipIntegerPart(s, index + 1);
+                            c = (index < s.Length) ? s[index] : '\0';
+                            break;
+                        }
+                    }
+                    else if (c == '.' || c == 'e' || c == 'E')
+                        break;
+                    else if (IsTerminal(c))
+                    {
+                        index = s.Length;
+                        break;
+                    }
+                    else
+                        return defaultValue;  // unexpected character
+                }
+            }
+            else if (c == '0')
+            {
+                firstIntegerPartDigitIndex++;
+
+                c = (++index < s.Length) ? s[index] : '\0';
+                if (c == '.' || c == 'e' || c == 'E')
+                { }
+                else if (IsTerminal(c))
+                    return Zero;
+                else
+                    return defaultValue;  // unexpected character
+            }
+            else
+                return defaultValue;  // unexpected character
+
+            var decimalPointIndex = -1;
+            if (c == '.')
+            {
+                decimalPointIndex = index++;
+
+                for (; index < s.Length; index++)
+                {
+                    c = s[index];
+                    if (IsDigit(c))
+                    {
+                        if (mantissa <= BeforeOverflow)
+                            mantissa = (mantissa * 10) + ToDigit(c);
+                        else
+                        {
+                            mantissa *= 10;
+                            index = SkipFractionalPart(s, index + 1);
+                            break;
+                        }
+                    }
+                    else if (c == 'e' || c == 'E' || IsTerminal(c))
+                        break;
+                    else
+                        return defaultValue;  // unexpected character
+                }
+            }
+            
+            var digits = 0;
+            var exponent = 0;
+            if (decimalPointIndex >= 0)
+            {
+                digits = index - firstIntegerPartDigitIndex - 1;
+                exponent = -(index - (decimalPointIndex + 1));
+            }
+            else
+            {
+                digits = index - firstIntegerPartDigitIndex;
+                exponent = 0;
+            }
+
+            var exponentSignIndex = -1;
+            if (c == 'e' || c == 'E')
+            {
+                exponentSignIndex = index++;
+                exponent += ReadExponentIfSmall(s, ref index);
+            }
+
+            var value = exponent != 0 ? Pow10((double)mantissa, exponent) : mantissa;
+            if (double.IsInfinity(value) == false && double.IsNaN(value) == false)
+                return isPositive ? value : -value;
+            else
+                return defaultValue;  // overflow
+        }
+
+        public static double? ParseNullableDouble(string s, int startIndex = 0)
+        {
+            const double Zero = default(double);
+            const ulong BeforeOverflow = ulong.MaxValue / 10 - 1;
+            if (s == null || startIndex >= s.Length)
+                return null;  // empty string
+
+            var index = s[startIndex] == '-' ? startIndex + 1 : startIndex;
+            var firstIntegerPartDigitIndex = index;
+            var isPositive = index == startIndex;
+
+            var mantissa = default(ulong);
+            var c = s[index];
+            if ('1' <= c && c <= '9')
+            {
+                mantissa = ToDigit(c);
+                index++;
+
+                for (; index < s.Length; index++)
+                {
+                    c = s[index];
+                    if (IsDigit(c))
+                    {
+                        if (mantissa <= BeforeOverflow)
+                            mantissa = (mantissa * 10) + ToDigit(c);
+                        else
+                        {
+                            mantissa *= 10;
+                            index = SkipIntegerPart(s, index + 1);
+                            c = (index < s.Length) ? s[index] : '\0';
+                            break;
+                        }
+                    }
+                    else if (c == '.' || c == 'e' || c == 'E')
+                        break;
+                    else if (IsTerminal(c))
+                    {
+                        index = s.Length;
+                        break;
+                    }
+                    else
+                        return null;  // unexpected character
+                }
+            }
+            else if (c == '0')
+            {
+                firstIntegerPartDigitIndex++;
+
+                c = (++index < s.Length) ? s[index] : '\0';
+                if (c == '.' || c == 'e' || c == 'E')
+                { }
+                else if (IsTerminal(c))
+                    return Zero;
+                else
+                    return null;  // unexpected character
+            }
+            else
+                return null;  // unexpected character
+
+            var decimalPointIndex = -1;
+            if (c == '.')
+            {
+                decimalPointIndex = index++;
+
+                for (; index < s.Length; index++)
+                {
+                    c = s[index];
+                    if (IsDigit(c))
+                    {
+                        if (mantissa <= BeforeOverflow)
+                            mantissa = (mantissa * 10) + ToDigit(c);
+                        else
+                        {
+                            mantissa *= 10;
+                            index = SkipFractionalPart(s, index + 1);
+                            break;
+                        }
+                    }
+                    else if (c == 'e' || c == 'E' || IsTerminal(c))
+                        break;
+                    else
+                        return null;  // unexpected character
+                }
+            }
+            
+            var digits = 0;
+            var exponent = 0;
+            if (decimalPointIndex >= 0)
+            {
+                digits = index - firstIntegerPartDigitIndex - 1;
+                exponent = -(index - (decimalPointIndex + 1));
+            }
+            else
+            {
+                digits = index - firstIntegerPartDigitIndex;
+                exponent = 0;
+            }
+
+            var exponentSignIndex = -1;
+            if (c == 'e' || c == 'E')
+            {
+                exponentSignIndex = index++;
+                exponent += ReadExponentIfSmall(s, ref index);
+            }
+
+            var value = exponent != 0 ? Pow10((double)mantissa, exponent) : mantissa;
+            if (double.IsInfinity(value) == false && double.IsNaN(value) == false)
+                return isPositive ? value : -value;
+            else
+                return null;  // overflow
+        }
+    }
+}
+

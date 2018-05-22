@@ -1,7 +1,8 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Halak
@@ -117,7 +118,7 @@ namespace Halak
             this.length = source.Length;
         }
 
-        private JValue(string source, int startIndex, int length)
+        internal JValue(string source, int startIndex, int length)
         {
             this.source = source;
             this.startIndex = startIndex;
@@ -131,149 +132,106 @@ namespace Halak
         {
             switch (Type)
             {
-                case TypeCode.Null:
-                    return defaultValue;
-                case TypeCode.Boolean:
-                    return ToBooleanActually();
-                case TypeCode.Number:
-                    return ToDoubleActually(0.0) != 0.0;
-                case TypeCode.String:
-                    return length != 2;  // two quotation marks
-                case TypeCode.Array:
-                case TypeCode.Object:
-                    return true;
-                default:
-                    return defaultValue;
+                case TypeCode.Null: return defaultValue;
+                case TypeCode.Boolean: return ToBooleanActually();
+                case TypeCode.Number: return ToDoubleActually(0.0) != 0.0;
+                case TypeCode.String: return length != 2;  // two quotation marks
+                case TypeCode.Array: return true;
+                case TypeCode.Object: return true;
+                default: return defaultValue;
             }
         }
-
-        private bool ToBooleanActually() { return source[startIndex] == 't'; }
-
+        
         public int ToInt32(int defaultValue = 0)
         {
             switch (Type)
             {
-                case TypeCode.Boolean:
-                    return ToBooleanActually() ? 1 : 0;
-                case TypeCode.Number:
-                    return ToInt32Actually(defaultValue);
-                case TypeCode.String:
-                    return ConvertForNumberParsing().ToInt32Actually(defaultValue);
-                default:
-                    return defaultValue;
+                case TypeCode.Boolean: return ToBooleanActually() ? 1 : 0;
+                case TypeCode.Number: return ToInt32Actually(defaultValue);
+                case TypeCode.String: return ConvertForNumberParsing().ToInt32Actually(defaultValue);
+                default: return defaultValue;
             }
-        }
-
-        private bool IsInteger()
-        {
-            for (var i = startIndex; i < startIndex + length; i++)
-            {
-                switch (source[i])
-                {
-                    case '.':
-                    case 'e':
-                    case 'E':
-                        return false;
-                }
-            }
-
-            return true;
-        }
-
-        private int ToInt32Actually(int defaultValue)
-        {
-            if (IsInteger())
-                return JsonHelper.ParseInt32(source, startIndex, length, defaultValue);
-            else
-                return (int)JsonHelper.ParseDouble(source, startIndex, length, defaultValue);
         }
 
         public long ToInt64(long defaultValue = 0)
         {
             switch (Type)
             {
-                case TypeCode.Boolean:
-                    return ToBooleanActually() ? 1 : 0;
-                case TypeCode.Number:
-                    return ToInt64Actually(defaultValue);
-                case TypeCode.String:
-                    return ConvertForNumberParsing().ToInt64Actually(defaultValue);
-                default:
-                    return defaultValue;
+                case TypeCode.Boolean: return ToBooleanActually() ? 1 : 0;
+                case TypeCode.Number: return ToInt64Actually(defaultValue);
+                case TypeCode.String: return ConvertForNumberParsing().ToInt64Actually(defaultValue);
+                default: return defaultValue;
             }
-        }
-
-        private long ToInt64Actually(long defaultValue)
-        {
-            if (IsInteger())
-                return JsonHelper.ParseInt64(source, startIndex, length, defaultValue);
-            else
-                return (long)JsonHelper.ParseDouble(source, startIndex, length, defaultValue);
         }
 
         public float ToSingle(float defaultValue = 0.0f)
         {
             switch (Type)
             {
-                case TypeCode.Boolean:
-                    return ToBooleanActually() ? 1 : 0;
-                case TypeCode.Number:
-                    return ToSingleActually(defaultValue);
-                case TypeCode.String:
-                    return ConvertForNumberParsing().ToSingleActually(defaultValue);
-                default:
-                    return defaultValue;
+                case TypeCode.Boolean: return ToBooleanActually() ? 1 : 0;
+                case TypeCode.Number: return ToSingleActually(defaultValue);
+                case TypeCode.String: return ConvertForNumberParsing().ToSingleActually(defaultValue);
+                default: return defaultValue;
             }
         }
-
-        private float ToSingleActually(float defaultValue) { return JsonHelper.ParseSingle(source, startIndex, length, defaultValue); }
 
         public double ToDouble(double defaultValue = 0.0)
         {
             switch (Type)
             {
-                case TypeCode.Boolean:
-                    return ToBooleanActually() ? 1.0 : 0.0;
-                case TypeCode.Number:
-                    return ToDoubleActually(defaultValue);
-                case TypeCode.String:
-                    return ConvertForNumberParsing().ToDoubleActually(defaultValue);
-                default:
-                    return defaultValue;
+                case TypeCode.Boolean: return ToBooleanActually() ? 1.0 : 0.0;
+                case TypeCode.Number: return ToDoubleActually(defaultValue);
+                case TypeCode.String: return ConvertForNumberParsing().ToDoubleActually(defaultValue);
+                default: return defaultValue;
             }
         }
-
-        private double ToDoubleActually(double defaultValue) { return JsonHelper.ParseDouble(source, startIndex, length, defaultValue); }
 
         public decimal ToDecimal(decimal defaultValue = 0.0m)
         {
             switch (Type)
             {
-                case TypeCode.Boolean:
-                    return ToBooleanActually() ? 1.0m : 0.0m;
-                case TypeCode.Number:
-                    return ToDecimalActually(defaultValue);
-                case TypeCode.String:
-                    return ConvertForNumberParsing().ToDecimalActually(defaultValue);
-                default:
-                    return defaultValue;
+                case TypeCode.Boolean: return ToBooleanActually() ? 1.0m : 0.0m;
+                case TypeCode.Number: return ToDecimalActually(defaultValue);
+                case TypeCode.String: return ConvertForNumberParsing().ToDecimalActually(defaultValue);
+                default: return defaultValue;
             }
         }
 
+        public JNumber ToNumber() { return ToNumber(JNumber.Zero); }
+        public JNumber ToNumber(JNumber defaultValue)
+        {
+            switch (Type)
+            {
+                case TypeCode.Boolean: return ToBooleanActually() ? JNumber.One : JNumber.Zero;
+                case TypeCode.Number: return ToNumberActually(defaultValue);
+                case TypeCode.String: return ConvertForNumberParsing().ToNumberActually(defaultValue);
+                default: return JNumber.NaN;
+            }
+        }
+
+        private bool ToBooleanActually() { return source[startIndex] == 't'; }
+        private int ToInt32Actually(int defaultValue) { return JsonHelper.ParseInt32(source, startIndex, defaultValue); }
+        private long ToInt64Actually(long defaultValue) { return JsonHelper.ParseInt64(source, startIndex, defaultValue); }
+        private float ToSingleActually(float defaultValue) { return JsonHelper.ParseSingle(source, startIndex, defaultValue); }
+        private double ToDoubleActually(double defaultValue) { return JsonHelper.ParseDouble(source, startIndex, defaultValue); }
         private decimal ToDecimalActually(decimal defaultValue) { return JsonHelper.ParseDecimal(source, startIndex, length, defaultValue); }
+        private JNumber ToNumberActually(JNumber defaultValue)
+        {
+            var value = JNumber.NaN;
+            if (JNumber.TryParse(source, startIndex, out value))
+                return value;
+            else
+                return defaultValue;
+        }
 
         public string ToUnescapedString(string defaultValue = "")
         {
             switch (Type)
             {
-                case TypeCode.Boolean:
-                    return ToBooleanActually() ? JsonHelper.TrueString : JsonHelper.FalseString;
-                case TypeCode.Number:
-                    return source.Substring(startIndex, length);
-                case TypeCode.String:
-                    return ToUnescapedStringActually();
-                default:
-                    return defaultValue;
+                case TypeCode.Boolean: return ToBooleanActually() ? JsonHelper.TrueString : JsonHelper.FalseString;
+                case TypeCode.Number: return source.Substring(startIndex, length);
+                case TypeCode.String: return ToUnescapedStringActually();
+                default: return defaultValue;
             }
         }
 
@@ -283,7 +241,6 @@ namespace Halak
             var enumerator = GetCharEnumerator();
             while (enumerator.MoveNext())
                 sb.Append(enumerator.Current);
-
             return sb.ToString();
         }
 
@@ -818,7 +775,7 @@ namespace Halak
                     case TypeCode.Number:
                         return ToDoubleActually(0.0) == other.ToDoubleActually(0.0);
                     case TypeCode.String:
-                        return EqualsString(other);
+                        return EqualString(this, other);
                     default:
                         return startIndex == other.startIndex &&
                             length == other.length &&
@@ -829,25 +786,25 @@ namespace Halak
                 return false;
         }
 
-        private bool EqualsString(JValue other)
+        private static bool EqualString(JValue a, JValue b)
         {
-            var aEnd = startIndex + length - 1;
-            var bEnd = other.startIndex + other.length - 1;
+            var aEnd = a.startIndex + a.length - 1;
+            var bEnd = b.startIndex + b.length - 1;
 
-            var aEnumerator = GetCharEnumerator();
-            var bEnumerator = other.GetCharEnumerator();
+            var aEnumerator = a.GetCharEnumerator();
+            var bEnumerator = b.GetCharEnumerator();
 
             for (; ; )
             {
-                var a = aEnumerator.MoveNext();
-                var b = bEnumerator.MoveNext();
-                if (a && b)
+                var aStep = aEnumerator.MoveNext();
+                var bStep = bEnumerator.MoveNext();
+                if (aStep && bStep)
                 {
                     if (aEnumerator.Current != bEnumerator.Current)
                         return false;
                 }
                 else
-                    return a == b;
+                    return aStep == bStep;
             }
         }
         #endregion
@@ -952,7 +909,9 @@ namespace Halak
 
             public void Dispose() { }
 
-            // FORCE-INLINE
+#if !NET35
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
             private static int Hex(char c)
             {
                 return

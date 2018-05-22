@@ -1,326 +1,140 @@
 ﻿using System;
 using System.Globalization;
+using System.Runtime.CompilerServices;
 
 namespace Halak
 {
     public static partial class JsonHelper
     {
-        private const int Int32Precision = 10;
+        private const int BigExponent = 1000;
 
-        public static int ParseInt32NewNew(string s, int index, int defaultValue = default(int))
+        private static int SkipIntegerPart(string s, int index)
         {
-            const uint BeforeOverflow = uint.MaxValue / 10 - 1;
-
-            var parser = new JsonNumberParser(s, index);
-
-            var value = 0U;
-            while (parser.HasIntegerPartDigit && value <= BeforeOverflow)
-                value = (value * 10) + parser.ReadDigitInIntegerPart();
-
-            if (parser.IsFinished == false)
+            for (; index < s.Length; index++)
             {
-                if (parser.HasIntegerPartDigit)
-                {
-                    value *= 10;
-                    do
-                    {
-                        parser.ReadDigitInIntegerPart();
-                    } while (parser.HasIntegerPartDigit);
-                }
-
-                var exponent = 0;
-                while (parser.HasFractionalPartDigit && value <= BeforeOverflow)
-                {
-                    value = (value * 10) + parser.ReadDigitInFractionalPart();
-                    exponent--;
-                }
-
-                while (parser.HasFractionalPartDigit)
-                {
-                    parser.ReadDigitInFractionalPart();
-                    exponent--;
-                }
-
-                if (parser.HasExponent)
-                    exponent += parser.ReadExponent();
-
-                if (parser.HasError)
-                    return defaultValue;
-
-                if (exponent != 0)
-                {
-                    var integerPart = parser.Digits + exponent;
-                    if (integerPart > 0)
-                    {
-                        if (integerPart <= Int32Precision)
-                        {
-                            if (exponent > 0)
-                                value *= JNumberParser.Pow10ToUInt32(exponent);
-                            else
-                                value /= JNumberParser.Pow10ToUInt32(-exponent);
-                        }
-                        else
-                            return defaultValue;
-                    }
-                    else
-                        return 0;
-                }
+                var c = s[index];
+                if (c == '.' || c == 'e' || c == 'E')
+                    return index;
             }
 
-            if (parser.HasError)
-                return defaultValue;
-
-            if (parser.IsPositive)
-                return value <= int.MaxValue ? (int)value : defaultValue;
-            else
-            {
-                if (value < unchecked((uint)int.MinValue))
-                    return -(int)value;
-                else if (value == unchecked((uint)int.MinValue))
-                    return int.MinValue;
-                else
-                    return defaultValue;
-            }
+            return s.Length;
         }
 
-        public static int ParseInt32New(string s, int startIndex, int length, int defaultValue = default(int))
+        private static int SkipFractionalPart(string s, int index)
         {
-            return JNumberParser.Analyze(s, startIndex, length).ToInt32(defaultValue);
+            for (; index < s.Length; index++)
+            {
+                var c = s[index];
+                if (c == 'e' || c == 'E')
+                    return index;
+            }
+
+            return s.Length;
         }
 
-        private static bool IsInteger(string source, int startIndex, int length)
+        private static int ReadExponentIfSmall(string s, ref int index)
         {
-            for (var i = startIndex; i < startIndex + length; i++)
+            if (s.Length == index)
+                return BigExponent;
+
+            var sign = true;
+            var c = s[index++];
+            if ((c == '-' || c == '+') && index < s.Length)
             {
-                switch (source[i])
+                sign = (c != '-');
+                c = s[index++];
+            }
+            if (IsDigit(c) == false)
+                return BigExponent;
+
+            var exponent = (int)ToDigit(c);
+            while (index < s.Length)
+            {
+                c = s[index++];
+                if (IsDigit(c))
                 {
-                    case '.':
-                    case 'e':
-                    case 'E':
-                        return false;
+                    exponent = (exponent * 10) + ToDigit(c);
+                    if (exponent > BigExponent)
+                        break;
                 }
-            }
-
-            return true;
-        }
-
-        public static int ParseInt32Old(string s, int startIndex, int length, int defaultValue = default(int))
-        {
-            if (IsInteger(s, startIndex, length) == false)
-                return defaultValue;
-            if (length <= 0)
-                return defaultValue;
-
-            length += startIndex;
-
-            var result = 0;
-            if (s[startIndex] != '-')
-            {
-                if (s[startIndex] == '+')
-                    startIndex++;
-
-                for (var i = startIndex; i < length; i++)
-                {
-                    if ('0' <= s[i] && s[i] <= '9')
-                    {
-                        result = (result * 10) + (s[i] - '0');
-                        if (result < 0) // overflow
-                            return defaultValue;
-                    }
-                    else
-                        return defaultValue;
-                }
-            }
-            else
-            {
-                for (var i = startIndex + 1; i < length; i++)
-                {
-                    if ('0' <= s[i] && s[i] <= '9')
-                    {
-                        result = (result * 10) - (s[i] - '0');
-                        if (result > 0)  // underflow
-                            return defaultValue;
-                    }
-                    else
-                        return defaultValue;
-                }
-            }
-
-            return result;
-        }
-
-        public static int ParseInt32(string s, int startIndex, int length, int defaultValue = default(int))
-        {
-            if (length <= 0)
-                return defaultValue;
-
-            length += startIndex;
-
-            var result = 0;
-            if (s[startIndex] != '-')
-            {
-                if (s[startIndex] == '+')
-                    startIndex++;
-
-                for (var i = startIndex; i < length; i++)
-                {
-                    if ('0' <= s[i] && s[i] <= '9')
-                    {
-                        result = (result * 10) + (s[i] - '0');
-                        if (result < 0) // overflow
-                            return defaultValue;
-                    }
-                    else
-                        return defaultValue;
-                }
-            }
-            else
-            {
-                for (var i = startIndex + 1; i < length; i++)
-                {
-                    if ('0' <= s[i] && s[i] <= '9')
-                    {
-                        result = (result * 10) - (s[i] - '0');
-                        if (result > 0)  // underflow
-                            return defaultValue;
-                    }
-                    else
-                        return defaultValue;
-                }
-            }
-
-            return result;
-        }
-
-        public static long ParseInt64(string s, int startIndex, int length, long defaultValue = default(long))
-        {
-            if (length <= 0)
-                return defaultValue;
-
-            length += startIndex;
-
-            var result = 0L;
-            if (s[startIndex] != '-')
-            {
-                if (s[startIndex] == '+')
-                    startIndex++;
-
-                for (var i = startIndex; i < length; i++)
-                {
-                    if ('0' <= s[i] && s[i] <= '9')
-                    {
-                        result = (result * 10L) + (s[i] - '0');
-                        if (result < 0L) // overflow
-                            return defaultValue;
-                    }
-                    else
-                        return defaultValue;
-                }
-            }
-            else
-            {
-                for (var i = startIndex + 1; i < length; i++)
-                {
-                    if ('0' <= s[i] && s[i] <= '9')
-                    {
-                        result = (result * 10L) - (s[i] - '0');
-                        if (result > 0L)  // underflow
-                            return defaultValue;
-                    }
-                    else
-                        return defaultValue;
-                }
-            }
-
-            return result;
-        }
-
-        public static float ParseSingle(string s, int startIndex, int length, float defaultValue = default(float))
-        {
-            return (float)ParseDouble(s, startIndex, length, (double)defaultValue);
-        }
-
-        public static double ParseDouble(string s, int startIndex, int length, double defaultValue = default(double))
-        {
-            if (length <= 0)
-                return defaultValue;
-
-            var i = startIndex;
-            if (s[startIndex] == '-' || s[startIndex] == '+')
-                i++;
-
-            length += startIndex;  // length => end
-            var mantissa = 0L;
-            if (i < length && '0' <= s[i] && s[i] <= '9')
-            {
-                mantissa = (mantissa * 10) + (s[i] - '0');
-                i++;
-            }
-            else
-                return defaultValue;
-
-            for (; i < length; i++)
-            {
-                if ('0' <= s[i] && s[i] <= '9')
-                    mantissa = (mantissa * 10) + (s[i] - '0');
-                else if (s[i] == '.' || s[i] == 'e' || s[i] == 'E')
+                else if (IsTerminal(c))
                     break;
                 else
-                    return defaultValue;
-            }
-
-            var exponent = 0;
-            if (i < length && s[i] == '.')
-            {
-                i++;
-                for (; i < length; i++, exponent++)
                 {
-                    if ('0' <= s[i] && s[i] <= '9')
-                        mantissa = (mantissa * 10) + (s[i] - '0');
-                    else if (s[i] == 'e' || s[i] == 'E')
-                        break;
-                    else
-                        return defaultValue;
+                    exponent = BigExponent;
+                    break;
                 }
             }
 
-            if (i < length)
-                exponent -= ParseInt32(s, i + 1, length - (i + 1), 0);
-
-            // defaultValue => result
-            if (exponent != 0)
-                defaultValue = mantissa / Pow10(exponent);
-            else
-                defaultValue = mantissa;
-
-            if (s[startIndex] == '-')
-                defaultValue = -defaultValue;
-
-            return defaultValue;
+            return sign ? exponent : -exponent;
         }
-
+        
         public static decimal ParseDecimal(string s, int startIndex, int length, decimal defaultValue = default(decimal))
         {
             if (startIndex != 0 || s.Length != length)
                 s = s.Substring(startIndex, length);
-
-            var styles = NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint | NumberStyles.AllowExponent;
+            
             var value = decimal.Zero;
-            if (decimal.TryParse(s, styles, CultureInfo.InvariantCulture, out value))
+            if (decimal.TryParse(s, StandardNumberStyles, CultureInfo.InvariantCulture, out value))
                 return value;
             else
                 return defaultValue;
         }
 
-        private static double Pow10(int d) => (((d + Power10Bias) & int.MaxValue) < Power10Count ? Power10[d + Power10Bias] : Pow10Actually(d));
-        private static double Pow10Actually(int d) => Math.Pow(10.0, d);
-
-        private const int Power10Bias = 12;
-        private const int Power10Count = 24;
-        private static readonly double[] Power10 = new[]
+        public static decimal? ParseNullableDecimal(string s, int startIndex, int length)
         {
-            1E-12, 1E-11, 1E-10, 1E-9, 1E-8, 1E-7, 1E-6, 1E-5, 1E-4, 1E-3, 1E-2, 1E-1,
-            1E+0, 1E+1, 1E+2, 1E+3, 1E+4, 1E+5, 1E+6, 1E+7, 1E+8, 1E+9, 1E+10, 1E+11,
+            if (startIndex != 0 || s.Length != length)
+                s = s.Substring(startIndex, length);
+            
+            var value = decimal.Zero;
+            if (decimal.TryParse(s, StandardNumberStyles, CultureInfo.InvariantCulture, out value))
+                return value;
+            else
+                return null;
+        }
+
+        private static NumberStyles StandardNumberStyles = NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint | NumberStyles.AllowExponent;
+        private static readonly uint[] UInt32Powers10 = new[]
+        {
+            1U, 10U, 100U, 1000U, 10000U, 100000U, 1000000U, 10000000U, 100000000U, 1000000000U,
         };
+        private static readonly ulong[] UInt64Powers10 = new[]
+        {
+            1UL,
+            10UL,
+            100UL,
+            1000UL,
+            10000UL,
+            100000UL,
+            1000000UL,
+            10000000UL,
+            100000000UL,
+            1000000000UL,
+            10000000000UL,
+            100000000000UL,
+            1000000000000UL,
+            10000000000000UL,
+            100000000000000UL,
+            1000000000000000UL,
+            10000000000000000UL,
+            100000000000000000UL,
+            1000000000000000000UL,
+            10000000000000000000UL,
+        };
+        private static readonly double[] DoublePowers10 = new[]
+        {
+            1E+0, 1E+1, 1E+2, 1E+3, 1E+4, 1E+5, 1E+6, 1E+7, 1E+8, 1E+9, 1E+10, 1E+11, 1E+12, 1E+13, 1E+14, 1E+15, 1E+16, 1E+17, 1E+18, 1E+19, 1E+20, 1E+21, 1E+22, 1E+23
+        };
+
+        private static uint Pow10(uint value, int exponent) { return exponent >= 0 ? value * UInt32Powers10[exponent] : value / UInt32Powers10[-exponent]; }
+        private static ulong Pow10(ulong value, int exponent) { return exponent >= 0 ? value * UInt64Powers10[exponent] : value / UInt64Powers10[-exponent]; }
+        private static float Pow10(float value, int exponent) { return exponent >= 0 ? value * (float)Pow10(exponent) : value / (float)Pow10(-exponent); }
+        private static double Pow10(double value, int exponent) { return exponent >= 0 ? value * Pow10(exponent) : value / Pow10(-exponent); }
+        
+        private static double Pow10(int d) { return d < DoublePowers10.Length ? DoublePowers10[d] : Math.Pow(10.0, d); }
+        
+        internal static bool IsDigit(char c) { return '0' <= c && c <= '9'; }
+        internal static bool IsTerminal(char c) { return c == '\0' || c == ',' || c == '}' || c == ']' || c == ' ' || c == '\n' || c == '\r' || c == '\t' || c == '"'; }
+        private static byte ToDigit(char c) { return (byte)(c - '0'); }
     }
 }
