@@ -4,14 +4,26 @@ namespace Halak
 {
     partial class JsonHelper
     {
-        public static int ParseInt32(string s, int startIndex = 0, int defaultValue = default(int))
+        public static int ParseInt32(string s, int defaultValue = default(int))
+        {
+            return ParseInt32(s, 0, s.Length, defaultValue);
+        }
+
+        public static int ParseInt32(string s, int startIndex, int defaultValue = default(int))
+        {
+            return ParseInt32(s, startIndex, s.Length, defaultValue);
+        }
+
+        public static int ParseInt32(string s, int startIndex, int length, int defaultValue = default(int))
         {
             const int Zero = default(int);
             const uint BeforeOverflow = uint.MaxValue / 10 - 1;
  
             const uint MaxPositiveValue = int.MaxValue;
             const uint MaxNegativeValue = unchecked((uint)int.MinValue);
-            if (s == null || startIndex >= s.Length)
+
+            var end = Math.Min(startIndex + length, s.Length);
+            if (length <= 0)
                 return defaultValue;  // empty string
 
             var index = s[startIndex] == '-' ? startIndex + 1 : startIndex;
@@ -25,7 +37,7 @@ namespace Halak
                 mantissa = ToDigit(c);
                 index++;
 
-                for (; index < s.Length; index++)
+                for (; index < end; index++)
                 {
                     c = s[index];
                     if (IsDigit(c))
@@ -36,7 +48,7 @@ namespace Halak
                         {
                             mantissa *= 10;
                             index = SkipIntegerPart(s, index + 1);
-                            c = (index < s.Length) ? s[index] : '\0';
+                            c = (index < end) ? s[index] : '\0';
                             break;
                         }
                     }
@@ -44,14 +56,14 @@ namespace Halak
                         break;
                     else if (IsTerminal(c))
                     {
-                        index = s.Length;
+                        index = end;
                         break;
                     }
                     else
                         return defaultValue;  // unexpected character
                 }
  
-                if (index == s.Length)
+                if (index == end)
                 {
                     if (isPositive)
                         return (mantissa <= MaxPositiveValue) ? (int)(mantissa) : defaultValue;
@@ -63,7 +75,7 @@ namespace Halak
             {
                 firstIntegerPartDigitIndex++;
 
-                c = (++index < s.Length) ? s[index] : '\0';
+                c = (++index < end) ? s[index] : '\0';
                 if (c == '.' || c == 'e' || c == 'E')
                 { }
                 else if (IsTerminal(c))
@@ -79,7 +91,7 @@ namespace Halak
             {
                 decimalPointIndex = index++;
 
-                for (; index < s.Length; index++)
+                for (; index < end; index++)
                 {
                     c = s[index];
                     if (IsDigit(c))
@@ -136,14 +148,26 @@ namespace Halak
                 return Zero;
         }
 
-        public static int? ParseNullableInt32(string s, int startIndex = 0)
+        public static int? ParseNullableInt32(string s)
+        {
+            return ParseNullableInt32(s, 0, s.Length);
+        }
+
+        public static int? ParseNullableInt32(string s, int startIndex)
+        {
+            return ParseNullableInt32(s, startIndex, s.Length);
+        }
+
+        public static int? ParseNullableInt32(string s, int startIndex, int length)
         {
             const int Zero = default(int);
             const uint BeforeOverflow = uint.MaxValue / 10 - 1;
  
             const uint MaxPositiveValue = int.MaxValue;
             const uint MaxNegativeValue = unchecked((uint)int.MinValue);
-            if (s == null || startIndex >= s.Length)
+
+            var end = Math.Min(startIndex + length, s.Length);
+            if (length <= 0)
                 return null;  // empty string
 
             var index = s[startIndex] == '-' ? startIndex + 1 : startIndex;
@@ -157,7 +181,7 @@ namespace Halak
                 mantissa = ToDigit(c);
                 index++;
 
-                for (; index < s.Length; index++)
+                for (; index < end; index++)
                 {
                     c = s[index];
                     if (IsDigit(c))
@@ -168,7 +192,7 @@ namespace Halak
                         {
                             mantissa *= 10;
                             index = SkipIntegerPart(s, index + 1);
-                            c = (index < s.Length) ? s[index] : '\0';
+                            c = (index < end) ? s[index] : '\0';
                             break;
                         }
                     }
@@ -176,14 +200,14 @@ namespace Halak
                         break;
                     else if (IsTerminal(c))
                     {
-                        index = s.Length;
+                        index = end;
                         break;
                     }
                     else
                         return null;  // unexpected character
                 }
  
-                if (index == s.Length)
+                if (index == end)
                 {
                     if (isPositive)
                         return (mantissa <= MaxPositiveValue) ? (int?)(mantissa) : null;
@@ -195,7 +219,7 @@ namespace Halak
             {
                 firstIntegerPartDigitIndex++;
 
-                c = (++index < s.Length) ? s[index] : '\0';
+                c = (++index < end) ? s[index] : '\0';
                 if (c == '.' || c == 'e' || c == 'E')
                 { }
                 else if (IsTerminal(c))
@@ -211,7 +235,7 @@ namespace Halak
             {
                 decimalPointIndex = index++;
 
-                for (; index < s.Length; index++)
+                for (; index < end; index++)
                 {
                     c = s[index];
                     if (IsDigit(c))
@@ -268,14 +292,26 @@ namespace Halak
                 return Zero;
         }
 
-        public static long ParseInt64(string s, int startIndex = 0, long defaultValue = default(long))
+        public static long ParseInt64(string s, long defaultValue = default(long))
+        {
+            return ParseInt64(s, 0, s.Length, defaultValue);
+        }
+
+        public static long ParseInt64(string s, int startIndex, long defaultValue = default(long))
+        {
+            return ParseInt64(s, startIndex, s.Length, defaultValue);
+        }
+
+        public static long ParseInt64(string s, int startIndex, int length, long defaultValue = default(long))
         {
             const long Zero = default(long);
             const ulong BeforeOverflow = ulong.MaxValue / 10 - 1;
  
             const ulong MaxPositiveValue = long.MaxValue;
             const ulong MaxNegativeValue = unchecked((ulong)long.MinValue);
-            if (s == null || startIndex >= s.Length)
+
+            var end = Math.Min(startIndex + length, s.Length);
+            if (length <= 0)
                 return defaultValue;  // empty string
 
             var index = s[startIndex] == '-' ? startIndex + 1 : startIndex;
@@ -289,7 +325,7 @@ namespace Halak
                 mantissa = ToDigit(c);
                 index++;
 
-                for (; index < s.Length; index++)
+                for (; index < end; index++)
                 {
                     c = s[index];
                     if (IsDigit(c))
@@ -300,7 +336,7 @@ namespace Halak
                         {
                             mantissa *= 10;
                             index = SkipIntegerPart(s, index + 1);
-                            c = (index < s.Length) ? s[index] : '\0';
+                            c = (index < end) ? s[index] : '\0';
                             break;
                         }
                     }
@@ -308,14 +344,14 @@ namespace Halak
                         break;
                     else if (IsTerminal(c))
                     {
-                        index = s.Length;
+                        index = end;
                         break;
                     }
                     else
                         return defaultValue;  // unexpected character
                 }
  
-                if (index == s.Length)
+                if (index == end)
                 {
                     if (isPositive)
                         return (mantissa <= MaxPositiveValue) ? (long)(mantissa) : defaultValue;
@@ -327,7 +363,7 @@ namespace Halak
             {
                 firstIntegerPartDigitIndex++;
 
-                c = (++index < s.Length) ? s[index] : '\0';
+                c = (++index < end) ? s[index] : '\0';
                 if (c == '.' || c == 'e' || c == 'E')
                 { }
                 else if (IsTerminal(c))
@@ -343,7 +379,7 @@ namespace Halak
             {
                 decimalPointIndex = index++;
 
-                for (; index < s.Length; index++)
+                for (; index < end; index++)
                 {
                     c = s[index];
                     if (IsDigit(c))
@@ -400,14 +436,26 @@ namespace Halak
                 return Zero;
         }
 
-        public static long? ParseNullableInt64(string s, int startIndex = 0)
+        public static long? ParseNullableInt64(string s)
+        {
+            return ParseNullableInt64(s, 0, s.Length);
+        }
+
+        public static long? ParseNullableInt64(string s, int startIndex)
+        {
+            return ParseNullableInt64(s, startIndex, s.Length);
+        }
+
+        public static long? ParseNullableInt64(string s, int startIndex, int length)
         {
             const long Zero = default(long);
             const ulong BeforeOverflow = ulong.MaxValue / 10 - 1;
  
             const ulong MaxPositiveValue = long.MaxValue;
             const ulong MaxNegativeValue = unchecked((ulong)long.MinValue);
-            if (s == null || startIndex >= s.Length)
+
+            var end = Math.Min(startIndex + length, s.Length);
+            if (length <= 0)
                 return null;  // empty string
 
             var index = s[startIndex] == '-' ? startIndex + 1 : startIndex;
@@ -421,7 +469,7 @@ namespace Halak
                 mantissa = ToDigit(c);
                 index++;
 
-                for (; index < s.Length; index++)
+                for (; index < end; index++)
                 {
                     c = s[index];
                     if (IsDigit(c))
@@ -432,7 +480,7 @@ namespace Halak
                         {
                             mantissa *= 10;
                             index = SkipIntegerPart(s, index + 1);
-                            c = (index < s.Length) ? s[index] : '\0';
+                            c = (index < end) ? s[index] : '\0';
                             break;
                         }
                     }
@@ -440,14 +488,14 @@ namespace Halak
                         break;
                     else if (IsTerminal(c))
                     {
-                        index = s.Length;
+                        index = end;
                         break;
                     }
                     else
                         return null;  // unexpected character
                 }
  
-                if (index == s.Length)
+                if (index == end)
                 {
                     if (isPositive)
                         return (mantissa <= MaxPositiveValue) ? (long?)(mantissa) : null;
@@ -459,7 +507,7 @@ namespace Halak
             {
                 firstIntegerPartDigitIndex++;
 
-                c = (++index < s.Length) ? s[index] : '\0';
+                c = (++index < end) ? s[index] : '\0';
                 if (c == '.' || c == 'e' || c == 'E')
                 { }
                 else if (IsTerminal(c))
@@ -475,7 +523,7 @@ namespace Halak
             {
                 decimalPointIndex = index++;
 
-                for (; index < s.Length; index++)
+                for (; index < end; index++)
                 {
                     c = s[index];
                     if (IsDigit(c))
@@ -532,11 +580,23 @@ namespace Halak
                 return Zero;
         }
 
-        public static float ParseSingle(string s, int startIndex = 0, float defaultValue = default(float))
+        public static float ParseSingle(string s, float defaultValue = default(float))
+        {
+            return ParseSingle(s, 0, s.Length, defaultValue);
+        }
+
+        public static float ParseSingle(string s, int startIndex, float defaultValue = default(float))
+        {
+            return ParseSingle(s, startIndex, s.Length, defaultValue);
+        }
+
+        public static float ParseSingle(string s, int startIndex, int length, float defaultValue = default(float))
         {
             const float Zero = default(float);
             const uint BeforeOverflow = uint.MaxValue / 10 - 1;
-            if (s == null || startIndex >= s.Length)
+
+            var end = Math.Min(startIndex + length, s.Length);
+            if (length <= 0)
                 return defaultValue;  // empty string
 
             var index = s[startIndex] == '-' ? startIndex + 1 : startIndex;
@@ -550,7 +610,7 @@ namespace Halak
                 mantissa = ToDigit(c);
                 index++;
 
-                for (; index < s.Length; index++)
+                for (; index < end; index++)
                 {
                     c = s[index];
                     if (IsDigit(c))
@@ -561,7 +621,7 @@ namespace Halak
                         {
                             mantissa *= 10;
                             index = SkipIntegerPart(s, index + 1);
-                            c = (index < s.Length) ? s[index] : '\0';
+                            c = (index < end) ? s[index] : '\0';
                             break;
                         }
                     }
@@ -569,7 +629,7 @@ namespace Halak
                         break;
                     else if (IsTerminal(c))
                     {
-                        index = s.Length;
+                        index = end;
                         break;
                     }
                     else
@@ -580,7 +640,7 @@ namespace Halak
             {
                 firstIntegerPartDigitIndex++;
 
-                c = (++index < s.Length) ? s[index] : '\0';
+                c = (++index < end) ? s[index] : '\0';
                 if (c == '.' || c == 'e' || c == 'E')
                 { }
                 else if (IsTerminal(c))
@@ -596,7 +656,7 @@ namespace Halak
             {
                 decimalPointIndex = index++;
 
-                for (; index < s.Length; index++)
+                for (; index < end; index++)
                 {
                     c = s[index];
                     if (IsDigit(c))
@@ -644,11 +704,23 @@ namespace Halak
                 return defaultValue;  // overflow
         }
 
-        public static float? ParseNullableSingle(string s, int startIndex = 0)
+        public static float? ParseNullableSingle(string s)
+        {
+            return ParseNullableSingle(s, 0, s.Length);
+        }
+
+        public static float? ParseNullableSingle(string s, int startIndex)
+        {
+            return ParseNullableSingle(s, startIndex, s.Length);
+        }
+
+        public static float? ParseNullableSingle(string s, int startIndex, int length)
         {
             const float Zero = default(float);
             const uint BeforeOverflow = uint.MaxValue / 10 - 1;
-            if (s == null || startIndex >= s.Length)
+
+            var end = Math.Min(startIndex + length, s.Length);
+            if (length <= 0)
                 return null;  // empty string
 
             var index = s[startIndex] == '-' ? startIndex + 1 : startIndex;
@@ -662,7 +734,7 @@ namespace Halak
                 mantissa = ToDigit(c);
                 index++;
 
-                for (; index < s.Length; index++)
+                for (; index < end; index++)
                 {
                     c = s[index];
                     if (IsDigit(c))
@@ -673,7 +745,7 @@ namespace Halak
                         {
                             mantissa *= 10;
                             index = SkipIntegerPart(s, index + 1);
-                            c = (index < s.Length) ? s[index] : '\0';
+                            c = (index < end) ? s[index] : '\0';
                             break;
                         }
                     }
@@ -681,7 +753,7 @@ namespace Halak
                         break;
                     else if (IsTerminal(c))
                     {
-                        index = s.Length;
+                        index = end;
                         break;
                     }
                     else
@@ -692,7 +764,7 @@ namespace Halak
             {
                 firstIntegerPartDigitIndex++;
 
-                c = (++index < s.Length) ? s[index] : '\0';
+                c = (++index < end) ? s[index] : '\0';
                 if (c == '.' || c == 'e' || c == 'E')
                 { }
                 else if (IsTerminal(c))
@@ -708,7 +780,7 @@ namespace Halak
             {
                 decimalPointIndex = index++;
 
-                for (; index < s.Length; index++)
+                for (; index < end; index++)
                 {
                     c = s[index];
                     if (IsDigit(c))
@@ -756,11 +828,23 @@ namespace Halak
                 return null;  // overflow
         }
 
-        public static double ParseDouble(string s, int startIndex = 0, double defaultValue = default(double))
+        public static double ParseDouble(string s, double defaultValue = default(double))
+        {
+            return ParseDouble(s, 0, s.Length, defaultValue);
+        }
+
+        public static double ParseDouble(string s, int startIndex, double defaultValue = default(double))
+        {
+            return ParseDouble(s, startIndex, s.Length, defaultValue);
+        }
+
+        public static double ParseDouble(string s, int startIndex, int length, double defaultValue = default(double))
         {
             const double Zero = default(double);
             const ulong BeforeOverflow = ulong.MaxValue / 10 - 1;
-            if (s == null || startIndex >= s.Length)
+
+            var end = Math.Min(startIndex + length, s.Length);
+            if (length <= 0)
                 return defaultValue;  // empty string
 
             var index = s[startIndex] == '-' ? startIndex + 1 : startIndex;
@@ -774,7 +858,7 @@ namespace Halak
                 mantissa = ToDigit(c);
                 index++;
 
-                for (; index < s.Length; index++)
+                for (; index < end; index++)
                 {
                     c = s[index];
                     if (IsDigit(c))
@@ -785,7 +869,7 @@ namespace Halak
                         {
                             mantissa *= 10;
                             index = SkipIntegerPart(s, index + 1);
-                            c = (index < s.Length) ? s[index] : '\0';
+                            c = (index < end) ? s[index] : '\0';
                             break;
                         }
                     }
@@ -793,7 +877,7 @@ namespace Halak
                         break;
                     else if (IsTerminal(c))
                     {
-                        index = s.Length;
+                        index = end;
                         break;
                     }
                     else
@@ -804,7 +888,7 @@ namespace Halak
             {
                 firstIntegerPartDigitIndex++;
 
-                c = (++index < s.Length) ? s[index] : '\0';
+                c = (++index < end) ? s[index] : '\0';
                 if (c == '.' || c == 'e' || c == 'E')
                 { }
                 else if (IsTerminal(c))
@@ -820,7 +904,7 @@ namespace Halak
             {
                 decimalPointIndex = index++;
 
-                for (; index < s.Length; index++)
+                for (; index < end; index++)
                 {
                     c = s[index];
                     if (IsDigit(c))
@@ -868,11 +952,23 @@ namespace Halak
                 return defaultValue;  // overflow
         }
 
-        public static double? ParseNullableDouble(string s, int startIndex = 0)
+        public static double? ParseNullableDouble(string s)
+        {
+            return ParseNullableDouble(s, 0, s.Length);
+        }
+
+        public static double? ParseNullableDouble(string s, int startIndex)
+        {
+            return ParseNullableDouble(s, startIndex, s.Length);
+        }
+
+        public static double? ParseNullableDouble(string s, int startIndex, int length)
         {
             const double Zero = default(double);
             const ulong BeforeOverflow = ulong.MaxValue / 10 - 1;
-            if (s == null || startIndex >= s.Length)
+
+            var end = Math.Min(startIndex + length, s.Length);
+            if (length <= 0)
                 return null;  // empty string
 
             var index = s[startIndex] == '-' ? startIndex + 1 : startIndex;
@@ -886,7 +982,7 @@ namespace Halak
                 mantissa = ToDigit(c);
                 index++;
 
-                for (; index < s.Length; index++)
+                for (; index < end; index++)
                 {
                     c = s[index];
                     if (IsDigit(c))
@@ -897,7 +993,7 @@ namespace Halak
                         {
                             mantissa *= 10;
                             index = SkipIntegerPart(s, index + 1);
-                            c = (index < s.Length) ? s[index] : '\0';
+                            c = (index < end) ? s[index] : '\0';
                             break;
                         }
                     }
@@ -905,7 +1001,7 @@ namespace Halak
                         break;
                     else if (IsTerminal(c))
                     {
-                        index = s.Length;
+                        index = end;
                         break;
                     }
                     else
@@ -916,7 +1012,7 @@ namespace Halak
             {
                 firstIntegerPartDigitIndex++;
 
-                c = (++index < s.Length) ? s[index] : '\0';
+                c = (++index < end) ? s[index] : '\0';
                 if (c == '.' || c == 'e' || c == 'E')
                 { }
                 else if (IsTerminal(c))
@@ -932,7 +1028,7 @@ namespace Halak
             {
                 decimalPointIndex = index++;
 
-                for (; index < s.Length; index++)
+                for (; index < end; index++)
                 {
                     c = s[index];
                     if (IsDigit(c))

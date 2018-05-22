@@ -24,7 +24,25 @@ namespace Halak
         {
             var item = items[i];
 #>
-        public static <#= item.Return #> Parse<#= item.Name #>(string s, int startIndex = 0<# if (item.IsNullable == false) { #>, <#= item.Return #> <#= item.DefaultValue #> = default(<#= item.Return #>)<# } #>)
+        public static <#= item.Return #> Parse<#= item.Name #>(string s<# if (item.IsNullable == false) { #>, <#= item.Return #> <#= item.DefaultValue #> = default(<#= item.Return #>)<# } #>)
+        {
+<#          if (item.IsNullable) { #>
+            return Parse<#= item.Name #>(s, 0, s.Length);
+<#          } else { #>
+            return Parse<#= item.Name #>(s, 0, s.Length, <#= item.DefaultValue #>);
+<#          } #>
+        }
+
+        public static <#= item.Return #> Parse<#= item.Name #>(string s, int startIndex<# if (item.IsNullable == false) { #>, <#= item.Return #> <#= item.DefaultValue #> = default(<#= item.Return #>)<# } #>)
+        {
+<#          if (item.IsNullable) { #>
+            return Parse<#= item.Name #>(s, startIndex, s.Length);
+<#          } else { #>
+            return Parse<#= item.Name #>(s, startIndex, s.Length, <#= item.DefaultValue #>);
+<#          } #>
+        }
+
+        public static <#= item.Return #> Parse<#= item.Name #>(string s, int startIndex, int length<# if (item.IsNullable == false) { #>, <#= item.Return #> <#= item.DefaultValue #> = default(<#= item.Return #>)<# } #>)
         {
             const <#= item.Declare #> Zero = default(<#= item.Declare #>);
             const <#= item.Store #> BeforeOverflow = <#= item.Store #>.MaxValue / 10 - 1;
@@ -32,7 +50,9 @@ namespace Halak
             const <#= item.Store #> MaxPositiveValue = <#= item.Declare #>.MaxValue;
             const <#= item.Store #> MaxNegativeValue = unchecked((<#= item.Store #>)<#= item.Declare #>.MinValue);
 <#          } #>
-            if (s == null || startIndex >= s.Length)
+
+            var end = Math.Min(startIndex + length, s.Length);
+            if (length <= 0)
                 return <#= item.DefaultValue #>;  // empty string
 
             var index = s[startIndex] == '-' ? startIndex + 1 : startIndex;
@@ -46,7 +66,7 @@ namespace Halak
                 mantissa = ToDigit(c);
                 index++;
 
-                for (; index < s.Length; index++)
+                for (; index < end; index++)
                 {
                     c = s[index];
                     if (IsDigit(c))
@@ -57,7 +77,7 @@ namespace Halak
                         {
                             mantissa *= 10;
                             index = SkipIntegerPart(s, index + 1);
-                            c = (index < s.Length) ? s[index] : '\0';
+                            c = (index < end) ? s[index] : '\0';
                             break;
                         }
                     }
@@ -65,14 +85,14 @@ namespace Halak
                         break;
                     else if (IsTerminal(c))
                     {
-                        index = s.Length;
+                        index = end;
                         break;
                     }
                     else
                         return <#= item.DefaultValue #>;  // unexpected character
                 }
 <#              if (item.IsFloatingPoint == false) { #> 
-                if (index == s.Length)
+                if (index == end)
                 {
                     if (isPositive)
                         return (mantissa <= MaxPositiveValue) ? (<#= item.Return #>)(mantissa) : <#= item.DefaultValue #>;
@@ -85,7 +105,7 @@ namespace Halak
             {
                 firstIntegerPartDigitIndex++;
 
-                c = (++index < s.Length) ? s[index] : '\0';
+                c = (++index < end) ? s[index] : '\0';
                 if (c == '.' || c == 'e' || c == 'E')
                 { }
                 else if (IsTerminal(c))
@@ -101,7 +121,7 @@ namespace Halak
             {
                 decimalPointIndex = index++;
 
-                for (; index < s.Length; index++)
+                for (; index < end; index++)
                 {
                     c = s[index];
                     if (IsDigit(c))

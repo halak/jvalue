@@ -61,14 +61,14 @@ namespace Halak
             this.toExponent = toExponent;
         }
         
-        public int ToInt32(int defaultValue = default(int)) { return JsonHelper.ParseInt32(source, startIndex, defaultValue); }
-        public int? ToNullableInt32() { return JsonHelper.ParseNullableInt32(source, startIndex); }
-        public long ToInt64(long defaultValue = default(long)) { return JsonHelper.ParseInt64(source, startIndex, defaultValue); }
-        public long? ToNullableInt64() { return JsonHelper.ParseNullableInt64(source, startIndex); }
-        public float ToSingle(float defaultValue = default(float)) { return JsonHelper.ParseSingle(source, startIndex, defaultValue); }
-        public float? ToNullableSingle() { return JsonHelper.ParseNullableSingle(source, startIndex); }
-        public double ToDouble(double defaultValue = default(double)) { return JsonHelper.ParseDouble(source, startIndex, defaultValue); }
-        public double? ToNullableDouble() { return JsonHelper.ParseNullableDouble(source, startIndex); }
+        public int ToInt32(int defaultValue = default(int)) { return JsonHelper.ParseInt32(source, startIndex, length, defaultValue); }
+        public int? ToNullableInt32() { return JsonHelper.ParseNullableInt32(source, startIndex, length); }
+        public long ToInt64(long defaultValue = default(long)) { return JsonHelper.ParseInt64(source, startIndex, length, defaultValue); }
+        public long? ToNullableInt64() { return JsonHelper.ParseNullableInt64(source, startIndex, length); }
+        public float ToSingle(float defaultValue = default(float)) { return JsonHelper.ParseSingle(source, startIndex, length, defaultValue); }
+        public float? ToNullableSingle() { return JsonHelper.ParseNullableSingle(source, startIndex, length); }
+        public double ToDouble(double defaultValue = default(double)) { return JsonHelper.ParseDouble(source, startIndex, length, defaultValue); }
+        public double? ToNullableDouble() { return JsonHelper.ParseNullableDouble(source, startIndex, length); }
         public decimal ToDecimal(decimal defaultValue = default(decimal)) { return JsonHelper.ParseDecimal(source, startIndex, length, defaultValue); }
         public decimal? ToNullableDecimal() { return JsonHelper.ParseNullableDecimal(source, startIndex, length); }
 
