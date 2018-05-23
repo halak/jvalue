@@ -258,7 +258,7 @@ namespace Halak
 
         public List<JValue> ToArray()
         {
-            var result = new List<JValue>(GetElementCount());
+            var result = new List<JValue>();
             foreach (var item in Array())
                 result.Add(item);
 
@@ -267,7 +267,7 @@ namespace Halak
 
         public Dictionary<JValue, JValue> ToObject()
         {
-            var result = new Dictionary<JValue, JValue>(GetElementCount());
+            var result = new Dictionary<JValue, JValue>();
             foreach (var item in Object())
                 result[item.Key] = item.Value;
 
@@ -276,30 +276,10 @@ namespace Halak
         #endregion
 
         #region Get
-        /// <summary>
-        /// 입력한 색인에 존재하는 JValue를 가져옵니다.
-        /// 만약 색인을 음수로 입력하면 뒤에서부터 가져옵니다.
-        /// </summary>
-        /// <param name="index">색인</param>
-        /// <returns>입력한 색인에 존재하는 JValue 값. 만약 객체가 배열이 아니거나 색인이 범위를 벗어났으면 JValue.Null을 반환합니다.</returns>
-        /// <example>
-        /// <code>
-        /// var x = new JValue("[1,2,3,4,5,6,7,8,9]");
-        /// Trace.Assert(x[0] == 1);
-        /// Trace.Assert(x[1].AsInt32() == 2);
-        /// Trace.Assert(x[-1] == 9);
-        /// Trace.Assert(x[-2] == 8);
-        /// </code>
-        /// </example>
         private JValue Get(int index)
         {
-            // TODO: OPTIMIZE
-
             if (Type == TypeCode.Array)
             {
-                if (index < 0)
-                    index += GetElementCount();
-
                 foreach (var item in Array())
                 {
                     if (index-- == 0)
@@ -310,56 +290,6 @@ namespace Halak
             return Null;
         }
 
-        private int GetElementCount()
-        {
-            var count = 0;
-            var depth = 0;
-            var end = startIndex + length - 1;  // ignore } or ]
-            for (var i = startIndex + 1; i < end; i++)  // ignore { or [
-            {
-                switch (source[i])
-                {
-                    case ',':
-                        if (depth == 0)
-                            count++;
-                        break;
-                    case '[':
-                    case '{':
-                        depth++;
-                        break;
-                    case ']':
-                    case '}':
-                        depth--;
-                        break;
-                    case '"':
-                        i = SkipString(i) - 1;
-                        break;
-                    case ' ':
-                    case '\t':
-                    case '\r':
-                    case '\n':
-                        break;
-                    default:
-                        if (count == 0)
-                            count = 1;
-                        break;
-                }
-            }
-
-            return count;
-        }
-
-        /// <summary>
-        /// 입력한 이름에 해당하는 하위 JValue를 가져옵니다.
-        /// </summary>
-        /// <param name="key">이름</param>
-        /// <returns>입력한 이름에 존재하는 JValue 값.</returns>
-        /// <example>
-        /// <code>
-        /// var x = JValue.Parse("{hello:{world:10}}");
-        /// Trace.Assert(x["hello"]["world"] == 10);
-        /// </code>
-        /// </example>
         private JValue Get(string key)
         {
             if (Type == TypeCode.Object)
@@ -402,6 +332,45 @@ namespace Halak
                 else
                     return x == y;
             }
+        }
+
+        private int GetElementCount()
+        {
+            var count = 0;
+            var depth = 0;
+            var end = startIndex + length - 1;  // ignore } or ]
+            for (var i = startIndex + 1; i < end; i++)  // ignore { or [
+            {
+                switch (source[i])
+                {
+                    case ',':
+                        if (depth == 0)
+                            count++;
+                        break;
+                    case '[':
+                    case '{':
+                        depth++;
+                        break;
+                    case ']':
+                    case '}':
+                        depth--;
+                        break;
+                    case '"':
+                        i = SkipString(i) - 1;
+                        break;
+                    case ' ':
+                    case '\t':
+                    case '\r':
+                    case '\n':
+                        break;
+                    default:
+                        if (count == 0)
+                            count = 1;
+                        break;
+                }
+            }
+
+            return count;
         }
         #endregion
 
