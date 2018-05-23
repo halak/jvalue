@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Text;
 
 namespace Halak
@@ -7,6 +7,7 @@ namespace Halak
     {
         private static readonly string Int32MinValue = int.MinValue.ToString();
         private static readonly string Int64MinValue = long.MinValue.ToString();
+        private static readonly char[] HexChars = new[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 
         public const string NullString = "null";
         public const string TrueString = "true";
@@ -121,22 +122,49 @@ namespace Halak
                 builder.Append('"');
                 for (var i = 0; i < value.Length; i++)
                 {
-                    switch (value[i])
+                    var c = value[i];
+                    if (c > '\u001F')  // is not control char
                     {
-                        case '"': builder.Append('\\'); builder.Append('"'); break;
-                        case '\\': builder.Append('\\'); builder.Append('\\'); break;
-                        case '\n': builder.Append('\\'); builder.Append('n'); break;
-                        case '\t': builder.Append('\\'); builder.Append('t'); break;
-                        case '\r': builder.Append('\\'); builder.Append('r'); break;
-                        case '\b': builder.Append('\\'); builder.Append('b'); break;
-                        case '\f': builder.Append('\\'); builder.Append('f'); break;
-                        default: builder.Append(value[i]); break;
+                        switch (c)
+                        {
+                            case '"': AppendEscapedChar(builder, '"'); break;
+                            case '\\': AppendEscapedChar(builder, '\\'); break;
+                            default: builder.Append(c); break;
+                        }
+                    }
+                    else
+                    {
+                        switch (c)
+                        {
+                            case '\n': AppendEscapedChar(builder, 'n'); break;
+                            case '\t': AppendEscapedChar(builder, 't'); break;
+                            case '\r': AppendEscapedChar(builder, 'r'); break;
+                            case '\b': AppendEscapedChar(builder, 'b'); break;
+                            case '\f': AppendEscapedChar(builder, 'f'); break;
+                            default: AppendHexChar(builder, c); break;
+                        }
                     }
                 }
                 builder.Append('"');
             }
             else
                 builder.Append("null");
+        }
+
+        private static void AppendEscapedChar(StringBuilder builder, char value)
+        {
+            builder.Append('\\');
+            builder.Append(value);
+        }
+
+        private static void AppendHexChar(StringBuilder builder, char value)
+        {
+            builder.Append('\\');
+            builder.Append('u');
+            builder.Append(HexChars[((value & 0xF000) >> 12)]);
+            builder.Append(HexChars[((value & 0x0F00) >> 8)]);
+            builder.Append(HexChars[((value & 0x00F0) >> 4)]);
+            builder.Append(HexChars[((value & 0x000F) >> 0)]);
         }
     }
 }

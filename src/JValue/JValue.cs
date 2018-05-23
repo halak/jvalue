@@ -27,7 +27,7 @@ namespace Halak
         #endregion
 
         #region Static Fields
-        public static readonly JValue Null = new JValue();
+        public static readonly JValue Null = new JValue("null", false);
         public static readonly JValue True = new JValue(true);
         public static readonly JValue False = new JValue(false);
         #endregion
@@ -69,9 +69,7 @@ namespace Halak
         #endregion
 
         #region Indexer
-        /// <seealso cref="JValue.Get(int)"/>
         public JValue this[int index] { get { return Get(index); } }
-        /// <seealso cref="JValue.Get(string)"/>
         public JValue this[string key] { get { return Get(key); } }
         #endregion
 
@@ -315,20 +313,20 @@ namespace Halak
             return JValue.Null;
         }
 
-        private static bool EqualsKey(string a, string b, int bStart, int bLength)
+        private static bool EqualsKey(string key, string escapedKey, int escapedKeyStart, int escapedKeyLength)
         {
-            if (a.Length > bLength)
+            if (key.Length > escapedKeyLength)
                 return false;
 
             var aIndex = 0;
-            var bEnumerator = new CharEnumerator(b, bStart);
+            var bEnumerator = new CharEnumerator(escapedKey, escapedKeyStart);
             for (; ; )
             {
-                var x = aIndex < a.Length;
+                var x = aIndex < key.Length;
                 var y = bEnumerator.MoveNext();
                 if (x && y)
                 {
-                    if (a[aIndex++] != bEnumerator.Current)
+                    if (key[aIndex++] != bEnumerator.Current)
                         return false;
                 }
                 else

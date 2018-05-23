@@ -114,6 +114,10 @@ namespace Halak
 
             var fileTable = JValue.Parse("{\"C:\\\\hello\\\\world.txt\": \"awesome\nworld\"}");
             Assert.AreEqual("awesome\nworld", fileTable["C:\\hello\\world.txt"].ToUnescapedString());
+
+            Assert.AreEqual("\"\\u0000\\u001F\\u0015\"", new JValue("\u0000\u001F\u0015").ToString());
+            Assert.AreEqual("\u0000\u001F\u0015", new JValue("\u0000\u001F\u0015").ToUnescapedString());
+            Assert.AreEqual("\"hello\\nworld\"", new JValue("hello\nworld").ToString());
         }
     }
 }
