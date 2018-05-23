@@ -115,28 +115,5 @@ namespace Halak
             var fileTable = JValue.Parse("{\"C:\\\\hello\\\\world.txt\": \"awesome\nworld\"}");
             Assert.AreEqual("awesome\nworld", fileTable["C:\\hello\\world.txt"].ToUnescapedString());
         }
-
-        [TestMethod]
-        public void TestCommentedJsonParsing()
-        {
-            var commented = JValue.Parse(@"
-            {
-                ""Life"": 100,  // Life is high!
-                /*
-                    Comment isn't JSON stadnard!
-                */
-                // ""Mana"":/* test weired location comment */ 20,
-                ""Mana"":/* test weired location comment */ 10,
-                ""Items"": [
-                    ""Sword"",  // Long sword
-                    ""Shield""  // Small shield
-                ]
-            }");
-
-            Assert.AreEqual(100, commented["Life"].ToInt32());
-            Assert.AreEqual(10, commented["Mana"].ToInt32());
-            Assert.AreEqual("Sword", commented["Items"][0].ToUnescapedString());
-            Assert.AreEqual("Shield", commented["Items"][1].ToUnescapedString());
-        }
     }
 }
