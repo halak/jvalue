@@ -819,7 +819,7 @@ namespace Halak
                                 var b = source[++index];
                                 var c = source[++index];
                                 var d = source[++index];
-                                current = (char)((Hex(a) * 4096) + (Hex(b) * 256) + (Hex(c) * 16) + (Hex(d)));
+                                current = (char)((Hex(a) << 12) | (Hex(b) << 8) | (Hex(c) << 4) | (Hex(d)));
                                 break;
                         }
 
