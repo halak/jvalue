@@ -812,7 +812,7 @@ namespace Halak
                             case 'n': current = '\n'; break;
                             case 't': current = '\t'; break;
                             case 'r': current = '\r'; break;
-                            case 'b': current = '\n'; break;
+                            case 'b': current = '\b'; break;
                             case 'f': current = '\f'; break;
                             case 'u':
                                 var a = source[++index];
