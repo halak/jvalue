@@ -78,11 +78,13 @@ namespace Halak
         #region Constructors
         public static JValue Parse(string source)
         {
-            if (source == null)
-                throw new ArgumentNullException("source");
-
-            var index = SkipWhitespaces(source);
-            return new JValue(source, index, source.Length - index);
+            if (source != null)
+            {
+                var index = SkipWhitespaces(source);
+                return new JValue(source, index, source.Length - index);
+            }
+            else
+                return JValue.Null;
         }
 
         public JValue(bool value) : this(value ? JsonHelper.TrueString : JsonHelper.FalseString, false) { }
