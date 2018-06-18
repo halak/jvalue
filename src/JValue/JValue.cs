@@ -30,6 +30,9 @@ namespace Halak
         public static readonly JValue Null = new JValue("null", false);
         public static readonly JValue True = new JValue(true);
         public static readonly JValue False = new JValue(false);
+        public static readonly JValue EmptyString = new JValue("\"\"", false);
+        public static readonly JValue EmptyArray = new JValue("[]", false);
+        public static readonly JValue EmptyObject = new JValue("{}", false);
         #endregion
 
         #region Fields
@@ -111,18 +114,32 @@ namespace Halak
             }
         }
 
-        private JValue(string source, bool payload)
-        {
-            this.source = source;
-            this.startIndex = 0;
-            this.length = source.Length;
-        }
-
+        public JValue(IEnumerable<JValue> array) : this(From(array)) { }
+        public JValue(IDictionary<string, JValue> obj) : this(From(obj)) { }
         internal JValue(string source, int startIndex, int length)
         {
             this.source = source;
             this.startIndex = startIndex;
             this.length = length;
+        }
+
+        private JValue(string source, bool payload) : this(source, 0, source.Length) { }
+        private JValue(JValue original) : this(original.source, original.startIndex, original.length) { }
+
+        private static JValue From(IEnumerable<JValue> array)
+        {
+            var builder = new ArrayBuilder();
+            foreach (var element in array)
+                builder.Push(element);
+            return builder.Build();
+        }
+
+        private static JValue From(IDictionary<string, JValue> obj)
+        {
+            var builder = new ObjectBuilder();
+            foreach (var member in obj)
+                builder.Put(member.Key, member.Value);
+            return builder.Build();
         }
         #endregion
 
