@@ -1,28 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <OutputType>Library</OutputType>
     <Version>1.1.1</Version>
-    <AssemblyVersion>1.1.1.0</AssemblyVersion>
-    <FileVersion>1.1.1.0</FileVersion>
     <RootNamespace>Halak</RootNamespace>
-    <Company>Halak</Company>
+    <Product>JValue</Product>
     <Authors>Halak</Authors>
     <Description>Lightweight Json parser for .NET</Description>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
-  </ItemGroup>
-  
   <ItemGroup>
     <None Update="JsonHelper.Generated.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>JsonHelper.Generated.cs</LastGenOutput>
     </None>
   </ItemGroup>
-
   <ItemGroup>
     <Compile Update="JsonHelper.Generated.cs">
       <DesignTime>True</DesignTime>
@@ -30,5 +21,4 @@
       <DependentUpon>JsonHelper.Generated.tt</DependentUpon>
     </Compile>
   </ItemGroup>
-  
 </Project>

@@ -2,11 +2,8 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <Version>0.0.1</Version>
-    <AssemblyVersion>0.0.1.0</AssemblyVersion>
-    <FileVersion>0.0.1.0</FileVersion>
     <RootNamespace>Halak</RootNamespace>
     <Product>JValue</Product>
-    <Company>Halak</Company>
     <Authors>Halak</Authors>
     <Description>Semi-lightweight Json-Object converter for .NET</Description>
   </PropertyGroup>

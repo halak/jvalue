@@ -1,13 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>    
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>    
-    <FileVersion>1.0.0.0</FileVersion>
-    <RootNamespace>Halak</RootNamespace>    
-    <Product>JValue</Product>    
-    <Authors>Halak</Authors>    
-    <Company>Halak</Company>    
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <Version>1.0.0</Version>
+    <RootNamespace>Halak</RootNamespace>
+    <Product>JValue</Product>
+    <Authors>Halak</Authors>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,10 +16,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\JValue\JValue.csproj" />
     <ProjectReference Include="..\..\src\JValue.Converter\JValue.Converter.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
   </ItemGroup>
 
 </Project>
