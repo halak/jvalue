@@ -803,7 +803,7 @@ namespace Halak
 
             public bool MoveNext()
             {
-                if (index >= 0)
+                if (0 <= index && index < source.Length - 1)
                 {
                     current = source[++index];
 
