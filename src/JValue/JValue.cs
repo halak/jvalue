@@ -82,7 +82,8 @@ namespace Halak
             if (source != null)
             {
                 var index = SkipWhitespaces(source);
-                return new JValue(source, index, source.Length - index);
+                var end = BackwardSkipWhitespaces(source, source.Length - 1) + 1;
+                return new JValue(source, index, end - index);
             }
             else
                 return JValue.Null;
@@ -115,7 +116,7 @@ namespace Halak
         }
 
         public JValue(IEnumerable<JValue> array) : this(From(array)) { }
-        public JValue(IDictionary<string, JValue> obj) : this(From(obj)) { }
+        public JValue(IEnumerable<KeyValuePair<string, JValue>> obj) : this(From(obj)) { }
         internal JValue(string source, int startIndex, int length)
         {
             this.source = source;
@@ -134,7 +135,7 @@ namespace Halak
             return builder.Build();
         }
 
-        private static JValue From(IDictionary<string, JValue> obj)
+        private static JValue From(IEnumerable<KeyValuePair<string, JValue>> obj)
         {
             var builder = new ObjectBuilder();
             foreach (var member in obj)
@@ -486,6 +487,23 @@ namespace Halak
             }
 
             return end;
+        }
+        private static int BackwardSkipWhitespaces(string source, int index)
+        {
+            for (; index >= 0; index--)
+            {
+                switch (source[index])
+                {
+                    case '\t':
+                    case '\r':
+                    case '\n':
+                        break;
+                    default:
+                        return index;
+                }
+            }
+
+            return -1;
         }
 
         private int SkipLetterOrDigit(int index)
