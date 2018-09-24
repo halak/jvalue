@@ -5,7 +5,7 @@ namespace Halak
 {
     public struct JNumber : IEquatable<JNumber>
     {
-        public static readonly JNumber NaN = new JNumber();
+        public static readonly JNumber NaN = new JNumber(string.Empty, 0, 0, 0, 0);
         public static readonly JNumber Zero = new JNumber(0);
         public static readonly JNumber One = new JNumber(1);
 
@@ -60,7 +60,7 @@ namespace Halak
             this.toDecimalPoint = toDecimalPoint;
             this.toExponent = toExponent;
         }
-        
+
         public int ToInt32(int defaultValue = default(int)) { return JsonHelper.ParseInt32(source, startIndex, length, defaultValue); }
         public int? ToNullableInt32() { return JsonHelper.ParseNullableInt32(source, startIndex, length); }
         public long ToInt64(long defaultValue = default(long)) { return JsonHelper.ParseInt64(source, startIndex, length, defaultValue); }
@@ -156,7 +156,7 @@ namespace Halak
                 return false;
 
             for (; i < s.Length; i++)
-            {                
+            {
                 if (JsonHelper.IsDigit(s[i]) == false)
                     return false;
             }
@@ -170,7 +170,7 @@ namespace Halak
                 (exponentIndex != -1 ? exponentIndex : i) - startIndex);
             return true;
         }
-        
+
         public static bool Equals(JNumber left, JNumber right)
         {
             return
