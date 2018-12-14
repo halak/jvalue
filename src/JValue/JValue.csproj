@@ -21,4 +21,7 @@
       <DependentUpon>JsonHelper.Generated.tt</DependentUpon>
     </Compile>
   </ItemGroup>
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="xcopy $(ProjectDir)*.cs $(SolutionDir)src\JValue.Unity\ /y /q" />
+  </Target>
 </Project>
