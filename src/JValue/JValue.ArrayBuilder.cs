@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Globalization;
 using System.Text;
 
@@ -9,7 +9,7 @@ namespace Halak
         public struct ArrayBuilder
         {
             private StringBuilder builder;
-            private int startIndex;
+            private readonly int startIndex;
 
             public ArrayBuilder(int capacity)
             {

@@ -72,8 +72,8 @@ namespace Halak
         #endregion
 
         #region Indexer
-        public JValue this[int index] { get { return Get(index); } }
-        public JValue this[string key] { get { return Get(key); } }
+        public JValue this[int index] => Get(index);
+        public JValue this[string key] => Get(key);
         #endregion
 
         #region Constructors
@@ -86,7 +86,7 @@ namespace Halak
                 return new JValue(source, index, end - index);
             }
             else
-                return JValue.Null;
+                return Null;
         }
 
         public JValue(bool value) : this(value ? JsonHelper.TrueString : JsonHelper.FalseString, false) { }
@@ -227,20 +227,21 @@ namespace Halak
             }
         }
 
-        private bool ToBooleanActually() { return source[startIndex] == 't'; }
-        private int ToInt32Actually(int defaultValue) { return JsonHelper.ParseInt32(source, startIndex, defaultValue); }
-        private long ToInt64Actually(long defaultValue) { return JsonHelper.ParseInt64(source, startIndex, defaultValue); }
-        private float ToSingleActually(float defaultValue) { return JsonHelper.ParseSingle(source, startIndex, defaultValue); }
-        private double ToDoubleActually(double defaultValue) { return JsonHelper.ParseDouble(source, startIndex, defaultValue); }
-        private decimal ToDecimalActually(decimal defaultValue) { return JsonHelper.ParseDecimal(source, startIndex, length, defaultValue); }
+        private bool ToBooleanActually()
+            => source[startIndex] == 't';
+
+        private int ToInt32Actually(int defaultValue)
+            => JsonHelper.ParseInt32(source, startIndex, defaultValue);
+        private long ToInt64Actually(long defaultValue)
+            => JsonHelper.ParseInt64(source, startIndex, defaultValue);
+        private float ToSingleActually(float defaultValue)
+            => JsonHelper.ParseSingle(source, startIndex, defaultValue);
+        private double ToDoubleActually(double defaultValue)
+            => JsonHelper.ParseDouble(source, startIndex, defaultValue);
+        private decimal ToDecimalActually(decimal defaultValue)
+            => JsonHelper.ParseDecimal(source, startIndex, length, defaultValue);
         private JNumber ToNumberActually(JNumber defaultValue)
-        {
-            var value = JNumber.NaN;
-            if (JNumber.TryParse(source, startIndex, out value))
-                return value;
-            else
-                return defaultValue;
-        }
+            => JNumber.TryParse(source, startIndex, out var value) ? value : defaultValue;
 
         public string ToUnescapedString(string defaultValue = "")
         {
@@ -775,29 +776,29 @@ namespace Halak
         #endregion
 
         #region Implicit Conversion
-        public static implicit operator bool(JValue value) { return value.ToBoolean(); }
-        public static implicit operator int(JValue value) { return value.ToInt32(); }
-        public static implicit operator long(JValue value) { return value.ToInt64(); }
-        public static implicit operator float(JValue value) { return value.ToSingle(); }
-        public static implicit operator double(JValue value) { return value.ToDouble(); }
-        public static implicit operator decimal(JValue value) { return value.ToDecimal(); }
-        public static implicit operator string(JValue value) { return value.ToUnescapedString(); }
-        public static implicit operator JValue(bool value) { return new JValue(value); }
-        public static implicit operator JValue(int value) { return new JValue(value); }
-        public static implicit operator JValue(long value) { return new JValue(value); }
-        public static implicit operator JValue(float value) { return new JValue(value); }
-        public static implicit operator JValue(double value) { return new JValue(value); }
-        public static implicit operator JValue(decimal value) { return new JValue(value); }
-        public static implicit operator JValue(string value) { return new JValue(value); }
+        public static implicit operator bool(JValue value) => value.ToBoolean();
+        public static implicit operator int(JValue value) => value.ToInt32();
+        public static implicit operator long(JValue value) => value.ToInt64();
+        public static implicit operator float(JValue value) => value.ToSingle();
+        public static implicit operator double(JValue value) => value.ToDouble();
+        public static implicit operator decimal(JValue value) => value.ToDecimal();
+        public static implicit operator string(JValue value) => value.ToUnescapedString();
+        public static implicit operator JValue(bool value) => new JValue(value);
+        public static implicit operator JValue(int value) => new JValue(value);
+        public static implicit operator JValue(long value) => new JValue(value);
+        public static implicit operator JValue(float value) => new JValue(value);
+        public static implicit operator JValue(double value) => new JValue(value);
+        public static implicit operator JValue(decimal value) => new JValue(value);
+        public static implicit operator JValue(string value) => new JValue(value);
         #endregion
 
         #region Operators
-        public static bool operator ==(JValue left, JValue right) { return left.Equals(right); }
-        public static bool operator !=(JValue left, JValue right) { return !left.Equals(right); }
-        public static bool operator <(JValue left, JValue right) { return left.CompareTo(right) < 0; }
-        public static bool operator <=(JValue left, JValue right) { return left.CompareTo(right) <= 0; }
-        public static bool operator >(JValue left, JValue right) { return left.CompareTo(right) > 0; }
-        public static bool operator >=(JValue left, JValue right) { return left.CompareTo(right) >= 0; }
+        public static bool operator ==(JValue left, JValue right) => left.Equals(right);
+        public static bool operator !=(JValue left, JValue right) => left.Equals(right) == false;
+        public static bool operator <(JValue left, JValue right) => left.CompareTo(right) < 0;
+        public static bool operator <=(JValue left, JValue right) => left.CompareTo(right) <= 0;
+        public static bool operator >(JValue left, JValue right) => left.CompareTo(right) > 0;
+        public static bool operator >=(JValue left, JValue right) => left.CompareTo(right) >= 0;
         #endregion
 
         public struct CharEnumerator : IEnumerator<char>
@@ -873,9 +874,7 @@ namespace Halak
 
             public void Dispose() { }
 
-#if !NET35
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
             private static int Hex(char c)
             {
                 return

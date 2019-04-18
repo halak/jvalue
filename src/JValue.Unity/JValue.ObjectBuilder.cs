@@ -9,7 +9,7 @@ namespace Halak
         public struct ObjectBuilder
         {
             private StringBuilder builder;
-            private int startIndex;
+            private readonly int startIndex;
 
             public ObjectBuilder(int capacity)
             {

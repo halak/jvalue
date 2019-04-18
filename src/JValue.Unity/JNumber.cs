@@ -15,14 +15,11 @@ namespace Halak
         private readonly int toDecimalPoint;
         private readonly int toExponent;
 
-        public bool IsNaN { get { return source == null; } }
-        public bool IsPositive { get { return !IsNegative; } }
-        public bool IsNegative { get { return source != null && source[startIndex] == '-'; } }
-        public JValue IntegerPart { get { return new JValue(source, startIndex, toDecimalPoint); } }
-        public JValue FractionalPart
-        {
-            get { return HasFractionalPart ? new JValue(source, FractionalPartIndex, FractionalPartLength) : JValue.Null; }
-        }
+        public bool IsNaN => source == null;
+        public bool IsPositive => !IsNegative;
+        public bool IsNegative => source != null && source[startIndex] == '-';
+        public JValue IntegerPart => new JValue(source, startIndex, toDecimalPoint);
+        public JValue FractionalPart => HasFractionalPart ? new JValue(source, FractionalPartIndex, FractionalPartLength) : JValue.Null;
         public JValue Exponent
         {
             get
@@ -40,10 +37,10 @@ namespace Halak
             }
         }
 
-        public bool HasFractionalPart { get { return toDecimalPoint < length; } }
-        public bool HasExponent { get { return toExponent < length; } }
-        private int FractionalPartIndex { get { return startIndex + toDecimalPoint + 1; } }
-        private int FractionalPartLength { get { return toExponent - toDecimalPoint - 1; } }
+        public bool HasFractionalPart => toDecimalPoint < length;
+        public bool HasExponent => toExponent < length;
+        private int FractionalPartIndex => startIndex + toDecimalPoint + 1;
+        private int FractionalPartLength => toExponent - toDecimalPoint - 1;
 
         public JNumber(int value) : this(value.ToString(CultureInfo.InvariantCulture), fromInteger: true) { }
         public JNumber(long value) : this(value.ToString(CultureInfo.InvariantCulture), fromInteger: true) { }
@@ -61,19 +58,29 @@ namespace Halak
             this.toExponent = toExponent;
         }
 
-        public int ToInt32(int defaultValue = default(int)) { return JsonHelper.ParseInt32(source, startIndex, length, defaultValue); }
-        public int? ToNullableInt32() { return JsonHelper.ParseNullableInt32(source, startIndex, length); }
-        public long ToInt64(long defaultValue = default(long)) { return JsonHelper.ParseInt64(source, startIndex, length, defaultValue); }
-        public long? ToNullableInt64() { return JsonHelper.ParseNullableInt64(source, startIndex, length); }
-        public float ToSingle(float defaultValue = default(float)) { return JsonHelper.ParseSingle(source, startIndex, length, defaultValue); }
-        public float? ToNullableSingle() { return JsonHelper.ParseNullableSingle(source, startIndex, length); }
-        public double ToDouble(double defaultValue = default(double)) { return JsonHelper.ParseDouble(source, startIndex, length, defaultValue); }
-        public double? ToNullableDouble() { return JsonHelper.ParseNullableDouble(source, startIndex, length); }
-        public decimal ToDecimal(decimal defaultValue = default(decimal)) { return JsonHelper.ParseDecimal(source, startIndex, length, defaultValue); }
-        public decimal? ToNullableDecimal() { return JsonHelper.ParseNullableDecimal(source, startIndex, length); }
+        public int ToInt32(int defaultValue = default(int))
+            => JsonHelper.ParseInt32(source, startIndex, length, defaultValue);
+        public int? ToNullableInt32()
+            => JsonHelper.ParseNullableInt32(source, startIndex, length);
+        public long ToInt64(long defaultValue = default(long))
+            => JsonHelper.ParseInt64(source, startIndex, length, defaultValue);
+        public long? ToNullableInt64()
+            => JsonHelper.ParseNullableInt64(source, startIndex, length);
+        public float ToSingle(float defaultValue = default(float))
+            => JsonHelper.ParseSingle(source, startIndex, length, defaultValue);
+        public float? ToNullableSingle()
+            => JsonHelper.ParseNullableSingle(source, startIndex, length);
+        public double ToDouble(double defaultValue = default(double))
+            => JsonHelper.ParseDouble(source, startIndex, length, defaultValue);
+        public double? ToNullableDouble()
+            => JsonHelper.ParseNullableDouble(source, startIndex, length);
+        public decimal ToDecimal(decimal defaultValue = default(decimal))
+            => JsonHelper.ParseDecimal(source, startIndex, length, defaultValue);
+        public decimal? ToNullableDecimal()
+            => JsonHelper.ParseNullableDecimal(source, startIndex, length);
 
-        public override bool Equals(object obj) { return obj is JNumber && Equals(this, (JNumber)obj); }
-        public bool Equals(JNumber other) { return Equals(this, other); }
+        public override bool Equals(object obj) => obj is JNumber other && Equals(this, other);
+        public bool Equals(JNumber other) => Equals(this, other);
         public override int GetHashCode()
         {
             if (source == null)
@@ -87,7 +94,7 @@ namespace Halak
             return (int)hashCode;
         }
 
-        public override string ToString() { return source != null ? source.Substring(startIndex, length) : "NaN"; }
+        public override string ToString() => source?.Substring(startIndex, length) ?? "NaN";
 
         public static bool TryParse(string s, int startIndex, out JNumber value)
         {
@@ -227,8 +234,8 @@ namespace Halak
             return s.Length;
         }
 
-        public static bool operator ==(JNumber left, JNumber right) { return Equals(left, right); }
-        public static bool operator !=(JNumber left, JNumber right) { return !Equals(left, right); }
+        public static bool operator ==(JNumber left, JNumber right) => Equals(left, right);
+        public static bool operator !=(JNumber left, JNumber right) => Equals(left, right) == false;
 
         public static implicit operator JNumber(byte value) => new JNumber(value);
         public static implicit operator JNumber(short value) => new JNumber(value);

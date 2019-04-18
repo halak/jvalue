@@ -6,7 +6,7 @@ namespace Halak
     {
         private static readonly string Int32MinValue = int.MinValue.ToString();
         private static readonly string Int64MinValue = long.MinValue.ToString();
-        private static readonly char[] HexChars = new[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+        private static readonly string HexChars = "0123456789ABCDEF";
 
         public const string NullString = "null";
         public const string TrueString = "true";
@@ -160,10 +160,10 @@ namespace Halak
         {
             builder.Append('\\');
             builder.Append('u');
-            builder.Append(HexChars[((value & 0xF000) >> 12)]);
-            builder.Append(HexChars[((value & 0x0F00) >> 8)]);
-            builder.Append(HexChars[((value & 0x00F0) >> 4)]);
-            builder.Append(HexChars[((value & 0x000F) >> 0)]);
+            builder.Append(HexChars[(value & 0xF000) >> 12]);
+            builder.Append(HexChars[(value & 0x0F00) >> 8]);
+            builder.Append(HexChars[(value & 0x00F0) >> 4]);
+            builder.Append(HexChars[(value & 0x000F) >> 0]);
         }
     }
 }

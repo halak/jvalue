@@ -105,9 +105,7 @@ namespace Halak
         {
             if (startIndex != 0 || s.Length != length)
                 s = s.Substring(startIndex, length);
-
-            var value = decimal.Zero;
-            if (decimal.TryParse(s, StandardNumberStyles, CultureInfo.InvariantCulture, out value))
+            if (decimal.TryParse(s, StandardNumberStyles, CultureInfo.InvariantCulture, out var value))
                 return value;
             else
                 return defaultValue;
@@ -117,38 +115,55 @@ namespace Halak
         {
             if (startIndex != 0 || s.Length != length)
                 s = s.Substring(startIndex, length);
-
-            var value = decimal.Zero;
-            if (decimal.TryParse(s, StandardNumberStyles, CultureInfo.InvariantCulture, out value))
+            if (decimal.TryParse(s, StandardNumberStyles, CultureInfo.InvariantCulture, out var value))
                 return value;
             else
                 return null;
         }
 
-#if !NET35
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        private static uint Pow10(uint value, int exponent) { return exponent >= 0 ? value * UInt32Powers10[exponent] : value / UInt32Powers10[-exponent]; }
-#if !NET35
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        private static ulong Pow10(ulong value, int exponent) { return exponent >= 0 ? value * UInt64Powers10[exponent] : value / UInt64Powers10[-exponent]; }
-#if !NET35
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        private static float Pow10(float value, int exponent) { return exponent >= 0 ? value * (float)Pow10(exponent) : value / (float)Pow10(-exponent); }
-#if !NET35
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        private static double Pow10(double value, int exponent) { return exponent >= 0 ? value * Pow10(exponent) : value / Pow10(-exponent); }
+        private static uint Pow10(uint value, int exponent)
+            => exponent >= 0 ? value * UInt32Powers10[exponent] : value / UInt32Powers10[-exponent];
 
-#if !NET35
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        private static double Pow10(int d) { return d < DoublePowers10.Length ? DoublePowers10[d] : Math.Pow(10.0, d); }
+        private static ulong Pow10(ulong value, int exponent)
+            => exponent >= 0 ? value * UInt64Powers10[exponent] : value / UInt64Powers10[-exponent];
 
-        internal static bool IsDigit(char c) { return '0' <= c && c <= '9'; }
-        internal static bool IsTerminal(char c) { return c == '\0' || c == ',' || c == '}' || c == ']' || c == ' ' || c == '\n' || c == '\r' || c == '\t' || c == '"'; }
-        private static byte ToDigit(char c) { return (byte)(c - '0'); }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static float Pow10(float value, int exponent)
+            => exponent >= 0 ? value * (float)Pow10(exponent) : value / (float)Pow10(-exponent);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static double Pow10(double value, int exponent)
+            => exponent >= 0 ? value * Pow10(exponent) : value / Pow10(-exponent);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static double Pow10(int d)
+            => d < DoublePowers10.Length ? DoublePowers10[d] : Math.Pow(10.0, d);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static bool IsDigit(char c) => '0' <= c && c <= '9';
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static bool IsTerminal(char c)
+        {
+            switch (c)
+            {
+                case '\0':
+                case ',':
+                case '}':
+                case ']':
+                case ' ':
+                case '\n':
+                case '\r':
+                case '\t':
+                case '"':
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static byte ToDigit(char c) => (byte)(c - '0');
     }
 }

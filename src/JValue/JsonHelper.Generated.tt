@@ -25,22 +25,18 @@ namespace Halak
             var item = items[i];
 #>
         public static <#= item.Return #> Parse<#= item.Name #>(string s<# if (item.IsNullable == false) { #>, <#= item.Return #> <#= item.DefaultValue #> = default(<#= item.Return #>)<# } #>)
-        {
 <#          if (item.IsNullable) { #>
-            return Parse<#= item.Name #>(s, 0, s.Length);
+            => Parse<#= item.Name #>(s, 0, s.Length);
 <#          } else { #>
-            return Parse<#= item.Name #>(s, 0, s.Length, <#= item.DefaultValue #>);
+            => Parse<#= item.Name #>(s, 0, s.Length, <#= item.DefaultValue #>);
 <#          } #>
-        }
 
         public static <#= item.Return #> Parse<#= item.Name #>(string s, int startIndex<# if (item.IsNullable == false) { #>, <#= item.Return #> <#= item.DefaultValue #> = default(<#= item.Return #>)<# } #>)
-        {
 <#          if (item.IsNullable) { #>
-            return Parse<#= item.Name #>(s, startIndex, s.Length);
+            => Parse<#= item.Name #>(s, startIndex, s.Length);
 <#          } else { #>
-            return Parse<#= item.Name #>(s, startIndex, s.Length, <#= item.DefaultValue #>);
+            => Parse<#= item.Name #>(s, startIndex, s.Length, <#= item.DefaultValue #>);
 <#          } #>
-        }
 
         public static <#= item.Return #> Parse<#= item.Name #>(string s, int startIndex, int length<# if (item.IsNullable == false) { #>, <#= item.Return #> <#= item.DefaultValue #> = default(<#= item.Return #>)<# } #>)
         {
