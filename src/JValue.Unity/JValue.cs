@@ -753,9 +753,6 @@ namespace Halak
 
         private static bool EqualString(JValue a, JValue b)
         {
-            var aEnd = a.startIndex + a.length - 1;
-            var bEnd = b.startIndex + b.length - 1;
-
             var aEnumerator = a.GetCharEnumerator();
             var bEnumerator = b.GetCharEnumerator();
 

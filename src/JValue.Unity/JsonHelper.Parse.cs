@@ -7,7 +7,7 @@ namespace Halak
     public static partial class JsonHelper
     {
         private const int BigExponent = 1000;
-        private static NumberStyles StandardNumberStyles = NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint | NumberStyles.AllowExponent;
+        private const NumberStyles StandardNumberStyles = NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint | NumberStyles.AllowExponent;
         private static readonly uint[] UInt32Powers10 = new[]
         {
             1U, 10U, 100U, 1000U, 10000U, 100000U, 1000000U, 10000000U, 100000000U, 1000000000U,
