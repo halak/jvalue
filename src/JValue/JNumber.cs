@@ -42,13 +42,13 @@ namespace Halak
         private int FractionalPartIndex => startIndex + toDecimalPoint + 1;
         private int FractionalPartLength => toExponent - toDecimalPoint - 1;
 
-        public JNumber(int value) : this(value.ToString(CultureInfo.InvariantCulture), fromInteger: true) { }
-        public JNumber(long value) : this(value.ToString(CultureInfo.InvariantCulture), fromInteger: true) { }
+        public JNumber(int value) : this(value.ToString(CultureInfo.InvariantCulture), true) { }
+        public JNumber(long value) : this(value.ToString(CultureInfo.InvariantCulture), true) { }
         public JNumber(float value) : this(value.ToString(CultureInfo.InvariantCulture)) { }
         public JNumber(double value) : this(value.ToString(CultureInfo.InvariantCulture)) { }
         public JNumber(decimal value) : this(value.ToString(CultureInfo.InvariantCulture)) { }
         private JNumber(string source) : this(source, 0, source.Length, FindDecimalPoint(source), FindExponent(source)) { }
-        private JNumber(string source, bool fromInteger) : this(source, 0, source.Length, source.Length, source.Length) { }
+        private JNumber(string source, bool _ /* from integer */) : this(source, 0, source.Length, source.Length, source.Length) { }
         private JNumber(string source, int startIndex, int length, int toDecimalPoint, int toExponent)
         {
             this.source = source;

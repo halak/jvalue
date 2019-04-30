@@ -124,7 +124,7 @@ namespace Halak
             this.length = length;
         }
 
-        private JValue(string source, bool payload) : this(source, 0, source.Length) { }
+        private JValue(string source, bool _) : this(source, 0, source.Length) { }
         private JValue(JValue original) : this(original.source, original.startIndex, original.length) { }
 
         private static JValue From(IEnumerable<JValue> array)
