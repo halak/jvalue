@@ -1,0 +1,3 @@
+[submodule "submodules/jvalue-unity"]
+	path = submodules/jvalue-unity
+	url = https://github.com/halak/jvalue-unity
