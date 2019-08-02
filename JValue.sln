@@ -13,8 +13,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JValue.Tests", "tests\JValu
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JValue.Benchmarks", "tests\JValue.Benchmarks\JValue.Benchmarks.csproj", "{AA1C6F78-E880-478B-8BD5-13392021E892}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JValue.Converter", "src\JValue.Converter\JValue.Converter.csproj", "{DE672957-8049-4D6F-906B-97D9E2EBF261}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{CD5AA8CE-C9FE-4A11-BF37-459D931928EB}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
@@ -38,10 +36,6 @@ Global
 		{AA1C6F78-E880-478B-8BD5-13392021E892}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AA1C6F78-E880-478B-8BD5-13392021E892}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AA1C6F78-E880-478B-8BD5-13392021E892}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DE672957-8049-4D6F-906B-97D9E2EBF261}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DE672957-8049-4D6F-906B-97D9E2EBF261}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DE672957-8049-4D6F-906B-97D9E2EBF261}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DE672957-8049-4D6F-906B-97D9E2EBF261}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -50,7 +44,6 @@ Global
 		{422C840B-242A-4B57-B251-A4129143D562} = {3BEFD0FA-41B2-4FF7-8D53-73FAB6523C2B}
 		{8000E6AC-0D69-4BE5-820F-45A5844D48F8} = {95F52C64-279D-427D-B974-D0AF09A2942F}
 		{AA1C6F78-E880-478B-8BD5-13392021E892} = {95F52C64-279D-427D-B974-D0AF09A2942F}
-		{DE672957-8049-4D6F-906B-97D9E2EBF261} = {3BEFD0FA-41B2-4FF7-8D53-73FAB6523C2B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B37E637F-E344-46C5-A895-95B39A8A142C}

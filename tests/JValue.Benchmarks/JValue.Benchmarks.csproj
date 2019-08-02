@@ -14,7 +14,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\JValue\JValue.csproj" />
-    <ProjectReference Include="..\..\src\JValue.Converter\JValue.Converter.csproj" />
   </ItemGroup>
 
 </Project>
