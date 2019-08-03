@@ -15,6 +15,11 @@ namespace Halak
             Assert.AreEqual(JValue.Null, JValue.Null);
         }
 
+        [DataTestMethod]
+        [DataRow("마린", @"\ub9c8\ub9b0")]
+        public void TestEscapeString(string unescaped, string escaped)
+            => Assert.AreEqual(JsonEncoding.HexEscape(unescaped), JsonEncoding.HexEscape(escaped));
+
         [TestMethod]
         public void TestEscapedStringEquality()
         {
@@ -30,7 +35,7 @@ namespace Halak
             var b = JValue.Parse("[[1,2,3,4]]")[0];
 
             Assert.AreEqual(a, a);
-            Assert.AreNotEqual(a, b);
+            Assert.AreEqual(a, b);
         }
     }
 }

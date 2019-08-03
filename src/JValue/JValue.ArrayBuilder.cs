@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
 using System.Globalization;
 using System.Text;
 
@@ -6,76 +9,81 @@ namespace Halak
 {
     partial struct JValue
     {
-        public struct ArrayBuilder
+        public struct ArrayBuilder : IDisposable
         {
-            private StringBuilder builder;
-            private readonly int startIndex;
+            private TextWriter writer;
+            private bool used;
 
             public ArrayBuilder(int capacity)
+                : this(new StringBuilder(capacity)) { }
+            public ArrayBuilder(StringBuilder stringBuilder)
+                : this(new StringWriter(stringBuilder, CultureInfo.InvariantCulture)) { }
+            public ArrayBuilder(TextWriter writer)
             {
-                this.builder = new StringBuilder(capacity);
-                this.startIndex = 0;
+                this.writer = writer;
+                this.writer.Write('[');
+                this.used = false;
             }
 
-            public ArrayBuilder(StringBuilder builder)
+            public void Dispose()
             {
-                this.builder = builder;
-                this.startIndex = builder.Length;
+                Prepare(false);
+                writer.Write(']');
             }
 
             public ArrayBuilder PushNull()
             {
                 Prepare();
-                builder.Append(JsonHelper.NullString);
+                writer.Write(JsonHelper.NullString);
                 return this;
             }
 
             public ArrayBuilder Push(bool value)
             {
                 Prepare();
-                builder.Append(value ? JsonHelper.TrueString : JsonHelper.FalseString);
+                writer.Write(value ? JsonHelper.TrueString : JsonHelper.FalseString);
                 return this;
             }
 
             public ArrayBuilder Push(int value)
             {
                 Prepare();
-                JsonHelper.AppendInt32(builder, value);
+                JsonHelper.WriteInt32(writer, value);
                 return this;
             }
 
             public ArrayBuilder Push(long value)
             {
                 Prepare();
-                JsonHelper.AppendInt64(builder, value);
+                JsonHelper.WriteInt64(writer, value);
                 return this;
             }
 
             public ArrayBuilder Push(float value)
             {
                 Prepare();
-                builder.Append(value.ToString(CultureInfo.InvariantCulture));
+                writer.Write(value.ToString(CultureInfo.InvariantCulture));
                 return this;
             }
 
             public ArrayBuilder Push(double value)
             {
                 Prepare();
-                builder.Append(value.ToString(CultureInfo.InvariantCulture));
+                writer.Write(value.ToString(CultureInfo.InvariantCulture));
                 return this;
             }
 
             public ArrayBuilder Push(decimal value)
             {
                 Prepare();
-                builder.Append(value.ToString(CultureInfo.InvariantCulture));
+                writer.Write(value.ToString(CultureInfo.InvariantCulture));
                 return this;
             }
 
             public ArrayBuilder Push(string value)
             {
                 Prepare();
-                JsonHelper.AppendEscapedString(builder, value);
+                JsonHelper.WriteEscapedString(writer, value);
                 return this;
             }
 
@@ -83,75 +91,93 @@ namespace Halak
             {
                 Prepare();
                 if (value.Type != TypeCode.Null)
-                    builder.Append(value.source, value.startIndex, value.length);
+                    writer.Write(value.source, value.startIndex, value.length);
                 else
-                    builder.Append(JsonHelper.NullString);
+                    writer.Write(JsonHelper.NullString);
                 return this;
             }
 
             public ArrayBuilder PushArray(Action<ArrayBuilder> push)
             {
                 Prepare();
-                var subBuilder = new ArrayBuilder(builder);
+                var subBuilder = new ArrayBuilder(writer);
                 push(subBuilder);
-                subBuilder.Close();
+                subBuilder.Dispose();
                 return this;
             }
 
             public ArrayBuilder PushArray<T>(T value, Action<ArrayBuilder, T> push)
             {
                 Prepare();
-                var subBuilder = new ArrayBuilder(builder);
+                var subBuilder = new ArrayBuilder(writer);
                 push(subBuilder, value);
-                subBuilder.Close();
+                subBuilder.Dispose();
                 return this;
             }
 
             public ArrayBuilder PushObject(Action<ObjectBuilder> push)
             {
                 Prepare();
-                var subBuilder = new ObjectBuilder(builder);
+                var subBuilder = new ObjectBuilder(writer);
                 push(subBuilder);
-                subBuilder.Close();
+                subBuilder.Dispose();
                 return this;
             }
 
             public ArrayBuilder PushObject<T>(T value, Action<ObjectBuilder, T> push)
             {
                 Prepare();
-                var subBuilder = new ObjectBuilder(builder);
+                var subBuilder = new ObjectBuilder(writer);
                 push(subBuilder, value);
-                subBuilder.Close();
+                subBuilder.Dispose();
                 return this;
             }
 
             public JValue Build()
             {
-                Close();
-                return new JValue(builder.ToString(), 0, builder.Length);
+                Dispose();
+                return writer.BuildJson();
             }
 
             private void Prepare(bool hasNewElement = true)
             {
-                if (builder == null)
-                    builder = new StringBuilder(1024);
-                if (builder.Length < startIndex)
-                    throw new InvalidOperationException();
-
-                if (builder.Length != startIndex)
+                if (writer == null)
                 {
-                    if (hasNewElement)
-                        builder.Append(',');
+                    writer = new StringWriter(new StringBuilder(1024), CultureInfo.InvariantCulture);
+                    writer.Write('[');
                 }
+
+                if (used && hasNewElement)
+                    writer.Write(',');
                 else
-                    builder.Append('[');
+                    used = true;
             }
 
-            internal void Close()
-            {
-                Prepare(false);
-                builder.Append(']');
-            }
+            #region Shorthand Methods
+            public ArrayBuilder PushArray(IEnumerable<string> values)
+                => PushArrayOf(values, (arrayBuilder, value) => arrayBuilder.Push(value));
+
+            public ArrayBuilder PushObject(IEnumerable<KeyValuePair<string, string>> members)
+                => PushObjectOf(members, (objectBuilder, member) => objectBuilder.Put(member.Key, member.Value));
+
+            public ArrayBuilder PushArrayOfArray<T>(IEnumerable<T> source, Action<ArrayBuilder, T> build)
+                => PushArray((source, build), Internal.ArrayOfArray);
+
+            public ArrayBuilder PushObjectOfArray<T>(IEnumerable<KeyValuePair<string, T>> source, Action<ArrayBuilder, T> build)
+                => PushObject((source, build), Internal.ObjectOfArray);
+
+            public ArrayBuilder PushArrayOfObject<T>(IEnumerable<T> source, Action<ObjectBuilder, T> build)
+                => PushArray((source, build), Internal.ArrayOfObject);
+
+            public ArrayBuilder PushObjectOfObject<T>(IEnumerable<KeyValuePair<string, T>> source, Action<ObjectBuilder, T> build)
+                => PushObject((source, build), Internal.ObjectOfObject);
+
+            public ArrayBuilder PushArrayOf<T>(IEnumerable<T> source, Func<ArrayBuilder, T, ArrayBuilder> build)
+                => PushArray((source, build), Internal.ArrayOf);
+
+            public ArrayBuilder PushObjectOf<T>(IEnumerable<KeyValuePair<string, T>> source, Func<ObjectBuilder, KeyValuePair<string, T>, ObjectBuilder> build)
+                => PushObject((source, build), Internal.ObjectOf);
+            #endregion
         }
     }
 }

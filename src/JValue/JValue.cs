@@ -100,10 +100,10 @@ namespace Halak
         {
             if (value != null)
             {
-                var builder = new StringBuilder(value.Length + 2);
-                JsonHelper.AppendEscapedString(builder, value);
+                var writer = new System.IO.StringWriter(new StringBuilder(value.Length + 2), CultureInfo.InvariantCulture);
+                JsonHelper.WriteEscapedString(writer, value);
 
-                source = builder.ToString();
+                source = writer.ToString();
                 startIndex = 0;
                 length = source.Length;
             }
@@ -699,10 +699,23 @@ namespace Halak
         }
         #endregion
 
-        #region System.Object
-        public override int GetHashCode() { return source.GetHashCode() + startIndex; }
-        public override bool Equals(object obj) { return (obj is JValue) && Equals((JValue)obj); }
+        public override int GetHashCode()
+        {
+            switch (Type)
+            {
+                case TypeCode.Null: return 0;
+                case TypeCode.Boolean: return ToBoolean() ? 0x392307A6 : 0x63D95114;
+                case TypeCode.Number: return ToNumber().GetHashCode();
+                case TypeCode.String: return GetStringHashCode();
+                case TypeCode.Array: return GetArrayHashCode();
+                case TypeCode.Object: return GetObjectHashCode();
+                default: return 0;
+            }
+        }
 
+        public bool Equals(JValue other) => Equals(this, other);
+        public int CompareTo(JValue other) => Compare(this, other);
+        public override bool Equals(object obj) => obj is JValue other && Equals(other);
         public override string ToString()
         {
             if (Type != TypeCode.Null)
@@ -710,66 +723,127 @@ namespace Halak
             else
                 return JsonHelper.NullString;
         }
-        #endregion
 
-        #region System.IComparable<JValue>
-        public int CompareTo(JValue other)
+        #region HashCode
+        private int GetStringHashCode()
         {
-            if (Equals(other))
-                return 0;
-            else
-                return string.CompareOrdinal(
-                    source ?? string.Empty, startIndex,
-                    other.source ?? string.Empty, other.startIndex,
-                    Math.Max(length, other.length));
+            var enumerator = GetCharEnumerator();
+            var hashCode = 0x219FFA9C;
+            while (enumerator.MoveNext())
+                hashCode = HashCode.Combine(hashCode, enumerator.Current);
+            return hashCode;
+        }
+
+        private int GetArrayHashCode()
+        {
+            var hashCode = 0x12D398BA;
+            foreach (var element in Array())
+                hashCode = HashCode.Combine(hashCode, element.GetHashCode());
+            return hashCode;
+        }
+
+        private int GetObjectHashCode()
+        {
+            var hashCode = 0x50638734;
+            foreach (var member in Object())
+            {
+                hashCode = HashCode.Combine(hashCode, member.Key.GetHashCode());
+                hashCode = HashCode.Combine(hashCode, member.Value.GetHashCode());
+            }
+            return hashCode;
         }
         #endregion
 
-        #region System.IEquatable<JValue>
-        public bool Equals(JValue other)
+        public static bool Equals(JValue left, JValue right)
         {
-            var t = Type;
-            if (t == other.Type)
+            var leftType = left.Type;
+            var rightType = right.Type;
+            if (leftType == rightType)
             {
-                switch (t)
+                switch (leftType)
                 {
-                    case TypeCode.Null:
-                        return true;
-                    case TypeCode.Boolean:
-                        return ToBooleanCore() == other.ToBooleanCore();
-                    case TypeCode.Number:
-                        return ToDoubleCore(0.0) == other.ToDoubleCore(0.0);
-                    case TypeCode.String:
-                        return EqualString(this, other);
-                    default:
-                        return startIndex == other.startIndex &&
-                            length == other.length &&
-                            ReferenceEquals(source, other.source);
+                    case TypeCode.Null: return true;
+                    case TypeCode.Boolean: return left.ToBooleanCore() == right.ToBooleanCore();
+                    case TypeCode.Number: return JNumber.Equals(left.ToNumberCore(JNumber.NaN), right.ToNumberCore(JNumber.NaN));
+                    case TypeCode.String: return EqualsString(left, right);
+                    case TypeCode.Array: return SequenceEqual(left.Array().GetEnumerator(), right.Array().GetEnumerator(), Equals);
+                    case TypeCode.Object: return SequenceEqual(left.Object().GetEnumerator(), right.Object().GetEnumerator(), EqualsMember);
+                }
+            }
+
+            return false;
+        }
+
+        public static int Compare(JValue left, JValue right)
+        {
+            var leftType = left.Type;
+            var rightType = right.Type;
+            if (leftType == rightType)
+            {
+                switch (leftType)
+                {
+                    case TypeCode.Null: return 0;
+                    case TypeCode.Boolean: return left.ToBooleanCore().CompareTo(right.ToBooleanCore());
+                    case TypeCode.Number: return JNumber.Compare(left.ToNumberCore(JNumber.NaN), right.ToNumberCore(JNumber.NaN));
+                    case TypeCode.String: return SequenceCompare<char, CharEnumerator>(left.GetCharEnumerator(), right.GetCharEnumerator(), (x, y) => x.CompareTo(y));
+                    case TypeCode.Array: return SequenceCompare(left.Array().GetEnumerator(), right.Array().GetEnumerator(), Compare);
+                    case TypeCode.Object: return SequenceCompare(left.Object().GetEnumerator(), right.Object().GetEnumerator(), CompareMember);
+                    default: return 0;
                 }
             }
             else
-                return false;
+                return ((int)leftType).CompareTo((int)rightType);
         }
 
-        private static bool EqualString(JValue a, JValue b)
+        private static int CompareMember(KeyValuePair<JValue, JValue> x, KeyValuePair<JValue, JValue> y)
         {
-            var aEnumerator = a.GetCharEnumerator();
-            var bEnumerator = b.GetCharEnumerator();
+            var k = Compare(x.Key, y.Key);
+            if (k != 0)
+                return k;
+            else
+                return Compare(x.Value, y.Value);
+        }
 
+        private static int SequenceCompare<T>(IEnumerator<T> a, IEnumerator<T> b, Func<T, T, int> compare)
+            => SequenceCompare<T, IEnumerator<T>>(a, b, compare);
+        private static int SequenceCompare<T, TEnumerator>(TEnumerator a, TEnumerator b, Func<T, T, int> compare) where TEnumerator : IEnumerator<T>
+        {
             for (; ; )
             {
-                var aStep = aEnumerator.MoveNext();
-                var bStep = bEnumerator.MoveNext();
+                var aStep = a.MoveNext();
+                var bStep = b.MoveNext();
                 if (aStep && bStep)
                 {
-                    if (aEnumerator.Current != bEnumerator.Current)
+                    var result = compare(a.Current, b.Current);
+                    if (result != 0)
+                        return result;
+                }
+                else
+                    return 0;
+            }
+        }
+
+        private static bool EqualsString(JValue a, JValue b)
+            => SequenceEqual<char, CharEnumerator>(a.GetCharEnumerator(), b.GetCharEnumerator(), (x, y) => x == y);
+        private static bool EqualsMember(KeyValuePair<JValue, JValue> x, KeyValuePair<JValue, JValue> y)
+            => Equals(x.Key, y.Key) && Equals(x.Value, y.Value);
+        private static bool SequenceEqual<T>(IEnumerator<T> a, IEnumerator<T> b, Func<T, T, bool> equals)
+            => SequenceEqual<T, IEnumerator<T>>(a, b, equals);
+        private static bool SequenceEqual<T, TEnumerator>(TEnumerator a, TEnumerator b, Func<T, T, bool> equals) where TEnumerator : IEnumerator<T>
+        {
+            for (; ; )
+            {
+                var aStep = a.MoveNext();
+                var bStep = b.MoveNext();
+                if (aStep && bStep)
+                {
+                    if (equals(a.Current, b.Current) == false)
                         return false;
                 }
                 else
                     return aStep == bStep;
             }
         }
-        #endregion
         #endregion
 
         #region Implicit Conversion

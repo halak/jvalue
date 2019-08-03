@@ -3,7 +3,7 @@ using BenchmarkDotNet.Running;
 
 namespace Halak
 {
-    class Program
+    static class Program
     {
         static void Main(string[] args)
         {

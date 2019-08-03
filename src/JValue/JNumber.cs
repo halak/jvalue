@@ -3,7 +3,7 @@ using System.Globalization;
 
 namespace Halak
 {
-    public struct JNumber : IEquatable<JNumber>
+    public struct JNumber : IEquatable<JNumber>, IComparable<JNumber>
     {
         public static readonly JNumber NaN = new JNumber(string.Empty, 0, 0, 0, 0);
         public static readonly JNumber Zero = new JNumber(0);
@@ -79,19 +79,20 @@ namespace Halak
         public decimal? ToNullableDecimal()
             => JsonHelper.ParseNullableDecimal(source, startIndex, length);
 
-        public override bool Equals(object obj) => obj is JNumber other && Equals(this, other);
         public bool Equals(JNumber other) => Equals(this, other);
+        public int CompareTo(JNumber other) => Compare(this, other);
+        public override bool Equals(object obj) => obj is JNumber other && Equals(this, other);
         public override int GetHashCode()
         {
             if (source == null)
-                return -1;
+                return 0;
 
-            var hashCode = GetHashCode(source[startIndex]);
+            var hashCode = 0x457E453B;
             var end = startIndex + length;
-            for (var i = startIndex + 1; i < end; i++)
-                hashCode = ((hashCode << 5) + hashCode) ^ GetHashCode(source[i]);
+            for (var i = startIndex; i < end; i++)
+                hashCode = HashCode.Combine(hashCode, GetHashCode(source[i]));
 
-            return (int)hashCode;
+            return hashCode;
         }
 
         public override string ToString() => source?.Substring(startIndex, length) ?? "NaN";
@@ -185,25 +186,34 @@ namespace Halak
                 string.CompareOrdinal(left.source, left.startIndex, right.source, right.startIndex, left.length) == 0;
         }
 
-        private static uint GetHashCode(char c)
+        public static int Compare(JNumber left, JNumber right)
+        {
+            var compareResult = left.length.CompareTo(right.length);
+            if (compareResult != 0)
+                return compareResult;
+            else
+                return string.CompareOrdinal(left.source, left.startIndex, right.source, right.startIndex, left.length);
+        }
+
+        private static int GetHashCode(char c)
         {
             switch (c)
             {
-                case '0': return 0xD0DEB4A3;
-                case '1': return 0xC949F3C9;
-                case '2': return 0x88184C40;
-                case '3': return 0xE920F181;
-                case '4': return 0xBB0CC3A8;
-                case '5': return 0x2098A99C;
-                case '6': return 0x8291F7B0;
-                case '7': return 0xFBF5112D;
-                case '8': return 0xC3BB87D6;
-                case '9': return 0x4AF33460;
-                case '.': return 0x403FBC07;
-                case '+': return 0xA2922785;
-                case '-': return 0x9F91692A;
-                case 'e': return 0xC0DFD050;
-                case 'E': return 0x2F2B6D75;
+                case '0': return unchecked((int)0xD0DEB4A3);
+                case '1': return unchecked((int)0xC949F3C9);
+                case '2': return unchecked((int)0x88184C40);
+                case '3': return unchecked((int)0xE920F181);
+                case '4': return unchecked((int)0xBB0CC3A8);
+                case '5': return unchecked((int)0x2098A99C);
+                case '6': return unchecked((int)0x8291F7B0);
+                case '7': return unchecked((int)0xFBF5112D);
+                case '8': return unchecked((int)0xC3BB87D6);
+                case '9': return unchecked((int)0x4AF33460);
+                case '.': return unchecked((int)0x403FBC07);
+                case '+': return unchecked((int)0xA2922785);
+                case '-': return unchecked((int)0x9F91692A);
+                case 'e': return unchecked((int)0xC0DFD050);
+                case 'E': return unchecked((int)0xC0DFD050);
                 default: return 0;
             }
         }
