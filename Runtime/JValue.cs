@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -89,7 +90,7 @@ namespace Halak
                 return Null;
         }
 
-        public JValue(bool value) : this(value ? JsonHelper.TrueString : JsonHelper.FalseString, false) { }
+        public JValue(bool value) : this(value ? JsonHelper.TrueLiteral : JsonHelper.FalseLiteral, false) { }
         public JValue(int value) : this(value.ToString(CultureInfo.InvariantCulture), false) { }
         public JValue(long value) : this(value.ToString(CultureInfo.InvariantCulture), false) { }
         public JValue(ulong value) : this(value.ToString(CultureInfo.InvariantCulture), false) { }
@@ -100,7 +101,7 @@ namespace Halak
         {
             if (value != null)
             {
-                var writer = new System.IO.StringWriter(new StringBuilder(value.Length + 2), CultureInfo.InvariantCulture);
+                var writer = new StringWriter(new StringBuilder(value.Length + 2), CultureInfo.InvariantCulture);
                 JsonHelper.WriteEscapedString(writer, value);
 
                 source = writer.ToString();
@@ -247,7 +248,7 @@ namespace Halak
         {
             switch (Type)
             {
-                case TypeCode.Boolean: return ToBooleanCore() ? JsonHelper.TrueString : JsonHelper.FalseString;
+                case TypeCode.Boolean: return ToBooleanCore() ? JsonHelper.TrueLiteral : JsonHelper.FalseLiteral;
                 case TypeCode.Number: return source.Substring(startIndex, length);
                 case TypeCode.String: return ToUnescapedStringCore();
                 default: return defaultValue;
@@ -588,114 +589,130 @@ namespace Halak
 
         public void Serialize(StringBuilder builder, int indent = 2)
         {
-            Serialize(builder, this, indent, 0);
+            using (var writer = new StringWriter(builder, CultureInfo.InvariantCulture))
+                Serialize(writer, this, indent, 0);
         }
 
-        private static void Indent(StringBuilder builder, int indent, int depth)
+        public void Serialize(TextWriter writer, int indent = 2)
+            => Serialize(writer, this, indent, 0);
+
+        private void WriteTo(TextWriter writer)
+        {
+            if (Type != TypeCode.Null)
+            {
+                var end = startIndex + length;
+                for (var i = startIndex; i < end; i++)
+                    writer.Write(source[i]);
+            }
+            else
+                writer.Write(JsonHelper.NullLiteral);
+        }
+
+        private static void Indent(TextWriter writer, int indent, int depth)
         {
             var spaces = indent * depth;
             for (var i = 0; i < spaces; i++)
-                builder.Append(' ');
+                writer.Write(' ');
         }
 
-        private static void Serialize(StringBuilder builder, JValue value, int indent, int depth)
+        private static void Serialize(TextWriter writer, JValue value, int indent, int depth)
         {
             switch (value.Type)
             {
                 case TypeCode.Array:
-                    Serialize(builder, value.Array(), indent, depth, indent > 0 && value.length > 80);
+                    Serialize(writer, value.Array(), indent, depth, indent > 0 && value.length > 80);
                     break;
                 case TypeCode.Object:
-                    Serialize(builder, value.Object(), indent, depth, indent > 0 && value.length > 80);
+                    Serialize(writer, value.Object(), indent, depth, indent > 0 && value.length > 80);
                     break;
                 default:
-                    builder.Append(value.ToString());
+                    writer.Write(value.ToString());
                     break;
             }
         }
 
-        private static void Serialize(StringBuilder builder, IEnumerable<JValue> value, int indent, int depth, bool multiline)
+        private static void Serialize(TextWriter writer, IEnumerable<JValue> value, int indent, int depth, bool multiline)
         {
-            builder.Append('[');
+            writer.Write('[');
 
             if (indent > 0 && multiline)
-                builder.AppendLine();
+                writer.WriteLine();
 
             var isFirst = true;
             foreach (var item in value)
             {
                 if (isFirst == false)
                 {
-                    builder.Append(',');
+                    writer.Write(',');
 
                     if (indent > 0)
                     {
                         if (multiline)
-                            builder.AppendLine();
+                            writer.WriteLine();
                         else
-                            builder.Append(' ');
+                            writer.Write(' ');
                     }
                 }
                 else
                     isFirst = false;
 
                 if (indent > 0 && multiline)
-                    Indent(builder, indent, depth + 1);
+                    Indent(writer, indent, depth + 1);
 
-                Serialize(builder, item, indent, depth + 1);
+                Serialize(writer, item, indent, depth + 1);
             }
 
             if (indent > 0 && multiline)
             {
-                builder.AppendLine();
-                Indent(builder, indent, depth);
+                writer.WriteLine();
+                Indent(writer, indent, depth);
             }
 
-            builder.Append(']');
+            writer.Write(']');
         }
 
-        private static void Serialize(StringBuilder builder, IEnumerable<KeyValuePair<JValue, JValue>> value, int indent, int depth, bool multiline)
+        private static void Serialize(TextWriter writer, IEnumerable<KeyValuePair<JValue, JValue>> value, int indent, int depth, bool multiline)
         {
-            builder.Append('{');
+            writer.Write('{');
 
             if (indent > 0 && multiline)
-                builder.AppendLine();
+                writer.WriteLine();
 
             var isFirst = true;
             foreach (var item in value)
             {
                 if (isFirst == false)
                 {
-                    builder.Append(',');
+                    writer.Write(',');
 
                     if (indent > 0)
                     {
                         if (multiline)
-                            builder.AppendLine();
+                            writer.WriteLine();
                         else
-                            builder.Append(' ');
+                            writer.Write(' ');
                     }
                 }
                 else
                     isFirst = false;
 
                 if (indent > 0 && multiline)
-                    Indent(builder, indent, depth + 1);
+                    Indent(writer, indent, depth + 1);
 
-                Serialize(builder, item.Key, indent, depth + 1);
-                builder.Append(':');
+                Serialize(writer, item.Key, indent, depth + 1);
+                writer.Write(':');
                 if (indent > 0)
-                    builder.Append(' ');
-                Serialize(builder, item.Value, indent, depth + 1);
+                    writer.Write(' ');
+                Serialize(writer, item.Value, indent, depth + 1);
             }
 
             if (indent > 0 && multiline)
             {
-                builder.AppendLine();
-                Indent(builder, indent, depth);
+                writer.WriteLine();
+                Indent(writer, indent, depth);
             }
 
-            builder.Append('}');
+            writer.Write('}');
         }
         #endregion
 
@@ -721,7 +738,7 @@ namespace Halak
             if (Type != TypeCode.Null)
                 return (startIndex == 0 && length == source.Length) ? source : source.Substring(startIndex, length);
             else
-                return JsonHelper.NullString;
+                return JsonHelper.NullLiteral;
         }
 
         #region HashCode

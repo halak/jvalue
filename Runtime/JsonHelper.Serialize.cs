@@ -9,9 +9,9 @@ namespace Halak
         private static readonly string Int32MinValue = int.MinValue.ToString();
         private static readonly string Int64MinValue = long.MinValue.ToString();
         
-        public const string NullString = "null";
-        public const string TrueString = "true";
-        public const string FalseString = "false";
+        internal const string NullLiteral = "null";
+        internal const string TrueLiteral = "true";
+        internal const string FalseLiteral = "false";
 
         public static void WriteInt32(TextWriter writer, int value)
         {
@@ -148,7 +148,7 @@ namespace Halak
                 writer.Write('"');
             }
             else
-                writer.Write("null");
+                writer.Write(NullLiteral);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
