@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Globalization;
@@ -34,14 +33,14 @@ namespace Halak
             public ArrayBuilder PushNull()
             {
                 Prepare();
-                writer.Write(JsonHelper.NullString);
+                writer.Write(JsonHelper.NullLiteral);
                 return this;
             }
 
             public ArrayBuilder Push(bool value)
             {
                 Prepare();
-                writer.Write(value ? JsonHelper.TrueString : JsonHelper.FalseString);
+                writer.Write(value ? JsonHelper.TrueLiteral : JsonHelper.FalseLiteral);
                 return this;
             }
 
@@ -90,10 +89,7 @@ namespace Halak
             public ArrayBuilder Push(JValue value)
             {
                 Prepare();
-                if (value.Type != TypeCode.Null)
-                    writer.Write(value.source, value.startIndex, value.length);
-                else
-                    writer.Write(JsonHelper.NullString);
+                value.WriteTo(writer);
                 return this;
             }
 
