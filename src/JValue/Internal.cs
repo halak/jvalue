@@ -1,43 +1,42 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 
 namespace Halak
 {
     internal static class Internal
     {
-        public static void ArrayOfArray<T>(JValue.ArrayBuilder builder, (IEnumerable<T> source, Action<JValue.ArrayBuilder, T> build) state)
+        public static void ArrayOfArray<T>(JsonArrayBuilder builder, (IEnumerable<T> source, Action<JsonArrayBuilder, T> build) state)
         {
             foreach (var item in state.source.ToEfficient())
                 builder.PushArray(item, state.build);
         }
 
-        public static void ObjectOfArray<T>(JValue.ObjectBuilder builder, (IEnumerable<KeyValuePair<string, T>> source, Action<JValue.ArrayBuilder, T> build) state)
+        public static void ObjectOfArray<T>(JsonObjectBuilder builder, (IEnumerable<KeyValuePair<string, T>> source, Action<JsonArrayBuilder, T> build) state)
         {
             foreach (var item in state.source.ToEfficient())
                 builder.PutArray(item.Key, item.Value, state.build);
         }
 
-        public static void ArrayOfObject<T>(JValue.ArrayBuilder builder, (IEnumerable<T> source, Action<JValue.ObjectBuilder, T> build) state)
+        public static void ArrayOfObject<T>(JsonArrayBuilder builder, (IEnumerable<T> source, Action<JsonObjectBuilder, T> build) state)
         {
             foreach (var item in state.source.ToEfficient())
                 builder.PushObject(item, state.build);
         }
 
-        public static void ObjectOfObject<T>(JValue.ObjectBuilder builder, (IEnumerable<KeyValuePair<string, T>> source, Action<JValue.ObjectBuilder, T> build) state)
+        public static void ObjectOfObject<T>(JsonObjectBuilder builder, (IEnumerable<KeyValuePair<string, T>> source, Action<JsonObjectBuilder, T> build) state)
         {
             foreach (var item in state.source.ToEfficient())
                 builder.PutObject(item.Key, item.Value, state.build);
         }
 
-        public static void ArrayOf<T>(JValue.ArrayBuilder builder, (IEnumerable<T> source, Func<JValue.ArrayBuilder, T, JValue.ArrayBuilder> build) state)
+        public static void ArrayOf<T>(JsonArrayBuilder builder, (IEnumerable<T> source, Func<JsonArrayBuilder, T, JsonArrayBuilder> build) state)
         {
             foreach (var item in state.source.ToEfficient())
                 builder = state.build(builder, item);
         }
 
-        public static void ObjectOf<T>(JValue.ObjectBuilder builder, (IEnumerable<KeyValuePair<string, T>> source, Func<JValue.ObjectBuilder, KeyValuePair<string, T>, JValue.ObjectBuilder> build) state)
+        public static void ObjectOf<T>(JsonObjectBuilder builder, (IEnumerable<KeyValuePair<string, T>> source, Func<JsonObjectBuilder, KeyValuePair<string, T>, JsonObjectBuilder> build) state)
         {
             foreach (var item in state.source.ToEfficient())
                 builder = state.build(builder, item);

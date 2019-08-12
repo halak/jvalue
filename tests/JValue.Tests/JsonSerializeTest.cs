@@ -20,7 +20,7 @@ namespace Halak
         [TestMethod]
         public void TestArrayBuilder()
         {
-            var simpleArray = new JValue.ArrayBuilder(16)
+            var simpleArray = new JsonArrayBuilder(16)
                 .Push(10)
                 .Push(20)
                 .Push(30)
@@ -34,7 +34,7 @@ namespace Halak
         [TestMethod]
         public void TestObjectBuilder()
         {
-            var simpleObject = new JValue.ObjectBuilder(16)
+            var simpleObject = new JsonObjectBuilder(16)
                 .Put("id", 10)
                 .Put("name", "John")
                 .Put("age", 29)
@@ -45,7 +45,7 @@ namespace Halak
             Assert.AreEqual(@"{""id"":10,""name"":""John"",""age"":29,""alive"":true,""friends"":null}", simpleObject.ToString());
             Assert.AreEqual(@"{""id"": 10, ""name"": ""John"", ""age"": 29, ""alive"": true, ""friends"": null}", simpleObject.Serialize(2));
 
-            var complexObject = new JValue.ObjectBuilder(16)
+            var complexObject = new JsonObjectBuilder(16)
                 .Put("name", "Mike")
                 .PutArray("jobs", jobs => jobs.Push("chef").Push("programmer").Push("designer"))
                 .PutNull("children")
@@ -59,7 +59,7 @@ namespace Halak
         [TestMethod]
         public void TestObjectBuilderWithoutChaining()
         {
-            var builder = new JValue.ObjectBuilder(1024);
+            var builder = new JsonObjectBuilder(1024);
             PutJobs(builder);
             builder.Put("name", "Mike");
             builder.PutNull("children");
@@ -68,7 +68,7 @@ namespace Halak
                 @"{""jobs"":[""chef"",""programmer"",""designer""],""name"":""Mike"",""children"":null}",
                 complexObject.ToString());
 
-            JValue.ObjectBuilder PutJobs(JValue.ObjectBuilder mainBuilder)
+            JsonObjectBuilder PutJobs(JsonObjectBuilder mainBuilder)
             {
                 return mainBuilder.PutArray("jobs", jobs =>
                 {
@@ -91,8 +91,8 @@ namespace Halak
                 Assert.AreEqual("1234,5678", (1234.5678).ToString());  // test culture change
 
                 Assert.AreEqual("1234.5678", new JValue(1234.5678).ToString());
-                Assert.AreEqual("1234.5678", (string)new JValue.ObjectBuilder(16).Put("test", 1234.5678).Build()["test"]);
-                Assert.AreEqual("1234.5678", (string)new JValue.ArrayBuilder(16).Push(1234.5678).Build()[0]);
+                Assert.AreEqual("1234.5678", (string)new JsonObjectBuilder(16).Put("test", 1234.5678).Build()["test"]);
+                Assert.AreEqual("1234.5678", (string)new JsonArrayBuilder(16).Push(1234.5678).Build()[0]);
             }
             finally
             {
@@ -106,14 +106,14 @@ namespace Halak
             foreach (var value in new[] { int.MinValue, int.MaxValue, 0, -1234, 5677, 23472634, -12391823, 23487621 })
             {
                 var expected = value.ToString(CultureInfo.InvariantCulture);
-                var actual = new JValue.ArrayBuilder(32).Push(value).Build()[0].ToString();
+                var actual = new JsonArrayBuilder(32).Push(value).Build()[0].ToString();
                 Assert.AreEqual(expected, actual);
             }
 
             foreach (var value in new[] { long.MinValue, long.MaxValue, 0L, -1234L, 239482734L, 2359237498237492837L, -3871623123L })
             {
                 var expected = value.ToString(CultureInfo.InvariantCulture);
-                var actual = new JValue.ArrayBuilder(32).Push(value).Build()[0].ToString();
+                var actual = new JsonArrayBuilder(32).Push(value).Build()[0].ToString();
                 Assert.AreEqual(expected, actual);
             }
         }
