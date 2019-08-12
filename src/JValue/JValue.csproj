@@ -9,15 +9,18 @@
     <Description>Lightweight Json parser for .NET</Description>
   </PropertyGroup>
   <ItemGroup>
-    <None Update="JsonHelper.Generated.tt">
+    <None Update="JNumber.Generated.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>JsonHelper.Generated.cs</LastGenOutput>
+      <LastGenOutput>JNumber.Generated.cs</LastGenOutput>
     </None>
-    <Compile Update="JsonHelper.Generated.cs">
+    <Compile Update="JNumber.Generated.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
-      <DependentUpon>JsonHelper.Generated.tt</DependentUpon>
+      <DependentUpon>JNumber.Generated.tt</DependentUpon>
     </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="xcopy $(ProjectDir)*.cs $(ProjectDir)..\..\upm\jvalue\Runtime\ /Y /Q" />

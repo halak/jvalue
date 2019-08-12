@@ -3,7 +3,7 @@ using System.Globalization;
 
 namespace Halak
 {
-    public struct JNumber : IEquatable<JNumber>, IComparable<JNumber>
+    public partial struct JNumber : IEquatable<JNumber>, IComparable<JNumber>
     {
         public static readonly JNumber NaN = new JNumber(string.Empty, 0, 0, 0, 0);
         public static readonly JNumber Zero = new JNumber(0);
@@ -42,11 +42,11 @@ namespace Halak
         private int FractionalPartIndex => startIndex + toDecimalPoint + 1;
         private int FractionalPartLength => toExponent - toDecimalPoint - 1;
 
-        public JNumber(int value) : this(value.ToString(CultureInfo.InvariantCulture), true) { }
-        public JNumber(long value) : this(value.ToString(CultureInfo.InvariantCulture), true) { }
-        public JNumber(float value) : this(value.ToString(CultureInfo.InvariantCulture)) { }
-        public JNumber(double value) : this(value.ToString(CultureInfo.InvariantCulture)) { }
-        public JNumber(decimal value) : this(value.ToString(CultureInfo.InvariantCulture)) { }
+        public JNumber(int value) : this(value.ToString(NumberFormatInfo.InvariantInfo), true) { }
+        public JNumber(long value) : this(value.ToString(NumberFormatInfo.InvariantInfo), true) { }
+        public JNumber(float value) : this(value.ToString(NumberFormatInfo.InvariantInfo)) { }
+        public JNumber(double value) : this(value.ToString(NumberFormatInfo.InvariantInfo)) { }
+        public JNumber(decimal value) : this(value.ToString(NumberFormatInfo.InvariantInfo)) { }
         private JNumber(string source) : this(source, 0, source.Length, FindDecimalPoint(source), FindExponent(source)) { }
         private JNumber(string source, bool _ /* from integer */) : this(source, 0, source.Length, source.Length, source.Length) { }
         private JNumber(string source, int startIndex, int length, int toDecimalPoint, int toExponent)
@@ -59,25 +59,25 @@ namespace Halak
         }
 
         public int ToInt32(int defaultValue = default(int))
-            => JsonHelper.ParseInt32(source, startIndex, length, defaultValue);
+            => ParseInt32(source, startIndex, length, defaultValue);
         public int? ToNullableInt32()
-            => JsonHelper.ParseNullableInt32(source, startIndex, length);
+            => ParseNullableInt32(source, startIndex, length);
         public long ToInt64(long defaultValue = default(long))
-            => JsonHelper.ParseInt64(source, startIndex, length, defaultValue);
+            => ParseInt64(source, startIndex, length, defaultValue);
         public long? ToNullableInt64()
-            => JsonHelper.ParseNullableInt64(source, startIndex, length);
+            => ParseNullableInt64(source, startIndex, length);
         public float ToSingle(float defaultValue = default(float))
-            => JsonHelper.ParseSingle(source, startIndex, length, defaultValue);
+            => ParseSingle(source, startIndex, length, defaultValue);
         public float? ToNullableSingle()
-            => JsonHelper.ParseNullableSingle(source, startIndex, length);
+            => ParseNullableSingle(source, startIndex, length);
         public double ToDouble(double defaultValue = default(double))
-            => JsonHelper.ParseDouble(source, startIndex, length, defaultValue);
+            => ParseDouble(source, startIndex, length, defaultValue);
         public double? ToNullableDouble()
-            => JsonHelper.ParseNullableDouble(source, startIndex, length);
+            => ParseNullableDouble(source, startIndex, length);
         public decimal ToDecimal(decimal defaultValue = default(decimal))
-            => JsonHelper.ParseDecimal(source, startIndex, length, defaultValue);
+            => ParseDecimal(source, startIndex, length, defaultValue);
         public decimal? ToNullableDecimal()
-            => JsonHelper.ParseNullableDecimal(source, startIndex, length);
+            => ParseNullableDecimal(source, startIndex, length);
 
         public bool Equals(JNumber other) => Equals(this, other);
         public int CompareTo(JNumber other) => Compare(this, other);
@@ -108,7 +108,7 @@ namespace Halak
             var c = s[i++];
             var decimalPoint = -1;
             var exponentIndex = -1;
-            if (c == '-' || JsonHelper.IsDigit(c))
+            if (c == '-' || IsDigit(c))
             { /* DO NOTHING */ }
             else if (c == '0' && (i < s.Length && s[i++] == '.'))
             {
@@ -121,7 +121,7 @@ namespace Halak
             for (; i < s.Length; i++)
             {
                 c = s[i];
-                if (JsonHelper.IsDigit(c))
+                if (IsDigit(c))
                     continue;
                 else if (c == '.')
                 {
@@ -133,7 +133,7 @@ namespace Halak
                     exponentIndex = i++;
                     goto ExponentPart;
                 }
-                else if (JsonHelper.IsTerminal(c))
+                else if (IsTerminal(c))
                     goto Exit;
                 else
                     return false;
@@ -145,7 +145,7 @@ namespace Halak
             for (; i < s.Length; i++)
             {
                 c = s[i];
-                if (JsonHelper.IsDigit(c))
+                if (IsDigit(c))
                     continue;
                 else if (c == 'e' || c == 'E')
                 {
@@ -160,12 +160,12 @@ namespace Halak
 
             ExponentPart:
             c = s[i++];
-            if (c != '+' && c != '-' && JsonHelper.IsDigit(c) == false)
+            if (c != '+' && c != '-' && IsDigit(c) == false)
                 return false;
 
             for (; i < s.Length; i++)
             {
-                if (JsonHelper.IsDigit(s[i]) == false)
+                if (IsDigit(s[i]) == false)
                     return false;
             }
 

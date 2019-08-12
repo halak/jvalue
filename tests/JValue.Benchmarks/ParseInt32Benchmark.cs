@@ -38,12 +38,11 @@ namespace Halak
         [Benchmark(Description = "int.TryParse")]
         public int SystemInt32TryParse()
         {
-            int a, b, c, d, e;
-            int.TryParse(shortNumber, out a);
-            int.TryParse(longNumber, out b);
-            int.TryParse(negativeNumber, out c);
-            int.TryParse(minNumber, out d);
-            int.TryParse(maxNumber, out e);
+            int.TryParse(shortNumber, out var a);
+            int.TryParse(longNumber, out var b);
+            int.TryParse(negativeNumber, out var c);
+            int.TryParse(minNumber, out var d);
+            int.TryParse(maxNumber, out var e);
             return a + b + c + d + e;
         }
 
@@ -62,11 +61,11 @@ namespace Halak
         public int JValueParse()
         {
             return
-                JsonHelper.ParseInt32(shortNumber) +
-                JsonHelper.ParseInt32(longNumber) +
-                JsonHelper.ParseInt32(negativeNumber) +
-                JsonHelper.ParseInt32(minNumber) +
-                JsonHelper.ParseInt32(maxNumber);
+                JNumber.ParseInt32(shortNumber) +
+                JNumber.ParseInt32(longNumber) +
+                JNumber.ParseInt32(negativeNumber) +
+                JNumber.ParseInt32(minNumber) +
+                JNumber.ParseInt32(maxNumber);
         }
     }
 }

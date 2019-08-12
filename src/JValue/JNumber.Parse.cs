@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 
 namespace Halak
 {
-    public static partial class JsonHelper
+    partial struct JNumber
     {
         private const int BigExponent = 1000;
         private const NumberStyles StandardNumberStyles = NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint | NumberStyles.AllowExponent;
@@ -105,7 +105,7 @@ namespace Halak
         {
             if (startIndex != 0 || s.Length != length)
                 s = s.Substring(startIndex, length);
-            if (decimal.TryParse(s, StandardNumberStyles, CultureInfo.InvariantCulture, out var value))
+            if (decimal.TryParse(s, StandardNumberStyles, NumberFormatInfo.InvariantInfo, out var value))
                 return value;
             else
                 return defaultValue;
@@ -115,7 +115,7 @@ namespace Halak
         {
             if (startIndex != 0 || s.Length != length)
                 s = s.Substring(startIndex, length);
-            if (decimal.TryParse(s, StandardNumberStyles, CultureInfo.InvariantCulture, out var value))
+            if (decimal.TryParse(s, StandardNumberStyles, NumberFormatInfo.InvariantInfo, out var value))
                 return value;
             else
                 return null;

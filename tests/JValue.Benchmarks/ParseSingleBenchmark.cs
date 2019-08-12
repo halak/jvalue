@@ -34,8 +34,8 @@ namespace Halak
         public float JValueParse()
         {
             return
-                JsonHelper.ParseSingle(number1) +
-                JsonHelper.ParseSingle(number2);
+                JNumber.ParseSingle(number1) +
+                JNumber.ParseSingle(number2);
         }
     }
 }

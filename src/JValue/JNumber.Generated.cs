@@ -2,7 +2,7 @@
 
 namespace Halak
 {
-    partial class JsonHelper
+    partial struct JNumber
     {
         public static int ParseInt32(string s, int defaultValue = default(int))
             => ParseInt32(s, 0, s.Length, defaultValue);
@@ -14,7 +14,7 @@ namespace Halak
         {
             const int Zero = default(int);
             const uint BeforeOverflow = uint.MaxValue / 10 - 1;
-
+ 
             const uint MaxPositiveValue = int.MaxValue;
             const uint MaxNegativeValue = unchecked((uint)int.MinValue);
 
@@ -58,7 +58,7 @@ namespace Halak
                     else
                         return defaultValue;  // unexpected character
                 }
-
+ 
                 if (index == end)
                 {
                     if (isPositive)
@@ -107,7 +107,7 @@ namespace Halak
                         return defaultValue;  // unexpected character
                 }
             }
-
+            
             var digits = 0;
             var exponent = 0;
             if (decimalPointIndex >= 0)
@@ -155,7 +155,7 @@ namespace Halak
         {
             const int Zero = default(int);
             const uint BeforeOverflow = uint.MaxValue / 10 - 1;
-
+ 
             const uint MaxPositiveValue = int.MaxValue;
             const uint MaxNegativeValue = unchecked((uint)int.MinValue);
 
@@ -199,7 +199,7 @@ namespace Halak
                     else
                         return null;  // unexpected character
                 }
-
+ 
                 if (index == end)
                 {
                     if (isPositive)
@@ -248,7 +248,7 @@ namespace Halak
                         return null;  // unexpected character
                 }
             }
-
+            
             var digits = 0;
             var exponent = 0;
             if (decimalPointIndex >= 0)
@@ -296,7 +296,7 @@ namespace Halak
         {
             const long Zero = default(long);
             const ulong BeforeOverflow = ulong.MaxValue / 10 - 1;
-
+ 
             const ulong MaxPositiveValue = long.MaxValue;
             const ulong MaxNegativeValue = unchecked((ulong)long.MinValue);
 
@@ -340,7 +340,7 @@ namespace Halak
                     else
                         return defaultValue;  // unexpected character
                 }
-
+ 
                 if (index == end)
                 {
                     if (isPositive)
@@ -389,7 +389,7 @@ namespace Halak
                         return defaultValue;  // unexpected character
                 }
             }
-
+            
             var digits = 0;
             var exponent = 0;
             if (decimalPointIndex >= 0)
@@ -437,7 +437,7 @@ namespace Halak
         {
             const long Zero = default(long);
             const ulong BeforeOverflow = ulong.MaxValue / 10 - 1;
-
+ 
             const ulong MaxPositiveValue = long.MaxValue;
             const ulong MaxNegativeValue = unchecked((ulong)long.MinValue);
 
@@ -481,7 +481,7 @@ namespace Halak
                     else
                         return null;  // unexpected character
                 }
-
+ 
                 if (index == end)
                 {
                     if (isPositive)
@@ -530,7 +530,7 @@ namespace Halak
                         return null;  // unexpected character
                 }
             }
-
+            
             var digits = 0;
             var exponent = 0;
             if (decimalPointIndex >= 0)
@@ -660,7 +660,7 @@ namespace Halak
                         return defaultValue;  // unexpected character
                 }
             }
-
+            
             var digits = 0;
             var exponent = 0;
             if (decimalPointIndex >= 0)
@@ -780,7 +780,7 @@ namespace Halak
                         return null;  // unexpected character
                 }
             }
-
+            
             var digits = 0;
             var exponent = 0;
             if (decimalPointIndex >= 0)
@@ -900,7 +900,7 @@ namespace Halak
                         return defaultValue;  // unexpected character
                 }
             }
-
+            
             var digits = 0;
             var exponent = 0;
             if (decimalPointIndex >= 0)
@@ -1020,7 +1020,7 @@ namespace Halak
                         return null;  // unexpected character
                 }
             }
-
+            
             var digits = 0;
             var exponent = 0;
             if (decimalPointIndex >= 0)

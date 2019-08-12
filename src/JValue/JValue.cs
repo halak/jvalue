@@ -28,6 +28,10 @@ namespace Halak
         #endregion
 
         #region Static Fields
+        internal const string NullLiteral = "null";
+        internal const string TrueLiteral = "true";
+        internal const string FalseLiteral = "false";
+
         public static readonly JValue Null = new JValue("null", false);
         public static readonly JValue True = new JValue(true);
         public static readonly JValue False = new JValue(false);
@@ -90,23 +94,24 @@ namespace Halak
                 return Null;
         }
 
-        public JValue(bool value) : this(value ? JsonHelper.TrueLiteral : JsonHelper.FalseLiteral, false) { }
-        public JValue(int value) : this(value.ToString(CultureInfo.InvariantCulture), false) { }
-        public JValue(long value) : this(value.ToString(CultureInfo.InvariantCulture), false) { }
-        public JValue(ulong value) : this(value.ToString(CultureInfo.InvariantCulture), false) { }
-        public JValue(float value) : this(value.ToString(CultureInfo.InvariantCulture), false) { }
-        public JValue(double value) : this(value.ToString(CultureInfo.InvariantCulture), false) { }
-        public JValue(decimal value) : this(value.ToString(CultureInfo.InvariantCulture), false) { }
+        public JValue(bool value) : this(value ? TrueLiteral : FalseLiteral, false) { }
+        public JValue(int value) : this(value.ToString(NumberFormatInfo.InvariantInfo), false) { }
+        public JValue(long value) : this(value.ToString(NumberFormatInfo.InvariantInfo), false) { }
+        public JValue(ulong value) : this(value.ToString(NumberFormatInfo.InvariantInfo), false) { }
+        public JValue(float value) : this(value.ToString(NumberFormatInfo.InvariantInfo), false) { }
+        public JValue(double value) : this(value.ToString(NumberFormatInfo.InvariantInfo), false) { }
+        public JValue(decimal value) : this(value.ToString(NumberFormatInfo.InvariantInfo), false) { }
         public JValue(string value)
         {
             if (value != null)
             {
-                var writer = new StringWriter(new StringBuilder(value.Length + 2), CultureInfo.InvariantCulture);
-                JsonHelper.WriteEscapedString(writer, value);
-
-                source = writer.ToString();
-                startIndex = 0;
-                length = source.Length;
+                using (var writer = new StringWriter(new StringBuilder(value.Length + 2), CultureInfo.InvariantCulture))
+                {
+                    writer.WriteEscapedString(value);
+                    source = writer.GetStringBuilder().ToString();
+                    startIndex = 0;
+                    length = source.Length;
+                }
             }
             else
             {
@@ -232,15 +237,15 @@ namespace Halak
             => source[startIndex] == 't';
 
         private int ToInt32Core(int defaultValue)
-            => JsonHelper.ParseInt32(source, startIndex, defaultValue);
+            => JNumber.ParseInt32(source, startIndex, defaultValue);
         private long ToInt64Core(long defaultValue)
-            => JsonHelper.ParseInt64(source, startIndex, defaultValue);
+            => JNumber.ParseInt64(source, startIndex, defaultValue);
         private float ToSingleCore(float defaultValue)
-            => JsonHelper.ParseSingle(source, startIndex, defaultValue);
+            => JNumber.ParseSingle(source, startIndex, defaultValue);
         private double ToDoubleCore(double defaultValue)
-            => JsonHelper.ParseDouble(source, startIndex, defaultValue);
+            => JNumber.ParseDouble(source, startIndex, defaultValue);
         private decimal ToDecimalCore(decimal defaultValue)
-            => JsonHelper.ParseDecimal(source, startIndex, length, defaultValue);
+            => JNumber.ParseDecimal(source, startIndex, length, defaultValue);
         private JNumber ToNumberCore(JNumber defaultValue)
             => JNumber.TryParse(source, startIndex, out var value) ? value : defaultValue;
 
@@ -248,7 +253,7 @@ namespace Halak
         {
             switch (Type)
             {
-                case TypeCode.Boolean: return ToBooleanCore() ? JsonHelper.TrueLiteral : JsonHelper.FalseLiteral;
+                case TypeCode.Boolean: return ToBooleanCore() ? TrueLiteral : FalseLiteral;
                 case TypeCode.Number: return source.Substring(startIndex, length);
                 case TypeCode.String: return ToUnescapedStringCore();
                 default: return defaultValue;
@@ -605,7 +610,7 @@ namespace Halak
                     writer.Write(source[i]);
             }
             else
-                writer.Write(JsonHelper.NullLiteral);
+                writer.Write(NullLiteral);
         }
 
         private static void Indent(TextWriter writer, int indent, int depth)
@@ -738,7 +743,7 @@ namespace Halak
             if (Type != TypeCode.Null)
                 return (startIndex == 0 && length == source.Length) ? source : source.Substring(startIndex, length);
             else
-                return JsonHelper.NullLiteral;
+                return NullLiteral;
         }
 
         #region HashCode
