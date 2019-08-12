@@ -130,7 +130,7 @@ namespace Halak
 
         private static JValue From(IEnumerable<JValue> array)
         {
-            var builder = new ArrayBuilder();
+            var builder = new JsonArrayBuilder();
             foreach (var element in array)
                 builder.Push(element);
             return builder.Build();
@@ -138,7 +138,7 @@ namespace Halak
 
         private static JValue From(IEnumerable<KeyValuePair<string, JValue>> obj)
         {
-            var builder = new ObjectBuilder();
+            var builder = new JsonObjectBuilder();
             foreach (var member in obj)
                 builder.Put(member.Key, member.Value);
             return builder.Build();
@@ -596,7 +596,7 @@ namespace Halak
         public void Serialize(TextWriter writer, int indent = 2)
             => Serialize(writer, this, indent, 0);
 
-        private void WriteTo(TextWriter writer)
+        internal void WriteTo(TextWriter writer)
         {
             if (Type != TypeCode.Null)
             {

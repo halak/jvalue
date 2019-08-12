@@ -11,7 +11,7 @@ namespace System
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int Combine(int hash1, int hash2)
         {
-            // https://github.com/dotnet/coreclr/blob/master/src/System.Private.CoreLib/src/System/Numerics/Hashing/HashHelpers.cs
+            // https://github.com/dotnet/coreclr/blob/master/src/System.Private.CoreLib/shared/System/Numerics/Hashing/HashHelpers.cs
             unchecked
             {
                 var rol5 = ((uint)hash1 << 5) | ((uint)hash2 >> 27);

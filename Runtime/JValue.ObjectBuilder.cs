@@ -10,135 +10,146 @@ namespace Halak
     {
         public struct ObjectBuilder : IDisposable
         {
-            private TextWriter writer;
-            private bool used;
+            private readonly JsonWriter writer;
+            private readonly int startOffset;
 
-            public ObjectBuilder(int capacity)
-                : this(new StringBuilder(capacity)) { }
-            public ObjectBuilder(StringBuilder stringBuilder)
-                : this(new StringWriter(stringBuilder, CultureInfo.InvariantCulture)) { }
-            public ObjectBuilder(TextWriter writer)
+            public ObjectBuilder(int capacity) : this(new JsonWriter(capacity)) { }
+            public ObjectBuilder(StringBuilder stringBuilder) : this(new JsonWriter(stringBuilder)) { }
+            public ObjectBuilder(TextWriter writer) : this(new JsonWriter(writer)) { }
+            internal ObjectBuilder(JsonWriter writer)
             {
                 this.writer = writer;
-                this.writer.Write('{');
-                this.used = false;
+                this.writer.WriteStartObject();
+                this.startOffset = writer.Offset;
             }
 
             public void Dispose()
             {
-                Prepare(false);
-                writer.Write('}');
+                writer.WriteEndObject();
             }
 
             public ObjectBuilder PutNull(string key)
             {
-                Prepare();
-                WriteKey(key);
-                writer.Write(JsonHelper.NullLiteral);
+                EnsureJsonWriter();
+                writer.WriteCommaIf(startOffset);
+                writer.WriteKey(key);
+                writer.WriteNull();
                 return this;
             }
 
             public ObjectBuilder Put(string key, bool value)
             {
-                Prepare();
-                WriteKey(key);
-                writer.Write(value ? JsonHelper.TrueLiteral : JsonHelper.FalseLiteral);
+                EnsureJsonWriter();
+                writer.WriteCommaIf(startOffset);
+                writer.WriteKey(key);
+                writer.Write(value);
                 return this;
             }
 
             public ObjectBuilder Put(string key, int value)
             {
-                Prepare();
-                WriteKey(key);
-                JsonHelper.WriteInt32(writer, value);
+                EnsureJsonWriter();
+                writer.WriteCommaIf(startOffset);
+                writer.WriteKey(key);
+                writer.Write(value);
                 return this;
             }
 
             public ObjectBuilder Put(string key, long value)
             {
-                Prepare();
-                WriteKey(key);
-                JsonHelper.WriteInt64(writer, value);
+                EnsureJsonWriter();
+                writer.WriteCommaIf(startOffset);
+                writer.WriteKey(key);
+                writer.Write(value);
                 return this;
             }
 
             public ObjectBuilder Put(string key, float value)
             {
-                Prepare();
-                WriteKey(key);
-                writer.Write(value.ToString(CultureInfo.InvariantCulture));
+                EnsureJsonWriter();
+                writer.WriteCommaIf(startOffset);
+                writer.WriteKey(key);
+                writer.Write(value);
                 return this;
             }
 
             public ObjectBuilder Put(string key, double value)
             {
-                Prepare();
-                WriteKey(key);
-                writer.Write(value.ToString(CultureInfo.InvariantCulture));
+                EnsureJsonWriter();
+                writer.WriteCommaIf(startOffset);
+                writer.WriteKey(key);
+                writer.Write(value);
                 return this;
             }
 
             public ObjectBuilder Put(string key, decimal value)
             {
-                Prepare();
-                WriteKey(key);
-                writer.Write(value.ToString(CultureInfo.InvariantCulture));
+                EnsureJsonWriter();
+                writer.WriteCommaIf(startOffset);
+                writer.WriteKey(key);
+                writer.Write(value);
                 return this;
             }
 
             public ObjectBuilder Put(string key, string value)
             {
-                Prepare();
-                WriteKey(key);
-                JsonHelper.WriteEscapedString(writer, value);
+                EnsureJsonWriter();
+                writer.WriteCommaIf(startOffset);
+                writer.WriteKey(key);
+                writer.Write(value);
                 return this;
             }
 
             public ObjectBuilder Put(string key, JValue value)
             {
-                Prepare();
-                WriteKey(key);
-                value.WriteTo(writer);
+                EnsureJsonWriter();
+                writer.WriteCommaIf(startOffset);
+                writer.WriteKey(key);
+                writer.Write(value);
                 return this;
             }
 
             public ObjectBuilder PutArray(string key, Action<ArrayBuilder> put)
             {
-                Prepare();
-                WriteKey(key);
-                var subBuilder = new ArrayBuilder(writer);
-                put(subBuilder);
-                subBuilder.Dispose();
+                EnsureJsonWriter();
+                writer.WriteCommaIf(startOffset);
+                writer.WriteKey(key);
+                var arrayBuilder = new ArrayBuilder(writer);
+                put(arrayBuilder);
+                arrayBuilder.Dispose();
                 return this;
             }
 
             public ObjectBuilder PutArray<T>(string key, T value, Action<ArrayBuilder, T> put)
             {
-                Prepare();
-                WriteKey(key);
-                var subBuilder = new ArrayBuilder(writer);
-                put(subBuilder, value);
-                subBuilder.Dispose();
+                EnsureJsonWriter();
+                writer.WriteCommaIf(startOffset);
+                writer.WriteKey(key);
+                var arrayBuilder = new ArrayBuilder(writer);
+                put(arrayBuilder, value);
+                arrayBuilder.Dispose();
                 return this;
             }
 
             public ObjectBuilder PutObject(string key, Action<ObjectBuilder> put)
             {
-                Prepare();
-                WriteKey(key);
-                var subBuilder = new ObjectBuilder(writer);
-                put(subBuilder);
-                subBuilder.Dispose();
+                EnsureJsonWriter();
+                writer.WriteCommaIf(startOffset);
+                writer.WriteKey(key);
+                var objectBuilder = new ObjectBuilder(writer);
+                put(objectBuilder);
+                objectBuilder.Dispose();
                 return this;
             }
 
             public ObjectBuilder PutObject<T>(string key, T value, Action<ObjectBuilder, T> put)
             {
-                Prepare();
-                WriteKey(key);
-                var subBuilder = new ObjectBuilder(writer);
-                put(subBuilder, value);
-                subBuilder.Dispose();
+                EnsureJsonWriter();
+                writer.WriteCommaIf(startOffset);
+                writer.WriteKey(key);
+                var objectBuilder = new ObjectBuilder(writer);
+                put(objectBuilder, value);
+                objectBuilder.Dispose();
                 return this;
             }
 
@@ -148,24 +159,10 @@ namespace Halak
                 return writer.BuildJson();
             }
 
-            private void Prepare(bool hasNewElement = true)
+            private void EnsureJsonWriter()
             {
                 if (writer == null)
-                {
-                    writer = new StringWriter(new StringBuilder(1024), CultureInfo.InvariantCulture);
-                    writer.Write('{');
-                }
-
-                if (used && hasNewElement)
-                    writer.Write(',');
-                else
-                    used = true;
-            }
-
-            private void WriteKey(string key)
-            {
-                JsonHelper.WriteEscapedString(writer, key);
-                writer.Write(':');
+                    throw new InvalidOperationException("this object created by default constructor. please use parameterized constructor.");
             }
 
             #region Shorthand Methods
