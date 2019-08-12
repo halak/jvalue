@@ -130,7 +130,7 @@ namespace Halak
 
         private static JValue From(IEnumerable<JValue> array)
         {
-            var builder = new JsonArrayBuilder();
+            var builder = new JsonArrayBuilder(512);
             foreach (var element in array)
                 builder.Push(element);
             return builder.Build();
@@ -138,7 +138,7 @@ namespace Halak
 
         private static JValue From(IEnumerable<KeyValuePair<string, JValue>> obj)
         {
-            var builder = new JsonObjectBuilder();
+            var builder = new JsonObjectBuilder(512);
             foreach (var member in obj)
                 builder.Put(member.Key, member.Value);
             return builder.Build();
