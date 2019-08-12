@@ -631,7 +631,7 @@ namespace Halak
                     Serialize(writer, value.Object(), indent, depth, indent > 0 && value.length > 80);
                     break;
                 default:
-                    writer.Write(value.ToString());
+                    value.WriteTo(writer);
                     break;
             }
         }
