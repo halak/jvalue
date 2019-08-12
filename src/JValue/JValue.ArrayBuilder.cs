@@ -10,92 +10,100 @@ namespace Halak
     {
         public struct ArrayBuilder : IDisposable
         {
-            private TextWriter writer;
-            private bool used;
+            private readonly JsonWriter writer;
+            private readonly int startOffset;
 
-            public ArrayBuilder(int capacity)
-                : this(new StringBuilder(capacity)) { }
-            public ArrayBuilder(StringBuilder stringBuilder)
-                : this(new StringWriter(stringBuilder, CultureInfo.InvariantCulture)) { }
-            public ArrayBuilder(TextWriter writer)
+            public ArrayBuilder(int capacity) : this(new JsonWriter(capacity)) { }
+            public ArrayBuilder(StringBuilder stringBuilder) : this(new JsonWriter(stringBuilder)) { }
+            public ArrayBuilder(TextWriter writer) : this(new JsonWriter(writer)) { }
+            internal ArrayBuilder(JsonWriter writer)
             {
                 this.writer = writer;
-                this.writer.Write('[');
-                this.used = false;
+                this.writer.WriteStartArray();
+                this.startOffset = writer.Offset;
             }
 
             public void Dispose()
             {
-                Prepare(false);
-                writer.Write(']');
+                writer.WriteEndArray();
             }
 
             public ArrayBuilder PushNull()
             {
-                Prepare();
-                writer.Write(JsonHelper.NullLiteral);
+                EnsureJsonWriter();
+                writer.WriteCommaIf(startOffset);
+                writer.WriteNull();
                 return this;
             }
 
             public ArrayBuilder Push(bool value)
             {
-                Prepare();
-                writer.Write(value ? JsonHelper.TrueLiteral : JsonHelper.FalseLiteral);
+                EnsureJsonWriter();
+                writer.WriteCommaIf(startOffset);
+                writer.Write(value);
                 return this;
             }
 
             public ArrayBuilder Push(int value)
             {
-                Prepare();
-                JsonHelper.WriteInt32(writer, value);
+                EnsureJsonWriter();
+                writer.WriteCommaIf(startOffset);
+                writer.Write(value);
                 return this;
             }
 
             public ArrayBuilder Push(long value)
             {
-                Prepare();
-                JsonHelper.WriteInt64(writer, value);
+                EnsureJsonWriter();
+                writer.WriteCommaIf(startOffset);
+                writer.Write(value);
                 return this;
             }
 
             public ArrayBuilder Push(float value)
             {
-                Prepare();
-                writer.Write(value.ToString(CultureInfo.InvariantCulture));
+                EnsureJsonWriter();
+                writer.WriteCommaIf(startOffset);
+                writer.Write(value);
                 return this;
             }
 
             public ArrayBuilder Push(double value)
             {
-                Prepare();
-                writer.Write(value.ToString(CultureInfo.InvariantCulture));
+                EnsureJsonWriter();
+                writer.WriteCommaIf(startOffset);
+                writer.Write(value);
                 return this;
             }
 
             public ArrayBuilder Push(decimal value)
             {
-                Prepare();
-                writer.Write(value.ToString(CultureInfo.InvariantCulture));
+                EnsureJsonWriter();
+                writer.WriteCommaIf(startOffset);
+                writer.Write(value);
                 return this;
             }
 
             public ArrayBuilder Push(string value)
             {
-                Prepare();
-                JsonHelper.WriteEscapedString(writer, value);
+                EnsureJsonWriter();
+                writer.WriteCommaIf(startOffset);
+                writer.Write(value);
                 return this;
             }
 
             public ArrayBuilder Push(JValue value)
             {
-                Prepare();
-                value.WriteTo(writer);
+                EnsureJsonWriter();
+                writer.WriteCommaIf(startOffset);
+                writer.Write(value);
                 return this;
             }
 
             public ArrayBuilder PushArray(Action<ArrayBuilder> push)
             {
-                Prepare();
+                EnsureJsonWriter();
+                writer.WriteCommaIf(startOffset);
                 var subBuilder = new ArrayBuilder(writer);
                 push(subBuilder);
                 subBuilder.Dispose();
@@ -104,28 +112,31 @@ namespace Halak
 
             public ArrayBuilder PushArray<T>(T value, Action<ArrayBuilder, T> push)
             {
-                Prepare();
-                var subBuilder = new ArrayBuilder(writer);
-                push(subBuilder, value);
-                subBuilder.Dispose();
+                EnsureJsonWriter();
+                writer.WriteCommaIf(startOffset);
+                var arrayBuilder = new ArrayBuilder(writer);
+                push(arrayBuilder, value);
+                arrayBuilder.Dispose();
                 return this;
             }
 
             public ArrayBuilder PushObject(Action<ObjectBuilder> push)
             {
-                Prepare();
-                var subBuilder = new ObjectBuilder(writer);
-                push(subBuilder);
-                subBuilder.Dispose();
+                EnsureJsonWriter();
+                writer.WriteCommaIf(startOffset);
+                var objectBuilder = new ObjectBuilder(writer);
+                push(objectBuilder);
+                objectBuilder.Dispose();
                 return this;
             }
 
             public ArrayBuilder PushObject<T>(T value, Action<ObjectBuilder, T> push)
             {
-                Prepare();
-                var subBuilder = new ObjectBuilder(writer);
-                push(subBuilder, value);
-                subBuilder.Dispose();
+                EnsureJsonWriter();
+                writer.WriteCommaIf(startOffset);
+                var objectBuilder = new ObjectBuilder(writer);
+                push(objectBuilder, value);
+                objectBuilder.Dispose();
                 return this;
             }
 
@@ -135,18 +146,10 @@ namespace Halak
                 return writer.BuildJson();
             }
 
-            private void Prepare(bool hasNewElement = true)
+            private void EnsureJsonWriter()
             {
                 if (writer == null)
-                {
-                    writer = new StringWriter(new StringBuilder(1024), CultureInfo.InvariantCulture);
-                    writer.Write('[');
-                }
-
-                if (used && hasNewElement)
-                    writer.Write(',');
-                else
-                    used = true;
+                    throw new InvalidOperationException("this object created by default constructor. please use parameterized constructor.");
             }
 
             #region Shorthand Methods

@@ -596,7 +596,7 @@ namespace Halak
         public void Serialize(TextWriter writer, int indent = 2)
             => Serialize(writer, this, indent, 0);
 
-        private void WriteTo(TextWriter writer)
+        internal void WriteTo(TextWriter writer)
         {
             if (Type != TypeCode.Null)
             {

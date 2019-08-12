@@ -7,17 +7,6 @@ namespace Halak
 {
     internal static class Internal
     {
-        public static JValue BuildJson(this TextWriter writer)
-        {
-            if (writer is StringWriter stringWriter)
-            {
-                var stringBuilder = stringWriter.GetStringBuilder();
-                return new JValue(stringBuilder.ToString(), 0, stringBuilder.Length);
-            }
-            else
-                throw new InvalidOperationException();
-        }
-
         public static void ArrayOfArray<T>(JValue.ArrayBuilder builder, (IEnumerable<T> source, Action<JValue.ArrayBuilder, T> build) state)
         {
             foreach (var item in state.source.ToEfficient())
