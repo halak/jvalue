@@ -188,9 +188,9 @@ namespace Halak
 
         public static int Compare(JNumber left, JNumber right)
         {
-            var compareResult = left.length.CompareTo(right.length);
-            if (compareResult != 0)
-                return compareResult;
+            var ordering = left.length.CompareTo(right.length);
+            if (ordering != 0)
+                return ordering;
             else
                 return string.CompareOrdinal(left.source, left.startIndex, right.source, right.startIndex, left.length);
         }
