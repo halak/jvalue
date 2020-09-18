@@ -11,7 +11,7 @@ namespace Halak
         private TextWriter underlyingWriter;
         private int offset;
 
-        public int Offset => offset;    
+        public int Offset => offset;
 
         public JsonWriter(int capacity)
             : this(new StringBuilder(capacity)) { }
