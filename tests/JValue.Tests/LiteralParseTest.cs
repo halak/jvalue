@@ -78,6 +78,7 @@ namespace Halak
             Assert.AreEqual(7.961538461538f, Parse("7.961538461538"), Epsilon);
             Assert.AreEqual(7.9615384615384635f, Parse("7.9615384615384635"), Epsilon);
             Assert.AreEqual(7.9615384615384635f, JNumber.ParseSingle("{\"hello\": 7.9615384615384635}", 10), Epsilon);
+            Assert.AreEqual(7.9615384615384635f, JNumber.ParseSingle("{\"hello\": 7.9615384615384635, \"world\": 1}", 10), Epsilon);
         }
 
         [DataTestMethod]

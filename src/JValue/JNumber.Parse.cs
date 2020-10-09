@@ -45,7 +45,7 @@ namespace Halak
             for (; index < end; index++)
             {
                 var c = s[index];
-                if (c == '.' || c == 'e' || c == 'E')
+                if (c == '.' || c == 'e' || c == 'E' || IsTerminal(c))
                     return index;
             }
 
@@ -57,7 +57,7 @@ namespace Halak
             for (; index < end; index++)
             {
                 var c = s[index];
-                if (c == 'e' || c == 'E')
+                if (c == 'e' || c == 'E' || IsTerminal(c))
                     return index;
             }
 
