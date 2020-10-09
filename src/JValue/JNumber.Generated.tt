@@ -14,6 +14,7 @@ var items = new[]
 };
 #>
 using System;
+using System.Globalization;
 
 namespace Halak
 {
@@ -42,7 +43,7 @@ namespace Halak
         {
             const <#= item.Declare #> Zero = default(<#= item.Declare #>);
             const <#= item.Store #> BeforeOverflow = <#= item.Store #>.MaxValue / 10 - 1;
-<#          if (item.IsFloatingPoint == false) { #> 
+<#          if (item.IsFloatingPoint == false) { #>
             const <#= item.Store #> MaxPositiveValue = <#= item.Declare #>.MaxValue;
             const <#= item.Store #> MaxNegativeValue = unchecked((<#= item.Store #>)<#= item.Declare #>.MinValue);
 <#          } #>
@@ -87,7 +88,7 @@ namespace Halak
                     else
                         return <#= item.DefaultValue #>;  // unexpected character
                 }
-<#              if (item.IsFloatingPoint == false) { #> 
+<#              if (item.IsFloatingPoint == false) { #>
                 if (index == end)
                 {
                     if (isPositive)
@@ -137,7 +138,7 @@ namespace Halak
                         return <#= item.DefaultValue #>;  // unexpected character
                 }
             }
-            
+
             var digits = 0;
             var exponent = 0;
             if (decimalPointIndex >= 0)
@@ -151,6 +152,18 @@ namespace Halak
                 exponent = 0;
             }
 
+<#          if (item.IsFloatingPoint) { #>
+            if (digits >= <#= item.Precision #>)
+            {
+                var substring = s.Substring(startIndex, length);
+                var formatProvider = NumberFormatInfo.InvariantInfo;
+                if (<#= item.Declare #>.TryParse(substring, StandardNumberStyles, formatProvider, out var number))
+                    return number;
+                else
+                    return <#= item.DefaultValue #>;
+            }
+
+<#          } #>
             var exponentSignIndex = -1;
             if (c == 'e' || c == 'E')
             {

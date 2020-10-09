@@ -58,18 +58,44 @@ namespace Halak
         }
 
         [TestMethod]
-        public void ParseDouble()
+        public void ParseSingle()
+        {
+            float Parse(string s) => JNumber.ParseSingle(s);
+
+            Assert.AreEqual(10000.0f, Parse("10000"));
+            Assert.AreEqual(2147483647.0f, Parse("2147483647"));
+            Assert.AreEqual(0.0f, Parse("0"));
+            Assert.AreEqual(-1293.8723f, Parse("-1293.8723"));
+            Assert.AreEqual(3948.222f, Parse("3948.222"));
+            Assert.AreEqual(123.45e+6f, Parse("123.45e+6"));
+            Assert.AreEqual(123.45e6f, Parse("123.45e6"));
+            Assert.AreEqual(1E3f, Parse("1E3"));
+
+            const float Epsilon = 0.00001f;
+            Assert.AreEqual(7.96153846f, Parse("7.96153846"), Epsilon);
+            Assert.AreEqual(7.961538461f, Parse("7.961538461"), Epsilon);
+            Assert.AreEqual(7.9615384615f, Parse("7.9615384615"), Epsilon);
+            Assert.AreEqual(7.96153846153f, Parse("7.96153846153"), Epsilon);
+            Assert.AreEqual(7.961538461538f, Parse("7.961538461538"), Epsilon);
+            Assert.AreEqual(7.9615384615384635f, Parse("7.9615384615384635"), Epsilon);
+        }
+
+        [DataTestMethod]
+        [DataRow(10000.0, "10000")]
+        [DataRow(2147483647.0, "2147483647")]
+        [DataRow(0.0, "0")]
+        [DataRow(-1293.8723, "-1293.8723")]
+        [DataRow(3948.222, "3948.222")]
+        [DataRow(123.45e+6, "123.45e+6")]
+        [DataRow(123.45e6, "123.45e6")]
+        [DataRow(1E3, "1E3")]
+        public void ParseDouble(double expected, string input)
+            => Assert.AreEqual(expected, JNumber.ParseDouble(input));
+
+        [TestMethod]
+        public void ParseRandomDouble()
         {
             double Parse(string s) => JNumber.ParseDouble(s);
-
-            Assert.AreEqual(10000.0, Parse("10000"));
-            Assert.AreEqual(2147483647.0, Parse("2147483647"));
-            Assert.AreEqual(0.0, Parse("0"));
-            Assert.AreEqual(-1293.8723, Parse("-1293.8723"));
-            Assert.AreEqual(3948.222, Parse("3948.222"));
-            Assert.AreEqual(123.45e+6, Parse("123.45e+6"));
-            Assert.AreEqual(123.45e6, Parse("123.45e6"));
-            Assert.AreEqual(1E3, Parse("1E3"));
 
             var min = -10000000.0;
             var max = +10000000.0;
