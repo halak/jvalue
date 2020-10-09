@@ -152,10 +152,17 @@ namespace Halak
                 exponent = 0;
             }
 
+            var exponentSignIndex = -1;
+            if (c == 'e' || c == 'E')
+            {
+                exponentSignIndex = index++;
+                exponent += ReadExponentIfSmall(s, end, ref index);
+            }
+
 <#          if (item.IsFloatingPoint) { #>
             if (digits >= <#= item.Precision #>)
             {
-                var substring = s.Substring(startIndex, length);
+                var substring = s.Substring(startIndex, index - startIndex - 1);
                 var formatProvider = NumberFormatInfo.InvariantInfo;
                 if (<#= item.Declare #>.TryParse(substring, StandardNumberStyles, formatProvider, out var number))
                     return number;
@@ -164,13 +171,6 @@ namespace Halak
             }
 
 <#          } #>
-            var exponentSignIndex = -1;
-            if (c == 'e' || c == 'E')
-            {
-                exponentSignIndex = index++;
-                exponent += ReadExponentIfSmall(s, end, ref index);
-            }
-
 <#          if (item.IsFloatingPoint) { #>
             var value = exponent != 0 ? Pow10((<#= item.Declare #>)mantissa, exponent) : mantissa;
             if (<#= item.Declare #>.IsInfinity(value) == false && <#= item.Declare #>.IsNaN(value) == false)

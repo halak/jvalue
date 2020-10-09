@@ -667,21 +667,21 @@ namespace Halak
                 exponent = 0;
             }
 
-            if (digits >= 10)
-            {
-                var substring = s.Substring(startIndex, length);
-                var formatProvider = NumberFormatInfo.InvariantInfo;
-                if (float.TryParse(substring, StandardNumberStyles, formatProvider, out var number))
-                    return number;
-                else
-                    return defaultValue;
-            }
-
             var exponentSignIndex = -1;
             if (c == 'e' || c == 'E')
             {
                 exponentSignIndex = index++;
                 exponent += ReadExponentIfSmall(s, end, ref index);
+            }
+
+            if (digits >= 10)
+            {
+                var substring = s.Substring(startIndex, index - startIndex - 1);
+                var formatProvider = NumberFormatInfo.InvariantInfo;
+                if (float.TryParse(substring, StandardNumberStyles, formatProvider, out var number))
+                    return number;
+                else
+                    return defaultValue;
             }
 
             var value = exponent != 0 ? Pow10((float)mantissa, exponent) : mantissa;
@@ -797,21 +797,21 @@ namespace Halak
                 exponent = 0;
             }
 
-            if (digits >= 10)
-            {
-                var substring = s.Substring(startIndex, length);
-                var formatProvider = NumberFormatInfo.InvariantInfo;
-                if (float.TryParse(substring, StandardNumberStyles, formatProvider, out var number))
-                    return number;
-                else
-                    return null;
-            }
-
             var exponentSignIndex = -1;
             if (c == 'e' || c == 'E')
             {
                 exponentSignIndex = index++;
                 exponent += ReadExponentIfSmall(s, end, ref index);
+            }
+
+            if (digits >= 10)
+            {
+                var substring = s.Substring(startIndex, index - startIndex - 1);
+                var formatProvider = NumberFormatInfo.InvariantInfo;
+                if (float.TryParse(substring, StandardNumberStyles, formatProvider, out var number))
+                    return number;
+                else
+                    return null;
             }
 
             var value = exponent != 0 ? Pow10((float)mantissa, exponent) : mantissa;
@@ -927,21 +927,21 @@ namespace Halak
                 exponent = 0;
             }
 
-            if (digits >= 20)
-            {
-                var substring = s.Substring(startIndex, length);
-                var formatProvider = NumberFormatInfo.InvariantInfo;
-                if (double.TryParse(substring, StandardNumberStyles, formatProvider, out var number))
-                    return number;
-                else
-                    return defaultValue;
-            }
-
             var exponentSignIndex = -1;
             if (c == 'e' || c == 'E')
             {
                 exponentSignIndex = index++;
                 exponent += ReadExponentIfSmall(s, end, ref index);
+            }
+
+            if (digits >= 20)
+            {
+                var substring = s.Substring(startIndex, index - startIndex - 1);
+                var formatProvider = NumberFormatInfo.InvariantInfo;
+                if (double.TryParse(substring, StandardNumberStyles, formatProvider, out var number))
+                    return number;
+                else
+                    return defaultValue;
             }
 
             var value = exponent != 0 ? Pow10((double)mantissa, exponent) : mantissa;
@@ -1057,21 +1057,21 @@ namespace Halak
                 exponent = 0;
             }
 
-            if (digits >= 20)
-            {
-                var substring = s.Substring(startIndex, length);
-                var formatProvider = NumberFormatInfo.InvariantInfo;
-                if (double.TryParse(substring, StandardNumberStyles, formatProvider, out var number))
-                    return number;
-                else
-                    return null;
-            }
-
             var exponentSignIndex = -1;
             if (c == 'e' || c == 'E')
             {
                 exponentSignIndex = index++;
                 exponent += ReadExponentIfSmall(s, end, ref index);
+            }
+
+            if (digits >= 20)
+            {
+                var substring = s.Substring(startIndex, index - startIndex - 1);
+                var formatProvider = NumberFormatInfo.InvariantInfo;
+                if (double.TryParse(substring, StandardNumberStyles, formatProvider, out var number))
+                    return number;
+                else
+                    return null;
             }
 
             var value = exponent != 0 ? Pow10((double)mantissa, exponent) : mantissa;

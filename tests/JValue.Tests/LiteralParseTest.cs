@@ -63,7 +63,6 @@ namespace Halak
             float Parse(string s) => JNumber.ParseSingle(s);
 
             Assert.AreEqual(10000.0f, Parse("10000"));
-            Assert.AreEqual(2147483647.0f, Parse("2147483647"));
             Assert.AreEqual(0.0f, Parse("0"));
             Assert.AreEqual(-1293.8723f, Parse("-1293.8723"));
             Assert.AreEqual(3948.222f, Parse("3948.222"));
@@ -78,6 +77,7 @@ namespace Halak
             Assert.AreEqual(7.96153846153f, Parse("7.96153846153"), Epsilon);
             Assert.AreEqual(7.961538461538f, Parse("7.961538461538"), Epsilon);
             Assert.AreEqual(7.9615384615384635f, Parse("7.9615384615384635"), Epsilon);
+            Assert.AreEqual(7.9615384615384635f, JNumber.ParseSingle("{\"hello\": 7.9615384615384635}", 10), Epsilon);
         }
 
         [DataTestMethod]
