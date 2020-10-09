@@ -1,5 +1,4 @@
-﻿using System;
-using BenchmarkDotNet.Running;
+﻿using BenchmarkDotNet.Running;
 
 namespace Halak
 {
@@ -11,6 +10,7 @@ namespace Halak
                 typeof(ParseInt32Benchmark),
                 typeof(ParseSingleBenchmark),
                 typeof(ParseDoubleBenchmark),
+                typeof(SimpleObjectBenchmark),
             });
             switcher.Run(args);
         }
