@@ -51,7 +51,7 @@ namespace Halak
         {
             get
             {
-                if (source != null && source.Length > 0)
+                if (source != null && startIndex < source.Length)
                 {
                     switch (source[startIndex])
                     {
@@ -935,28 +935,39 @@ namespace Halak
                     }
                     else
                     {
-                        index++;
-
-                        switch (source[index])
+                        if (++index < source.Length)
                         {
-                            case '"': current = '"'; break;
-                            case '/': current = '/'; break;
-                            case '\\': current = '\\'; break;
-                            case 'n': current = '\n'; break;
-                            case 't': current = '\t'; break;
-                            case 'r': current = '\r'; break;
-                            case 'b': current = '\b'; break;
-                            case 'f': current = '\f'; break;
-                            case 'u':
-                                var a = source[++index];
-                                var b = source[++index];
-                                var c = source[++index];
-                                var d = source[++index];
-                                current = (char)((Hex(a) << 12) | (Hex(b) << 8) | (Hex(c) << 4) | (Hex(d)));
-                                break;
-                        }
+                            switch (source[index])
+                            {
+                                case '"': current = '"'; break;
+                                case '/': current = '/'; break;
+                                case '\\': current = '\\'; break;
+                                case 'n': current = '\n'; break;
+                                case 't': current = '\t'; break;
+                                case 'r': current = '\r'; break;
+                                case 'b': current = '\b'; break;
+                                case 'f': current = '\f'; break;
+                                case 'u':
+                                    if (index + 4 < source.Length)
+                                    {
+                                        var a = source[++index];
+                                        var b = source[++index];
+                                        var c = source[++index];
+                                        var d = source[++index];
+                                        current = (char)((Hex(a) << 12) | (Hex(b) << 8) | (Hex(c) << 4) | (Hex(d)));
+                                    }
+                                    else
+                                    {
+                                        // Invalid Json
+                                        current = '\uFFFD';
+                                    }
+                                    break;
+                            }
 
-                        return true;
+                            return true;
+                        }
+                        else
+                            return false;
                     }
                 }
                 else
