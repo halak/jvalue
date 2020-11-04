@@ -262,11 +262,11 @@ namespace Halak
 
         private string ToUnescapedStringCore()
         {
-            var sb = new StringBuilder(length);
+            var builder = new StringBuilder(length);
             var enumerator = GetCharEnumerator();
             while (enumerator.MoveNext())
-                sb.Append(enumerator.Current);
-            return sb.ToString();
+                builder.Append(enumerator.Current);
+            return builder.ToString();
         }
 
         private JValue ConvertForNumberParsing()
