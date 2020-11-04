@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Halak
@@ -27,7 +28,7 @@ namespace Halak
 
         public JsonObjectBuilder PutNull(string key)
         {
-            EnsureJsonWriter();
+            EnsureState();
             writer.WriteCommaIf(startOffset);
             writer.WriteKey(key);
             writer.WriteNull();
@@ -36,7 +37,7 @@ namespace Halak
 
         public JsonObjectBuilder Put(string key, bool value)
         {
-            EnsureJsonWriter();
+            EnsureState();
             writer.WriteCommaIf(startOffset);
             writer.WriteKey(key);
             writer.Write(value);
@@ -45,7 +46,7 @@ namespace Halak
 
         public JsonObjectBuilder Put(string key, int value)
         {
-            EnsureJsonWriter();
+            EnsureState();
             writer.WriteCommaIf(startOffset);
             writer.WriteKey(key);
             writer.Write(value);
@@ -54,7 +55,7 @@ namespace Halak
 
         public JsonObjectBuilder Put(string key, long value)
         {
-            EnsureJsonWriter();
+            EnsureState();
             writer.WriteCommaIf(startOffset);
             writer.WriteKey(key);
             writer.Write(value);
@@ -63,7 +64,7 @@ namespace Halak
 
         public JsonObjectBuilder Put(string key, float value)
         {
-            EnsureJsonWriter();
+            EnsureState();
             writer.WriteCommaIf(startOffset);
             writer.WriteKey(key);
             writer.Write(value);
@@ -72,7 +73,7 @@ namespace Halak
 
         public JsonObjectBuilder Put(string key, double value)
         {
-            EnsureJsonWriter();
+            EnsureState();
             writer.WriteCommaIf(startOffset);
             writer.WriteKey(key);
             writer.Write(value);
@@ -81,7 +82,7 @@ namespace Halak
 
         public JsonObjectBuilder Put(string key, decimal value)
         {
-            EnsureJsonWriter();
+            EnsureState();
             writer.WriteCommaIf(startOffset);
             writer.WriteKey(key);
             writer.Write(value);
@@ -90,7 +91,7 @@ namespace Halak
 
         public JsonObjectBuilder Put(string key, string value)
         {
-            EnsureJsonWriter();
+            EnsureState();
             writer.WriteCommaIf(startOffset);
             writer.WriteKey(key);
             writer.Write(value);
@@ -99,7 +100,7 @@ namespace Halak
 
         public JsonObjectBuilder Put(string key, JValue value)
         {
-            EnsureJsonWriter();
+            EnsureState();
             writer.WriteCommaIf(startOffset);
             writer.WriteKey(key);
             writer.Write(value);
@@ -108,7 +109,7 @@ namespace Halak
 
         public JsonObjectBuilder PutArray(string key, Action<JsonArrayBuilder> put)
         {
-            EnsureJsonWriter();
+            EnsureState();
             writer.WriteCommaIf(startOffset);
             writer.WriteKey(key);
             var arrayBuilder = new JsonArrayBuilder(writer);
@@ -119,7 +120,7 @@ namespace Halak
 
         public JsonObjectBuilder PutArray<T>(string key, T value, Action<JsonArrayBuilder, T> put)
         {
-            EnsureJsonWriter();
+            EnsureState();
             writer.WriteCommaIf(startOffset);
             writer.WriteKey(key);
             var arrayBuilder = new JsonArrayBuilder(writer);
@@ -130,7 +131,7 @@ namespace Halak
 
         public JsonObjectBuilder PutObject(string key, Action<JsonObjectBuilder> put)
         {
-            EnsureJsonWriter();
+            EnsureState();
             writer.WriteCommaIf(startOffset);
             writer.WriteKey(key);
             var objectBuilder = new JsonObjectBuilder(writer);
@@ -141,7 +142,7 @@ namespace Halak
 
         public JsonObjectBuilder PutObject<T>(string key, T value, Action<JsonObjectBuilder, T> put)
         {
-            EnsureJsonWriter();
+            EnsureState();
             writer.WriteCommaIf(startOffset);
             writer.WriteKey(key);
             var objectBuilder = new JsonObjectBuilder(writer);
@@ -156,7 +157,8 @@ namespace Halak
             return writer.BuildJson();
         }
 
-        private void EnsureJsonWriter()
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void EnsureState()
         {
             if (writer == null)
                 throw new InvalidOperationException("this object created by default constructor. please use parameterized constructor.");

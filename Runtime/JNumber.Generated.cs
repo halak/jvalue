@@ -18,7 +18,7 @@ namespace Halak
             const uint MaxPositiveValue = int.MaxValue;
             const uint MaxNegativeValue = unchecked((uint)int.MinValue);
 
-            var end = Math.Min(startIndex + length, s.Length);
+            var endIndex = Math.Min(startIndex + length, s.Length);
             if (length <= 0)
                 return defaultValue;  // empty string
 
@@ -33,7 +33,7 @@ namespace Halak
                 mantissa = ToDigit(c);
                 index++;
 
-                for (; index < end; index++)
+                for (; index < endIndex; index++)
                 {
                     c = s[index];
                     if (IsDigit(c))
@@ -43,8 +43,8 @@ namespace Halak
                         else
                         {
                             mantissa *= 10;
-                            index = SkipIntegerPart(s, end, index + 1);
-                            c = (index < end) ? s[index] : '\0';
+                            index = SkipIntegerPart(s, endIndex, index + 1);
+                            c = (index < endIndex) ? s[index] : '\0';
                             break;
                         }
                     }
@@ -52,13 +52,13 @@ namespace Halak
                         break;
                     else if (IsTerminal(c))
                     {
-                        index = end;
+                        index = endIndex;
                         break;
                     }
                     else
                         return defaultValue;  // unexpected character
                 }
-                if (index == end)
+                if (index == endIndex)
                 {
                     if (isPositive)
                         return (mantissa <= MaxPositiveValue) ? (int)(mantissa) : defaultValue;
@@ -70,7 +70,7 @@ namespace Halak
             {
                 firstIntegerPartDigitIndex++;
 
-                c = (++index < end) ? s[index] : '\0';
+                c = (++index < endIndex) ? s[index] : '\0';
                 if (c == '.' || c == 'e' || c == 'E')
                 { }
                 else if (IsTerminal(c))
@@ -86,7 +86,7 @@ namespace Halak
             {
                 decimalPointIndex = index++;
 
-                for (; index < end; index++)
+                for (; index < endIndex; index++)
                 {
                     c = s[index];
                     if (IsDigit(c))
@@ -96,7 +96,7 @@ namespace Halak
                         else
                         {
                             mantissa *= 10;
-                            index = SkipFractionalPart(s, end, index + 1);
+                            index = SkipFractionalPart(s, endIndex, index + 1);
                             break;
                         }
                     }
@@ -124,7 +124,7 @@ namespace Halak
             if (c == 'e' || c == 'E')
             {
                 exponentSignIndex = index++;
-                exponent += ReadExponentIfSmall(s, end, ref index);
+                exponent += ReadExponentIfSmall(s, endIndex, ref index);
             }
 
             digits += exponent;
@@ -157,7 +157,7 @@ namespace Halak
             const uint MaxPositiveValue = int.MaxValue;
             const uint MaxNegativeValue = unchecked((uint)int.MinValue);
 
-            var end = Math.Min(startIndex + length, s.Length);
+            var endIndex = Math.Min(startIndex + length, s.Length);
             if (length <= 0)
                 return null;  // empty string
 
@@ -172,7 +172,7 @@ namespace Halak
                 mantissa = ToDigit(c);
                 index++;
 
-                for (; index < end; index++)
+                for (; index < endIndex; index++)
                 {
                     c = s[index];
                     if (IsDigit(c))
@@ -182,8 +182,8 @@ namespace Halak
                         else
                         {
                             mantissa *= 10;
-                            index = SkipIntegerPart(s, end, index + 1);
-                            c = (index < end) ? s[index] : '\0';
+                            index = SkipIntegerPart(s, endIndex, index + 1);
+                            c = (index < endIndex) ? s[index] : '\0';
                             break;
                         }
                     }
@@ -191,13 +191,13 @@ namespace Halak
                         break;
                     else if (IsTerminal(c))
                     {
-                        index = end;
+                        index = endIndex;
                         break;
                     }
                     else
                         return null;  // unexpected character
                 }
-                if (index == end)
+                if (index == endIndex)
                 {
                     if (isPositive)
                         return (mantissa <= MaxPositiveValue) ? (int?)(mantissa) : null;
@@ -209,7 +209,7 @@ namespace Halak
             {
                 firstIntegerPartDigitIndex++;
 
-                c = (++index < end) ? s[index] : '\0';
+                c = (++index < endIndex) ? s[index] : '\0';
                 if (c == '.' || c == 'e' || c == 'E')
                 { }
                 else if (IsTerminal(c))
@@ -225,7 +225,7 @@ namespace Halak
             {
                 decimalPointIndex = index++;
 
-                for (; index < end; index++)
+                for (; index < endIndex; index++)
                 {
                     c = s[index];
                     if (IsDigit(c))
@@ -235,7 +235,7 @@ namespace Halak
                         else
                         {
                             mantissa *= 10;
-                            index = SkipFractionalPart(s, end, index + 1);
+                            index = SkipFractionalPart(s, endIndex, index + 1);
                             break;
                         }
                     }
@@ -263,7 +263,7 @@ namespace Halak
             if (c == 'e' || c == 'E')
             {
                 exponentSignIndex = index++;
-                exponent += ReadExponentIfSmall(s, end, ref index);
+                exponent += ReadExponentIfSmall(s, endIndex, ref index);
             }
 
             digits += exponent;
@@ -296,7 +296,7 @@ namespace Halak
             const ulong MaxPositiveValue = long.MaxValue;
             const ulong MaxNegativeValue = unchecked((ulong)long.MinValue);
 
-            var end = Math.Min(startIndex + length, s.Length);
+            var endIndex = Math.Min(startIndex + length, s.Length);
             if (length <= 0)
                 return defaultValue;  // empty string
 
@@ -311,7 +311,7 @@ namespace Halak
                 mantissa = ToDigit(c);
                 index++;
 
-                for (; index < end; index++)
+                for (; index < endIndex; index++)
                 {
                     c = s[index];
                     if (IsDigit(c))
@@ -321,8 +321,8 @@ namespace Halak
                         else
                         {
                             mantissa *= 10;
-                            index = SkipIntegerPart(s, end, index + 1);
-                            c = (index < end) ? s[index] : '\0';
+                            index = SkipIntegerPart(s, endIndex, index + 1);
+                            c = (index < endIndex) ? s[index] : '\0';
                             break;
                         }
                     }
@@ -330,13 +330,13 @@ namespace Halak
                         break;
                     else if (IsTerminal(c))
                     {
-                        index = end;
+                        index = endIndex;
                         break;
                     }
                     else
                         return defaultValue;  // unexpected character
                 }
-                if (index == end)
+                if (index == endIndex)
                 {
                     if (isPositive)
                         return (mantissa <= MaxPositiveValue) ? (long)(mantissa) : defaultValue;
@@ -348,7 +348,7 @@ namespace Halak
             {
                 firstIntegerPartDigitIndex++;
 
-                c = (++index < end) ? s[index] : '\0';
+                c = (++index < endIndex) ? s[index] : '\0';
                 if (c == '.' || c == 'e' || c == 'E')
                 { }
                 else if (IsTerminal(c))
@@ -364,7 +364,7 @@ namespace Halak
             {
                 decimalPointIndex = index++;
 
-                for (; index < end; index++)
+                for (; index < endIndex; index++)
                 {
                     c = s[index];
                     if (IsDigit(c))
@@ -374,7 +374,7 @@ namespace Halak
                         else
                         {
                             mantissa *= 10;
-                            index = SkipFractionalPart(s, end, index + 1);
+                            index = SkipFractionalPart(s, endIndex, index + 1);
                             break;
                         }
                     }
@@ -402,7 +402,7 @@ namespace Halak
             if (c == 'e' || c == 'E')
             {
                 exponentSignIndex = index++;
-                exponent += ReadExponentIfSmall(s, end, ref index);
+                exponent += ReadExponentIfSmall(s, endIndex, ref index);
             }
 
             digits += exponent;
@@ -435,7 +435,7 @@ namespace Halak
             const ulong MaxPositiveValue = long.MaxValue;
             const ulong MaxNegativeValue = unchecked((ulong)long.MinValue);
 
-            var end = Math.Min(startIndex + length, s.Length);
+            var endIndex = Math.Min(startIndex + length, s.Length);
             if (length <= 0)
                 return null;  // empty string
 
@@ -450,7 +450,7 @@ namespace Halak
                 mantissa = ToDigit(c);
                 index++;
 
-                for (; index < end; index++)
+                for (; index < endIndex; index++)
                 {
                     c = s[index];
                     if (IsDigit(c))
@@ -460,8 +460,8 @@ namespace Halak
                         else
                         {
                             mantissa *= 10;
-                            index = SkipIntegerPart(s, end, index + 1);
-                            c = (index < end) ? s[index] : '\0';
+                            index = SkipIntegerPart(s, endIndex, index + 1);
+                            c = (index < endIndex) ? s[index] : '\0';
                             break;
                         }
                     }
@@ -469,13 +469,13 @@ namespace Halak
                         break;
                     else if (IsTerminal(c))
                     {
-                        index = end;
+                        index = endIndex;
                         break;
                     }
                     else
                         return null;  // unexpected character
                 }
-                if (index == end)
+                if (index == endIndex)
                 {
                     if (isPositive)
                         return (mantissa <= MaxPositiveValue) ? (long?)(mantissa) : null;
@@ -487,7 +487,7 @@ namespace Halak
             {
                 firstIntegerPartDigitIndex++;
 
-                c = (++index < end) ? s[index] : '\0';
+                c = (++index < endIndex) ? s[index] : '\0';
                 if (c == '.' || c == 'e' || c == 'E')
                 { }
                 else if (IsTerminal(c))
@@ -503,7 +503,7 @@ namespace Halak
             {
                 decimalPointIndex = index++;
 
-                for (; index < end; index++)
+                for (; index < endIndex; index++)
                 {
                     c = s[index];
                     if (IsDigit(c))
@@ -513,7 +513,7 @@ namespace Halak
                         else
                         {
                             mantissa *= 10;
-                            index = SkipFractionalPart(s, end, index + 1);
+                            index = SkipFractionalPart(s, endIndex, index + 1);
                             break;
                         }
                     }
@@ -541,7 +541,7 @@ namespace Halak
             if (c == 'e' || c == 'E')
             {
                 exponentSignIndex = index++;
-                exponent += ReadExponentIfSmall(s, end, ref index);
+                exponent += ReadExponentIfSmall(s, endIndex, ref index);
             }
 
             digits += exponent;
@@ -572,7 +572,7 @@ namespace Halak
             const float Zero = default(float);
             const uint BeforeOverflow = uint.MaxValue / 10 - 1;
 
-            var end = Math.Min(startIndex + length, s.Length);
+            var endIndex = Math.Min(startIndex + length, s.Length);
             if (length <= 0)
                 return defaultValue;  // empty string
 
@@ -587,7 +587,7 @@ namespace Halak
                 mantissa = ToDigit(c);
                 index++;
 
-                for (; index < end; index++)
+                for (; index < endIndex; index++)
                 {
                     c = s[index];
                     if (IsDigit(c))
@@ -597,8 +597,8 @@ namespace Halak
                         else
                         {
                             mantissa *= 10;
-                            index = SkipIntegerPart(s, end, index + 1);
-                            c = (index < end) ? s[index] : '\0';
+                            index = SkipIntegerPart(s, endIndex, index + 1);
+                            c = (index < endIndex) ? s[index] : '\0';
                             break;
                         }
                     }
@@ -606,7 +606,7 @@ namespace Halak
                         break;
                     else if (IsTerminal(c))
                     {
-                        index = end;
+                        index = endIndex;
                         break;
                     }
                     else
@@ -617,7 +617,7 @@ namespace Halak
             {
                 firstIntegerPartDigitIndex++;
 
-                c = (++index < end) ? s[index] : '\0';
+                c = (++index < endIndex) ? s[index] : '\0';
                 if (c == '.' || c == 'e' || c == 'E')
                 { }
                 else if (IsTerminal(c))
@@ -633,7 +633,7 @@ namespace Halak
             {
                 decimalPointIndex = index++;
 
-                for (; index < end; index++)
+                for (; index < endIndex; index++)
                 {
                     c = s[index];
                     if (IsDigit(c))
@@ -643,7 +643,7 @@ namespace Halak
                         else
                         {
                             mantissa *= 10;
-                            index = SkipFractionalPart(s, end, index + 1);
+                            index = SkipFractionalPart(s, endIndex, index + 1);
                             break;
                         }
                     }
@@ -671,7 +671,7 @@ namespace Halak
             if (c == 'e' || c == 'E')
             {
                 exponentSignIndex = index++;
-                exponent += ReadExponentIfSmall(s, end, ref index);
+                exponent += ReadExponentIfSmall(s, endIndex, ref index);
             }
 
             if (digits >= 10)
@@ -702,7 +702,7 @@ namespace Halak
             const float Zero = default(float);
             const uint BeforeOverflow = uint.MaxValue / 10 - 1;
 
-            var end = Math.Min(startIndex + length, s.Length);
+            var endIndex = Math.Min(startIndex + length, s.Length);
             if (length <= 0)
                 return null;  // empty string
 
@@ -717,7 +717,7 @@ namespace Halak
                 mantissa = ToDigit(c);
                 index++;
 
-                for (; index < end; index++)
+                for (; index < endIndex; index++)
                 {
                     c = s[index];
                     if (IsDigit(c))
@@ -727,8 +727,8 @@ namespace Halak
                         else
                         {
                             mantissa *= 10;
-                            index = SkipIntegerPart(s, end, index + 1);
-                            c = (index < end) ? s[index] : '\0';
+                            index = SkipIntegerPart(s, endIndex, index + 1);
+                            c = (index < endIndex) ? s[index] : '\0';
                             break;
                         }
                     }
@@ -736,7 +736,7 @@ namespace Halak
                         break;
                     else if (IsTerminal(c))
                     {
-                        index = end;
+                        index = endIndex;
                         break;
                     }
                     else
@@ -747,7 +747,7 @@ namespace Halak
             {
                 firstIntegerPartDigitIndex++;
 
-                c = (++index < end) ? s[index] : '\0';
+                c = (++index < endIndex) ? s[index] : '\0';
                 if (c == '.' || c == 'e' || c == 'E')
                 { }
                 else if (IsTerminal(c))
@@ -763,7 +763,7 @@ namespace Halak
             {
                 decimalPointIndex = index++;
 
-                for (; index < end; index++)
+                for (; index < endIndex; index++)
                 {
                     c = s[index];
                     if (IsDigit(c))
@@ -773,7 +773,7 @@ namespace Halak
                         else
                         {
                             mantissa *= 10;
-                            index = SkipFractionalPart(s, end, index + 1);
+                            index = SkipFractionalPart(s, endIndex, index + 1);
                             break;
                         }
                     }
@@ -801,7 +801,7 @@ namespace Halak
             if (c == 'e' || c == 'E')
             {
                 exponentSignIndex = index++;
-                exponent += ReadExponentIfSmall(s, end, ref index);
+                exponent += ReadExponentIfSmall(s, endIndex, ref index);
             }
 
             if (digits >= 10)
@@ -832,7 +832,7 @@ namespace Halak
             const double Zero = default(double);
             const ulong BeforeOverflow = ulong.MaxValue / 10 - 1;
 
-            var end = Math.Min(startIndex + length, s.Length);
+            var endIndex = Math.Min(startIndex + length, s.Length);
             if (length <= 0)
                 return defaultValue;  // empty string
 
@@ -847,7 +847,7 @@ namespace Halak
                 mantissa = ToDigit(c);
                 index++;
 
-                for (; index < end; index++)
+                for (; index < endIndex; index++)
                 {
                     c = s[index];
                     if (IsDigit(c))
@@ -857,8 +857,8 @@ namespace Halak
                         else
                         {
                             mantissa *= 10;
-                            index = SkipIntegerPart(s, end, index + 1);
-                            c = (index < end) ? s[index] : '\0';
+                            index = SkipIntegerPart(s, endIndex, index + 1);
+                            c = (index < endIndex) ? s[index] : '\0';
                             break;
                         }
                     }
@@ -866,7 +866,7 @@ namespace Halak
                         break;
                     else if (IsTerminal(c))
                     {
-                        index = end;
+                        index = endIndex;
                         break;
                     }
                     else
@@ -877,7 +877,7 @@ namespace Halak
             {
                 firstIntegerPartDigitIndex++;
 
-                c = (++index < end) ? s[index] : '\0';
+                c = (++index < endIndex) ? s[index] : '\0';
                 if (c == '.' || c == 'e' || c == 'E')
                 { }
                 else if (IsTerminal(c))
@@ -893,7 +893,7 @@ namespace Halak
             {
                 decimalPointIndex = index++;
 
-                for (; index < end; index++)
+                for (; index < endIndex; index++)
                 {
                     c = s[index];
                     if (IsDigit(c))
@@ -903,7 +903,7 @@ namespace Halak
                         else
                         {
                             mantissa *= 10;
-                            index = SkipFractionalPart(s, end, index + 1);
+                            index = SkipFractionalPart(s, endIndex, index + 1);
                             break;
                         }
                     }
@@ -931,7 +931,7 @@ namespace Halak
             if (c == 'e' || c == 'E')
             {
                 exponentSignIndex = index++;
-                exponent += ReadExponentIfSmall(s, end, ref index);
+                exponent += ReadExponentIfSmall(s, endIndex, ref index);
             }
 
             if (digits >= 20)
@@ -962,7 +962,7 @@ namespace Halak
             const double Zero = default(double);
             const ulong BeforeOverflow = ulong.MaxValue / 10 - 1;
 
-            var end = Math.Min(startIndex + length, s.Length);
+            var endIndex = Math.Min(startIndex + length, s.Length);
             if (length <= 0)
                 return null;  // empty string
 
@@ -977,7 +977,7 @@ namespace Halak
                 mantissa = ToDigit(c);
                 index++;
 
-                for (; index < end; index++)
+                for (; index < endIndex; index++)
                 {
                     c = s[index];
                     if (IsDigit(c))
@@ -987,8 +987,8 @@ namespace Halak
                         else
                         {
                             mantissa *= 10;
-                            index = SkipIntegerPart(s, end, index + 1);
-                            c = (index < end) ? s[index] : '\0';
+                            index = SkipIntegerPart(s, endIndex, index + 1);
+                            c = (index < endIndex) ? s[index] : '\0';
                             break;
                         }
                     }
@@ -996,7 +996,7 @@ namespace Halak
                         break;
                     else if (IsTerminal(c))
                     {
-                        index = end;
+                        index = endIndex;
                         break;
                     }
                     else
@@ -1007,7 +1007,7 @@ namespace Halak
             {
                 firstIntegerPartDigitIndex++;
 
-                c = (++index < end) ? s[index] : '\0';
+                c = (++index < endIndex) ? s[index] : '\0';
                 if (c == '.' || c == 'e' || c == 'E')
                 { }
                 else if (IsTerminal(c))
@@ -1023,7 +1023,7 @@ namespace Halak
             {
                 decimalPointIndex = index++;
 
-                for (; index < end; index++)
+                for (; index < endIndex; index++)
                 {
                     c = s[index];
                     if (IsDigit(c))
@@ -1033,7 +1033,7 @@ namespace Halak
                         else
                         {
                             mantissa *= 10;
-                            index = SkipFractionalPart(s, end, index + 1);
+                            index = SkipFractionalPart(s, endIndex, index + 1);
                             break;
                         }
                     }
@@ -1061,7 +1061,7 @@ namespace Halak
             if (c == 'e' || c == 'E')
             {
                 exponentSignIndex = index++;
-                exponent += ReadExponentIfSmall(s, end, ref index);
+                exponent += ReadExponentIfSmall(s, endIndex, ref index);
             }
 
             if (digits >= 20)
