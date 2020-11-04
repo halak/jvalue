@@ -729,7 +729,7 @@ namespace Halak
             switch (Type)
             {
                 case TypeCode.Null: return 0;
-                case TypeCode.Boolean: return ToBoolean() ? 0x392307A6 : 0x63D95114;
+                case TypeCode.Boolean: return ToBoolean().GetHashCode();
                 case TypeCode.Number: return ToNumber().GetHashCode();
                 case TypeCode.String: return GetStringHashCode();
                 case TypeCode.Array: return GetArrayHashCode();
@@ -752,8 +752,8 @@ namespace Halak
         #region HashCode
         private int GetStringHashCode()
         {
-            var enumerator = GetCharEnumerator();
             var hashCode = 0x219FFA9C;
+            var enumerator = GetCharEnumerator();
             while (enumerator.MoveNext())
                 hashCode = HashCode.Combine(hashCode, enumerator.Current);
             return hashCode;
@@ -822,11 +822,8 @@ namespace Halak
 
         private static int CompareMember(KeyValuePair<JValue, JValue> x, KeyValuePair<JValue, JValue> y)
         {
-            var k = Compare(x.Key, y.Key);
-            if (k != 0)
-                return k;
-            else
-                return Compare(x.Value, y.Value);
+            var ordering = Compare(x.Key, y.Key);
+            return ordering != 0 ? ordering : Compare(x.Value, y.Value);
         }
 
         private static int SequenceCompare<T>(IEnumerator<T> a, IEnumerator<T> b, Func<T, T, int> compare)
@@ -835,14 +832,16 @@ namespace Halak
         {
             for (; ; )
             {
-                var aStep = a.MoveNext();
-                var bStep = b.MoveNext();
-                if (aStep && bStep)
+                var aMoved = a.MoveNext();
+                var bMoved = b.MoveNext();
+                if (aMoved && bMoved)
                 {
-                    var result = compare(a.Current, b.Current);
-                    if (result != 0)
-                        return result;
+                    var ordering = compare(a.Current, b.Current);
+                    if (ordering != 0)
+                        return ordering;
                 }
+                else if (aMoved != bMoved)
+                    return aMoved ? +1 : -1;
                 else
                     return 0;
             }
