@@ -503,6 +503,7 @@ namespace Halak
             {
                 switch (source[index])
                 {
+                    case ' ':
                     case '\t':
                     case '\r':
                     case '\n':
