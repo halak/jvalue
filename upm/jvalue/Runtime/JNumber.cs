@@ -88,8 +88,8 @@ namespace Halak
                 return 0;
 
             var hashCode = 0x457E453B;
-            var end = startIndex + length;
-            for (var i = startIndex; i < end; i++)
+            var endIndex = startIndex + length;
+            for (var i = startIndex; i < endIndex; i++)
                 hashCode = HashCode.Combine(hashCode, GetHashCode(source[i]));
 
             return hashCode;

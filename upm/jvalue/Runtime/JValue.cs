@@ -87,8 +87,8 @@ namespace Halak
             if (source != null)
             {
                 var index = SkipWhitespaces(source);
-                var end = BackwardSkipWhitespaces(source, source.Length - 1) + 1;
-                return new JValue(source, index, end - index);
+                var endIndex = BackwardSkipWhitespaces(source, source.Length - 1) + 1;
+                return new JValue(source, index, endIndex - index);
             }
             else
                 return Null;
@@ -221,7 +221,7 @@ namespace Halak
             }
         }
 
-        public JNumber ToNumber() { return ToNumber(JNumber.Zero); }
+        public JNumber ToNumber() => ToNumber(JNumber.Zero);
         public JNumber ToNumber(JNumber defaultValue)
         {
             switch (Type)
@@ -271,8 +271,8 @@ namespace Halak
 
         private JValue ConvertForNumberParsing()
         {
-            var end = startIndex + length - 1;
-            for (var i = startIndex + 1; i < end; i++)
+            var endIndex = startIndex + length - 1;
+            for (var i = startIndex + 1; i < endIndex; i++)
             {
                 if (source[i] == '\\')
                     return new JValue(ToUnescapedStringCore(), false);
@@ -319,19 +319,19 @@ namespace Halak
         {
             if (Type == TypeCode.Object)
             {
-                var end = startIndex + length - 1;
+                var endIndex = startIndex + length - 1;
 
-                var kStart = SkipWhitespaces(startIndex + 1);
-                while (kStart < end)
+                var keyStart = SkipWhitespaces(startIndex + 1);
+                while (keyStart < endIndex)
                 {
-                    var kEnd = SkipString(kStart);
-                    var vStart = SkipWhitespaces(kEnd + 1);
-                    var vEnd = SkipValue(vStart);
+                    var keyEnd = SkipString(keyStart);
+                    var valueStart = SkipWhitespaces(keyEnd + 1);
+                    var valueEnd = SkipValue(valueStart);
 
-                    if (EqualsKey(key, source, kStart, kEnd - kStart - 2))
-                        return new JValue(source, vStart, vEnd - vStart);
+                    if (EqualsKey(key, source, keyStart, keyEnd - keyStart - 2))
+                        return new JValue(source, valueStart, valueEnd - valueStart);
 
-                    kStart = SkipWhitespaces(vEnd + 1);
+                    keyStart = SkipWhitespaces(valueEnd + 1);
                 }
             }
 
@@ -363,8 +363,8 @@ namespace Halak
         {
             var count = 0;
             var depth = 0;
-            var end = startIndex + length - 1;  // ignore } or ]
-            for (var i = startIndex + 1; i < end; i++)  // ignore { or [
+            var endIndex = startIndex + length - 1;  // ignore } or ]
+            for (var i = startIndex + 1; i < endIndex; i++)  // ignore { or [
             {
                 switch (source[i])
                 {
@@ -404,14 +404,14 @@ namespace Halak
         {
             if (Type == TypeCode.Array)
             {
-                var end = startIndex + length - 1;
+                var endIndex = startIndex + length - 1;
 
-                var vStart = SkipWhitespaces(startIndex + 1);
-                while (vStart < end)
+                var valueStart = SkipWhitespaces(startIndex + 1);
+                while (valueStart < endIndex)
                 {
-                    var vEnd = SkipValue(vStart);
-                    yield return new JValue(source, vStart, vEnd - vStart);
-                    vStart = SkipWhitespaces(vEnd + 1);
+                    var valueEnd = SkipValue(valueStart);
+                    yield return new JValue(source, valueStart, valueEnd - valueStart);
+                    valueStart = SkipWhitespaces(valueEnd + 1);
                 }
             }
         }
@@ -420,15 +420,15 @@ namespace Halak
         {
             if (Type == TypeCode.Array)
             {
-                var end = startIndex + length - 1;
+                var endIndex = startIndex + length - 1;
 
                 var index = 0;
-                var vStart = SkipWhitespaces(startIndex + 1);
-                while (vStart < end)
+                var valueStart = SkipWhitespaces(startIndex + 1);
+                while (valueStart < endIndex)
                 {
-                    var vEnd = SkipValue(vStart);
-                    yield return new KeyValuePair<int, JValue>(index++, new JValue(source, vStart, vEnd - vStart));
-                    vStart = SkipWhitespaces(vEnd + 1);
+                    var valueEnd = SkipValue(valueStart);
+                    yield return new KeyValuePair<int, JValue>(index++, new JValue(source, valueStart, valueEnd - valueStart));
+                    valueStart = SkipWhitespaces(valueEnd + 1);
                 }
             }
         }
@@ -437,18 +437,19 @@ namespace Halak
         {
             if (Type == TypeCode.Object)
             {
-                var end = startIndex + length - 1;
+                var endIndex = startIndex + length - 1;
 
-                var kStart = SkipWhitespaces(startIndex + 1);
-                while (kStart < end)
+                var keyStart = SkipWhitespaces(startIndex + 1);
+                while (keyStart < endIndex)
                 {
-                    var kEnd = SkipString(kStart);
-                    var vStart = SkipWhitespaces(kEnd + 1);
-                    var vEnd = SkipValue(vStart);
+                    var keyEnd = SkipString(keyStart);
+                    var valueStart = SkipWhitespaces(keyEnd + 1);
+                    var valueEnd = SkipValue(valueStart);
 
-                    yield return new KeyValuePair<JValue, JValue>(new JValue(source, kStart, kEnd - kStart),
-                                                                  new JValue(source, vStart, vEnd - vStart));
-                    kStart = SkipWhitespaces(vEnd + 1);
+                    yield return new KeyValuePair<JValue, JValue>(
+                        new JValue(source, keyStart, keyEnd - keyStart),
+                        new JValue(source, valueStart, valueEnd - valueStart));
+                    keyStart = SkipWhitespaces(valueEnd + 1);
                 }
             }
         }
@@ -457,9 +458,9 @@ namespace Halak
 
         private int SkipValue(int index)
         {
-            var end = startIndex + length;
-            if (end <= index)
-                return end;
+            var endIndex = startIndex + length;
+            if (endIndex <= index)
+                return endIndex;
 
             switch (source[index])
             {
@@ -473,11 +474,11 @@ namespace Halak
             }
         }
 
-        private int SkipWhitespaces(int index) { return SkipWhitespaces(source, index, startIndex + length); }
-        private static int SkipWhitespaces(string source) { return SkipWhitespaces(source, 0, source.Length); }
-        private static int SkipWhitespaces(string source, int index, int end)
+        private int SkipWhitespaces(int index) => SkipWhitespaces(source, index, startIndex + length);
+        private static int SkipWhitespaces(string source) => SkipWhitespaces(source, 0, source.Length);
+        private static int SkipWhitespaces(string source, int index, int endIndex)
         {
-            for (; index < end; index++)
+            for (; index < endIndex; index++)
             {
                 switch (source[index])
                 {
@@ -493,8 +494,9 @@ namespace Halak
                 }
             }
 
-            return end;
+            return endIndex;
         }
+
         private static int BackwardSkipWhitespaces(string source, int index)
         {
             for (; index >= 0; index--)
@@ -515,8 +517,8 @@ namespace Halak
 
         private int SkipLetterOrDigit(int index)
         {
-            var end = startIndex + length;
-            for (; index < end; index++)
+            var endIndex = startIndex + length;
+            for (; index < endIndex; index++)
             {
                 switch (source[index])
                 {
@@ -533,14 +535,14 @@ namespace Halak
                 }
             }
 
-            return end;
+            return endIndex;
         }
 
         private int SkipString(int index)
         {
-            var end = startIndex + length;
+            var endIndex = startIndex + length;
             index++;
-            for (; index < end; index++)
+            for (; index < endIndex; index++)
             {
                 switch (source[index])
                 {
@@ -552,14 +554,14 @@ namespace Halak
                 }
             }
 
-            return end;
+            return endIndex;
         }
 
         private int SkipBracket(int index)
         {
-            var end = startIndex + length;
+            var endIndex = startIndex + length;
             var depth = 0;
-            for (; index < end; index++)
+            for (; index < endIndex; index++)
             {
                 switch (source[index])
                 {
@@ -580,7 +582,7 @@ namespace Halak
                 }
             }
 
-            return end;
+            return endIndex;
         }
         #endregion
 
@@ -605,8 +607,8 @@ namespace Halak
         {
             if (Type != TypeCode.Null)
             {
-                var end = startIndex + length;
-                for (var i = startIndex; i < end; i++)
+                var endIndex = startIndex + length;
+                for (var i = startIndex; i < endIndex; i++)
                     writer.Write(source[i]);
             }
             else
@@ -855,15 +857,15 @@ namespace Halak
         {
             for (; ; )
             {
-                var aStep = a.MoveNext();
-                var bStep = b.MoveNext();
-                if (aStep && bStep)
+                var aMoved = a.MoveNext();
+                var bMoved = b.MoveNext();
+                if (aMoved && bMoved)
                 {
                     if (equals(a.Current, b.Current) == false)
                         return false;
                 }
                 else
-                    return aStep == bStep;
+                    return aMoved == bMoved;
             }
         }
         #endregion
@@ -912,6 +914,8 @@ namespace Halak
                 this.current = '\0';
                 this.index = startIndex;
             }
+
+            public void Dispose() { }
 
             public bool MoveNext()
             {
@@ -964,8 +968,6 @@ namespace Halak
                 current = '\0';
                 index = startIndex;
             }
-
-            public void Dispose() { }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             private static int Hex(char c)

@@ -40,38 +40,38 @@ namespace Halak
             1E+0, 1E+1, 1E+2, 1E+3, 1E+4, 1E+5, 1E+6, 1E+7, 1E+8, 1E+9, 1E+10, 1E+11, 1E+12, 1E+13, 1E+14, 1E+15, 1E+16, 1E+17, 1E+18, 1E+19, 1E+20, 1E+21, 1E+22, 1E+23
         };
 
-        private static int SkipIntegerPart(string s, int end, int index)
+        private static int SkipIntegerPart(string s, int endIndex, int index)
         {
-            for (; index < end; index++)
+            for (; index < endIndex; index++)
             {
                 var c = s[index];
                 if (c == '.' || c == 'e' || c == 'E' || IsTerminal(c))
                     return index;
             }
 
-            return end;
+            return endIndex;
         }
 
-        private static int SkipFractionalPart(string s, int end, int index)
+        private static int SkipFractionalPart(string s, int endIndex, int index)
         {
-            for (; index < end; index++)
+            for (; index < endIndex; index++)
             {
                 var c = s[index];
                 if (c == 'e' || c == 'E' || IsTerminal(c))
                     return index;
             }
 
-            return end;
+            return endIndex;
         }
 
-        private static int ReadExponentIfSmall(string s, int end, ref int index)
+        private static int ReadExponentIfSmall(string s, int endIndex, ref int index)
         {
-            if (end == index)
+            if (endIndex == index)
                 return BigExponent;
 
             var sign = true;
             var c = s[index++];
-            if ((c == '-' || c == '+') && index < end)
+            if ((c == '-' || c == '+') && index < endIndex)
             {
                 sign = (c != '-');
                 c = s[index++];
@@ -80,7 +80,7 @@ namespace Halak
                 return BigExponent;
 
             var exponent = (int)ToDigit(c);
-            while (index < end)
+            while (index < endIndex)
             {
                 c = s[index++];
                 if (IsDigit(c))
@@ -143,6 +143,7 @@ namespace Halak
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static bool IsDigit(char c) => '0' <= c && c <= '9';
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static bool IsTerminal(char c)
         {
