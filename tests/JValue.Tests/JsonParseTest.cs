@@ -95,6 +95,7 @@ namespace Halak
 
             Assert.AreEqual(0.99, (double)book["price"]["usd"]);
             Assert.AreEqual(1000, (int)book["price"]["krw"]);
+            Assert.AreEqual(1000.0, book["price"]["krw"].ToDouble());
 
             var app = JValue.Parse(@"{
                 ""nameRevision"": ""1.0"",

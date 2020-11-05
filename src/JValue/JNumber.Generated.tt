@@ -78,18 +78,14 @@ namespace Halak
                             break;
                         }
                     }
-                    else if (c == '.' || c == 'e' || c == 'E')
+                    else if (c == '.' || c == 'e' || c == 'E' || IsTerminal(c))
                         break;
-                    else if (IsTerminal(c))
-                    {
-                        index = endIndex;
-                        break;
-                    }
                     else
                         return <#= item.DefaultValue #>;  // unexpected character
                 }
 <#              if (item.IsFloatingPoint == false) { #>
-                if (index == endIndex)
+
+                if (index == endIndex || IsTerminal(s[index]))
                 {
                     if (isPositive)
                         return (mantissa <= MaxPositiveValue) ? (<#= item.Return #>)(mantissa) : <#= item.DefaultValue #>;

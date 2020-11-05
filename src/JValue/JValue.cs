@@ -237,13 +237,13 @@ namespace Halak
             => source[startIndex] == 't';
 
         private int ToInt32Core(int defaultValue)
-            => JNumber.ParseInt32(source, startIndex, defaultValue);
+            => JNumber.ParseInt32(source, startIndex, length, defaultValue);
         private long ToInt64Core(long defaultValue)
-            => JNumber.ParseInt64(source, startIndex, defaultValue);
+            => JNumber.ParseInt64(source, startIndex, length, defaultValue);
         private float ToSingleCore(float defaultValue)
-            => JNumber.ParseSingle(source, startIndex, defaultValue);
+            => JNumber.ParseSingle(source, startIndex, length, defaultValue);
         private double ToDoubleCore(double defaultValue)
-            => JNumber.ParseDouble(source, startIndex, defaultValue);
+            => JNumber.ParseDouble(source, startIndex, length, defaultValue);
         private decimal ToDecimalCore(decimal defaultValue)
             => JNumber.ParseDecimal(source, startIndex, length, defaultValue);
         private JNumber ToNumberCore(JNumber defaultValue)
