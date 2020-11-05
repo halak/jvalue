@@ -48,17 +48,13 @@ namespace Halak
                             break;
                         }
                     }
-                    else if (c == '.' || c == 'e' || c == 'E')
+                    else if (c == '.' || c == 'e' || c == 'E' || IsTerminal(c))
                         break;
-                    else if (IsTerminal(c))
-                    {
-                        index = endIndex;
-                        break;
-                    }
                     else
                         return defaultValue;  // unexpected character
                 }
-                if (index == endIndex)
+
+                if (index == endIndex || IsTerminal(s[index]))
                 {
                     if (isPositive)
                         return (mantissa <= MaxPositiveValue) ? (int)(mantissa) : defaultValue;
@@ -187,17 +183,13 @@ namespace Halak
                             break;
                         }
                     }
-                    else if (c == '.' || c == 'e' || c == 'E')
+                    else if (c == '.' || c == 'e' || c == 'E' || IsTerminal(c))
                         break;
-                    else if (IsTerminal(c))
-                    {
-                        index = endIndex;
-                        break;
-                    }
                     else
                         return null;  // unexpected character
                 }
-                if (index == endIndex)
+
+                if (index == endIndex || IsTerminal(s[index]))
                 {
                     if (isPositive)
                         return (mantissa <= MaxPositiveValue) ? (int?)(mantissa) : null;
@@ -326,17 +318,13 @@ namespace Halak
                             break;
                         }
                     }
-                    else if (c == '.' || c == 'e' || c == 'E')
+                    else if (c == '.' || c == 'e' || c == 'E' || IsTerminal(c))
                         break;
-                    else if (IsTerminal(c))
-                    {
-                        index = endIndex;
-                        break;
-                    }
                     else
                         return defaultValue;  // unexpected character
                 }
-                if (index == endIndex)
+
+                if (index == endIndex || IsTerminal(s[index]))
                 {
                     if (isPositive)
                         return (mantissa <= MaxPositiveValue) ? (long)(mantissa) : defaultValue;
@@ -465,17 +453,13 @@ namespace Halak
                             break;
                         }
                     }
-                    else if (c == '.' || c == 'e' || c == 'E')
+                    else if (c == '.' || c == 'e' || c == 'E' || IsTerminal(c))
                         break;
-                    else if (IsTerminal(c))
-                    {
-                        index = endIndex;
-                        break;
-                    }
                     else
                         return null;  // unexpected character
                 }
-                if (index == endIndex)
+
+                if (index == endIndex || IsTerminal(s[index]))
                 {
                     if (isPositive)
                         return (mantissa <= MaxPositiveValue) ? (long?)(mantissa) : null;
@@ -602,13 +586,8 @@ namespace Halak
                             break;
                         }
                     }
-                    else if (c == '.' || c == 'e' || c == 'E')
+                    else if (c == '.' || c == 'e' || c == 'E' || IsTerminal(c))
                         break;
-                    else if (IsTerminal(c))
-                    {
-                        index = endIndex;
-                        break;
-                    }
                     else
                         return defaultValue;  // unexpected character
                 }
@@ -732,13 +711,8 @@ namespace Halak
                             break;
                         }
                     }
-                    else if (c == '.' || c == 'e' || c == 'E')
+                    else if (c == '.' || c == 'e' || c == 'E' || IsTerminal(c))
                         break;
-                    else if (IsTerminal(c))
-                    {
-                        index = endIndex;
-                        break;
-                    }
                     else
                         return null;  // unexpected character
                 }
@@ -862,13 +836,8 @@ namespace Halak
                             break;
                         }
                     }
-                    else if (c == '.' || c == 'e' || c == 'E')
+                    else if (c == '.' || c == 'e' || c == 'E' || IsTerminal(c))
                         break;
-                    else if (IsTerminal(c))
-                    {
-                        index = endIndex;
-                        break;
-                    }
                     else
                         return defaultValue;  // unexpected character
                 }
@@ -992,13 +961,8 @@ namespace Halak
                             break;
                         }
                     }
-                    else if (c == '.' || c == 'e' || c == 'E')
+                    else if (c == '.' || c == 'e' || c == 'E' || IsTerminal(c))
                         break;
-                    else if (IsTerminal(c))
-                    {
-                        index = endIndex;
-                        break;
-                    }
                     else
                         return null;  // unexpected character
                 }
