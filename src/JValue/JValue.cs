@@ -192,7 +192,7 @@ namespace Halak
         {
             switch (Type)
             {
-                case TypeCode.Boolean: return ToBooleanCore() ? 1 : 0;
+                case TypeCode.Boolean: return ToBooleanCore() ? 1.0f : 0.0f;
                 case TypeCode.Number: return ToSingleCore(defaultValue);
                 case TypeCode.String: return ConvertForNumberParsing().ToSingleCore(defaultValue);
                 default: return defaultValue;
@@ -233,8 +233,7 @@ namespace Halak
             }
         }
 
-        private bool ToBooleanCore()
-            => source[startIndex] == 't';
+        private bool ToBooleanCore() => source[startIndex] == 't';
 
         private int ToInt32Core(int defaultValue)
             => JNumber.ParseInt32(source, startIndex, length, defaultValue);
@@ -335,7 +334,7 @@ namespace Halak
                 }
             }
 
-            return JValue.Null;
+            return Null;
         }
 
         private static bool EqualsKey(string key, string escapedKey, int escapedKeyStart, int escapedKeyLength)
