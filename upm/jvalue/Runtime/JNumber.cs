@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Globalization;
 
 namespace Halak
 {
+    [DebuggerDisplay("{ToString(),nq}")]
     public partial struct JNumber : IEquatable<JNumber>, IComparable<JNumber>
     {
         public static readonly JNumber NaN = new JNumber(string.Empty, 0, 0, 0, 0);
@@ -15,8 +17,24 @@ namespace Halak
         private readonly int toDecimalPoint;
         private readonly int toExponent;
 
+        public JNumber(int value) : this(value.ToString(NumberFormatInfo.InvariantInfo), true) { }
+        public JNumber(long value) : this(value.ToString(NumberFormatInfo.InvariantInfo), true) { }
+        public JNumber(float value) : this(value.ToString(NumberFormatInfo.InvariantInfo)) { }
+        public JNumber(double value) : this(value.ToString(NumberFormatInfo.InvariantInfo)) { }
+        public JNumber(decimal value) : this(value.ToString(NumberFormatInfo.InvariantInfo)) { }
+        private JNumber(string source) : this(source, 0, source.Length, FindDecimalPoint(source), FindExponent(source)) { }
+        private JNumber(string source, bool _ /* from integer */) : this(source, 0, source.Length, source.Length, source.Length) { }
+        private JNumber(string source, int startIndex, int length, int toDecimalPoint, int toExponent)
+        {
+            this.source = source;
+            this.startIndex = startIndex;
+            this.length = length;
+            this.toDecimalPoint = toDecimalPoint;
+            this.toExponent = toExponent;
+        }
+
         public bool IsNaN => source == null;
-        public bool IsPositive => !IsNegative;
+        public bool IsPositive => IsNegative == false;
         public bool IsNegative => source != null && source[startIndex] == '-';
         public JValue IntegerPart => new JValue(source, startIndex, toDecimalPoint);
         public JValue FractionalPart => HasFractionalPart ? new JValue(source, FractionalPartIndex, FractionalPartLength) : JValue.Null;
@@ -41,22 +59,6 @@ namespace Halak
         public bool HasExponent => toExponent < length;
         private int FractionalPartIndex => startIndex + toDecimalPoint + 1;
         private int FractionalPartLength => toExponent - toDecimalPoint - 1;
-
-        public JNumber(int value) : this(value.ToString(NumberFormatInfo.InvariantInfo), true) { }
-        public JNumber(long value) : this(value.ToString(NumberFormatInfo.InvariantInfo), true) { }
-        public JNumber(float value) : this(value.ToString(NumberFormatInfo.InvariantInfo)) { }
-        public JNumber(double value) : this(value.ToString(NumberFormatInfo.InvariantInfo)) { }
-        public JNumber(decimal value) : this(value.ToString(NumberFormatInfo.InvariantInfo)) { }
-        private JNumber(string source) : this(source, 0, source.Length, FindDecimalPoint(source), FindExponent(source)) { }
-        private JNumber(string source, bool _ /* from integer */) : this(source, 0, source.Length, source.Length, source.Length) { }
-        private JNumber(string source, int startIndex, int length, int toDecimalPoint, int toExponent)
-        {
-            this.source = source;
-            this.startIndex = startIndex;
-            this.length = length;
-            this.toDecimalPoint = toDecimalPoint;
-            this.toExponent = toExponent;
-        }
 
         public int ToInt32(int defaultValue = default(int))
             => ParseInt32(source, startIndex, length, defaultValue);
@@ -220,13 +222,8 @@ namespace Halak
 
         private static int FindDecimalPoint(string s)
         {
-            for (var i = 0; i < s.Length; i++)
-            {
-                if (s[i] == '.')
-                    return i;
-            }
-
-            return s.Length;
+            var index = s.IndexOf('.');
+            return index != -1 ? index : s.Length;
         }
 
         private static int FindExponent(string s)

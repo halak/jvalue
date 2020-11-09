@@ -11,8 +11,6 @@ namespace Halak
         private TextWriter underlyingWriter;
         private int offset;
 
-        public int Offset => offset;
-
         public JsonWriter(int capacity)
             : this(new StringBuilder(capacity)) { }
         public JsonWriter(StringBuilder builder)
@@ -22,6 +20,8 @@ namespace Halak
             this.underlyingWriter = writer;
             this.offset = 0;
         }
+
+        public int Offset => offset;
 
         public void Dispose()
         {

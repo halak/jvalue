@@ -1,5 +1,4 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Halak
@@ -68,7 +67,7 @@ namespace Halak
                 @"{""jobs"":[""chef"",""programmer"",""designer""],""name"":""Mike"",""children"":null}",
                 complexObject.ToString());
 
-            JsonObjectBuilder PutJobs(JsonObjectBuilder mainBuilder)
+            static JsonObjectBuilder PutJobs(JsonObjectBuilder mainBuilder)
             {
                 return mainBuilder.PutArray("jobs", jobs =>
                 {

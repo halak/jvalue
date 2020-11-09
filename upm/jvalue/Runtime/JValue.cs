@@ -46,41 +46,6 @@ namespace Halak
         private readonly int length;
         #endregion
 
-        #region Properties
-        public TypeCode Type
-        {
-            get
-            {
-                if (source != null && startIndex < source.Length)
-                {
-                    switch (source[startIndex])
-                    {
-                        case '"':
-                            return TypeCode.String;
-                        case '[':
-                            return TypeCode.Array;
-                        case '{':
-                            return TypeCode.Object;
-                        case 't':
-                        case 'f':
-                            return TypeCode.Boolean;
-                        case 'n':
-                            return TypeCode.Null;
-                        default:
-                            return TypeCode.Number;
-                    }
-                }
-                else
-                    return TypeCode.Null;
-            }
-        }
-        #endregion
-
-        #region Indexer
-        public JValue this[int index] => Get(index);
-        public JValue this[string key] => Get(key);
-        #endregion
-
         #region Constructors
         public static JValue Parse(string source)
         {
@@ -148,6 +113,41 @@ namespace Halak
                 builder.Put(member.Key, member.Value);
             return builder.Build();
         }
+        #endregion
+
+        #region Properties
+        public TypeCode Type
+        {
+            get
+            {
+                if (source != null && startIndex < source.Length)
+                {
+                    switch (source[startIndex])
+                    {
+                        case '"':
+                            return TypeCode.String;
+                        case '[':
+                            return TypeCode.Array;
+                        case '{':
+                            return TypeCode.Object;
+                        case 't':
+                        case 'f':
+                            return TypeCode.Boolean;
+                        case 'n':
+                            return TypeCode.Null;
+                        default:
+                            return TypeCode.Number;
+                    }
+                }
+                else
+                    return TypeCode.Null;
+            }
+        }
+        #endregion
+
+        #region Indexer
+        public JValue this[int index] => Get(index);
+        public JValue this[string key] => Get(key);
         #endregion
 
         #region Methods
@@ -870,6 +870,15 @@ namespace Halak
         }
         #endregion
 
+        #region Operators
+        public static bool operator ==(JValue left, JValue right) => left.Equals(right);
+        public static bool operator !=(JValue left, JValue right) => left.Equals(right) == false;
+        public static bool operator <(JValue left, JValue right) => left.CompareTo(right) < 0;
+        public static bool operator <=(JValue left, JValue right) => left.CompareTo(right) <= 0;
+        public static bool operator >(JValue left, JValue right) => left.CompareTo(right) > 0;
+        public static bool operator >=(JValue left, JValue right) => left.CompareTo(right) >= 0;
+        #endregion
+
         #region Implicit Conversion
         public static implicit operator bool(JValue value) => value.ToBoolean();
         public static implicit operator int(JValue value) => value.ToInt32();
@@ -887,24 +896,12 @@ namespace Halak
         public static implicit operator JValue(string value) => new JValue(value);
         #endregion
 
-        #region Operators
-        public static bool operator ==(JValue left, JValue right) => left.Equals(right);
-        public static bool operator !=(JValue left, JValue right) => left.Equals(right) == false;
-        public static bool operator <(JValue left, JValue right) => left.CompareTo(right) < 0;
-        public static bool operator <=(JValue left, JValue right) => left.CompareTo(right) <= 0;
-        public static bool operator >(JValue left, JValue right) => left.CompareTo(right) > 0;
-        public static bool operator >=(JValue left, JValue right) => left.CompareTo(right) >= 0;
-        #endregion
-
         public struct CharEnumerator : IEnumerator<char>
         {
             private readonly string source;
             private readonly int startIndex;
             private char current;
             private int index;
-
-            public char Current => current;
-            object IEnumerator.Current => Current;
 
             internal CharEnumerator(JValue value) : this(value.source, value.startIndex) { }
             internal CharEnumerator(string source, int startIndex)
@@ -915,8 +912,10 @@ namespace Halak
                 this.index = startIndex;
             }
 
-            public void Dispose() { }
+            public char Current => current;
+            object IEnumerator.Current => Current;
 
+            public void Dispose() { }
             public bool MoveNext()
             {
                 if (0 <= index && index < source.Length - 1)

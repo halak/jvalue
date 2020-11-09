@@ -9,7 +9,7 @@ namespace Halak
         [TestMethod]
         public void ParseInt32()
         {
-            int Parse(string s) => JNumber.ParseInt32(s);
+            static int Parse(string s) => JNumber.ParseInt32(s);
 
             Assert.AreEqual(10000, Parse("10000"));
             Assert.AreEqual(0, Parse("4294967295"));  // overflow
@@ -35,7 +35,7 @@ namespace Halak
         [TestMethod]
         public void ParseInt64()
         {
-            long Parse(string s) => JNumber.ParseInt64(s);
+            static long Parse(string s) => JNumber.ParseInt64(s);
 
             Assert.AreEqual(10000L, Parse("10000"));
             Assert.AreEqual(0L, Parse("12387cs831"));  // invalid
@@ -60,7 +60,7 @@ namespace Halak
         [TestMethod]
         public void ParseSingle()
         {
-            float Parse(string s) => JNumber.ParseSingle(s);
+            static float Parse(string s) => JNumber.ParseSingle(s);
 
             Assert.AreEqual(10000.0f, Parse("10000"));
             Assert.AreEqual(0.0f, Parse("0"));
@@ -96,7 +96,7 @@ namespace Halak
         [TestMethod]
         public void ParseRandomDouble()
         {
-            double Parse(string s) => JNumber.ParseDouble(s);
+            static double Parse(string s) => JNumber.ParseDouble(s);
 
             var min = -10000000.0;
             var max = +10000000.0;
