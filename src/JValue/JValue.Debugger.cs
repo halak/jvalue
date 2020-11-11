@@ -4,7 +4,7 @@ using System.Linq;
 namespace Halak
 {
     [DebuggerDisplay("{ToDebuggerDisplay(),nq}", Type = "{ToDebuggerType(),nq}")]
-    [DebuggerTypeProxy(typeof(DebuggerProxy))]
+    [DebuggerTypeProxy(typeof(JValueDebugView))]
     partial struct JValue
     {
         private const int EllipsisCount = 64;
@@ -78,11 +78,11 @@ namespace Halak
             }
         }
 
-        private sealed class DebuggerProxy
+        private sealed class JValueDebugView
         {
             private readonly JValue value;
 
-            public DebuggerProxy(JValue value)
+            public JValueDebugView(JValue value)
             {
                 this.value = value;
             }

@@ -157,13 +157,6 @@ namespace Halak
             return writer.BuildJson();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void EnsureState()
-        {
-            if (writer == null)
-                throw new InvalidOperationException("this object created by default constructor. please use parameterized constructor.");
-        }
-
         #region Shorthand Methods
         public JsonObjectBuilder PutArray(string key, IEnumerable<string> values)
             => PutArrayOf(key, values, (arrayBuilder, value) => arrayBuilder.Push(value));
@@ -189,5 +182,12 @@ namespace Halak
         public JsonObjectBuilder PutObjectOf<T>(string key, IEnumerable<KeyValuePair<string, T>> source, Func<JsonObjectBuilder, KeyValuePair<string, T>, JsonObjectBuilder> build)
             => PutObject(key, (source, build), Internal.ObjectOf);
         #endregion
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void EnsureState()
+        {
+            if (writer == null)
+                throw new InvalidOperationException("this object created by default constructor. please use parameterized constructor.");
+        }
     }
 }
