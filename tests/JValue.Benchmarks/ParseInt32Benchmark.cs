@@ -37,12 +37,14 @@ namespace Halak
         [Benchmark(Description = "int.TryParse")]
         public int SystemInt32TryParse()
         {
-            int.TryParse(shortNumber, out var a);
-            int.TryParse(longNumber, out var b);
-            int.TryParse(negativeNumber, out var c);
-            int.TryParse(minNumber, out var d);
-            int.TryParse(maxNumber, out var e);
-            return a + b + c + d + e;
+            if (int.TryParse(shortNumber, out var a) &&
+                int.TryParse(longNumber, out var b) &&
+                int.TryParse(negativeNumber, out var c) &&
+                int.TryParse(minNumber, out var d) &&
+                int.TryParse(maxNumber, out var e))
+                return a + b + c + d + e;
+            else
+                return 0;
         }
 
         [Benchmark(Description = "int.Parse(Invariant)")]
