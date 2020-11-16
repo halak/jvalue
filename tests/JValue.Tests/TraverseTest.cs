@@ -335,6 +335,10 @@ namespace Halak
                         json.ToBoolean();
                         break;
                     case JValue.TypeCode.Number:
+                        json.ToNumber().ToInt32();
+                        json.ToNumber().ToInt64();
+                        json.ToNumber().ToSingle();
+                        json.ToNumber().ToDouble();
                         json.ToNumber().ToDecimal();
                         break;
                     case JValue.TypeCode.String:

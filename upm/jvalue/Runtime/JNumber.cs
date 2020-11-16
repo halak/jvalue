@@ -33,25 +33,26 @@ namespace Halak
             this.toExponent = toExponent;
         }
 
-        public bool IsNaN => source == null;
-        public bool IsPositive => IsNegative == false;
-        public bool IsNegative => source != null && source[startIndex] == '-';
-        public JValue IntegerPart => new JValue(source, startIndex, toDecimalPoint);
-        public JValue FractionalPart => HasFractionalPart ? new JValue(source, FractionalPartIndex, FractionalPartLength) : JValue.Null;
-        public JValue Exponent
+        public bool IsNaN => length == 0;
+        public bool IsPositive => length > 0 && source[startIndex] != '-';
+        public bool IsNegative => length > 0 && source[startIndex] == '-';
+        public JNumber IntegerPart => new JNumber(source, startIndex, Math.Min(toDecimalPoint, toExponent), length, length);
+        public JNumber FractionalPart => HasFractionalPart ? new JNumber(source, FractionalPartIndex, FractionalPartLength, length, length) : NaN;
+        public JNumber Exponent
         {
             get
             {
                 if (HasExponent)
                 {
                     var exponentIndex = startIndex + toExponent + 1;
-                    if (exponentIndex == '+')
+
+                    if (source[exponentIndex] == '+')
                         exponentIndex++;
 
-                    return new JValue(source, exponentIndex, (startIndex + length) - exponentIndex);
+                    return new JNumber(source, exponentIndex, (startIndex + length) - exponentIndex, length, length);
                 }
                 else
-                    return JValue.Null;
+                    return NaN;
             }
         }
 
@@ -97,12 +98,23 @@ namespace Halak
             return hashCode;
         }
 
-        public override string ToString() => source?.Substring(startIndex, length) ?? "NaN";
+        public override string ToString() => source != null && length > 0 ? source.Substring(startIndex, length) : "NaN";
+
+        public static JNumber Parse(string s) => Parse(s, 0);
+        public static JNumber Parse(string s, int startIndex)
+        {
+            if (TryParse(s, startIndex, out var value))
+                return value;
+            else
+                return NaN;
+        }
 
         public static bool TryParse(string s, int startIndex, out JNumber value)
         {
             value = NaN;
 
+            if (s == null)
+                return false;
             if (startIndex >= s.Length)
                 return false;
 
