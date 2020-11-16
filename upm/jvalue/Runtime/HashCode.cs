@@ -1,4 +1,4 @@
-﻿#if (!NETCOREAPP2_0 && !NETCOREAPP2_1 && !NETCOREAPP2_2 && !NETCOREAPP3_0 && !NETCOREAPP3_1 && !NETSTANDARD2_1)
+﻿#if (!NETCOREAPP2_0 && !NETCOREAPP2_1 && !NETCOREAPP2_2 && !NETCOREAPP3_0 && !NETCOREAPP3_1 && !NETSTANDARD2_1 && !NET5_0)
 namespace System
 {
     using System.Runtime.CompilerServices;
