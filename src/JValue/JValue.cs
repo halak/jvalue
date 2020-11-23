@@ -49,8 +49,8 @@ namespace Halak
         {
             if (source != null)
             {
-                var index = SkipWhitespaces(source);
-                var endIndex = BackwardSkipWhitespaces(source, source.Length - 1) + 1;
+                var index = SkipWhiteSpaces(source);
+                var endIndex = BackwardSkipWhiteSpaces(source, source.Length - 1) + 1;
                 return new JValue(source, index, endIndex - index);
             }
             else
@@ -318,17 +318,17 @@ namespace Halak
             {
                 var endIndex = startIndex + length - 1;
 
-                var keyStart = SkipWhitespaces(startIndex + 1);
+                var keyStart = SkipWhiteSpaces(startIndex + 1);
                 while (keyStart < endIndex)
                 {
                     var keyEnd = SkipString(keyStart);
-                    var valueStart = SkipWhitespaces(keyEnd + 1);
+                    var valueStart = SkipWhiteSpaces(keyEnd + 1);
                     var valueEnd = SkipValue(valueStart);
 
                     if (EqualsKey(key, source, keyStart, keyEnd - keyStart - 2))
                         return new JValue(source, valueStart, valueEnd - valueStart);
 
-                    keyStart = SkipWhitespaces(valueEnd + 1);
+                    keyStart = SkipWhiteSpaces(valueEnd + 1);
                 }
             }
 
@@ -403,12 +403,12 @@ namespace Halak
             {
                 var endIndex = startIndex + length - 1;
 
-                var valueStart = SkipWhitespaces(startIndex + 1);
+                var valueStart = SkipWhiteSpaces(startIndex + 1);
                 while (valueStart < endIndex)
                 {
                     var valueEnd = SkipValue(valueStart);
                     yield return new JValue(source, valueStart, valueEnd - valueStart);
-                    valueStart = SkipWhitespaces(valueEnd + 1);
+                    valueStart = SkipWhiteSpaces(valueEnd + 1);
                 }
             }
         }
@@ -420,12 +420,12 @@ namespace Halak
                 var endIndex = startIndex + length - 1;
 
                 var index = 0;
-                var valueStart = SkipWhitespaces(startIndex + 1);
+                var valueStart = SkipWhiteSpaces(startIndex + 1);
                 while (valueStart < endIndex)
                 {
                     var valueEnd = SkipValue(valueStart);
                     yield return new KeyValuePair<int, JValue>(index++, new JValue(source, valueStart, valueEnd - valueStart));
-                    valueStart = SkipWhitespaces(valueEnd + 1);
+                    valueStart = SkipWhiteSpaces(valueEnd + 1);
                 }
             }
         }
@@ -436,17 +436,17 @@ namespace Halak
             {
                 var endIndex = startIndex + length - 1;
 
-                var keyStart = SkipWhitespaces(startIndex + 1);
+                var keyStart = SkipWhiteSpaces(startIndex + 1);
                 while (keyStart < endIndex)
                 {
                     var keyEnd = SkipString(keyStart);
-                    var valueStart = SkipWhitespaces(keyEnd + 1);
+                    var valueStart = SkipWhiteSpaces(keyEnd + 1);
                     var valueEnd = SkipValue(valueStart);
 
                     yield return new KeyValuePair<JValue, JValue>(
                         new JValue(source, keyStart, keyEnd - keyStart),
                         new JValue(source, valueStart, valueEnd - valueStart));
-                    keyStart = SkipWhitespaces(valueEnd + 1);
+                    keyStart = SkipWhiteSpaces(valueEnd + 1);
                 }
             }
         }
@@ -471,9 +471,9 @@ namespace Halak
             }
         }
 
-        private int SkipWhitespaces(int index) => SkipWhitespaces(source, index, startIndex + length);
-        private static int SkipWhitespaces(string source) => SkipWhitespaces(source, 0, source.Length);
-        private static int SkipWhitespaces(string source, int index, int endIndex)
+        private int SkipWhiteSpaces(int index) => SkipWhiteSpaces(source, index, startIndex + length);
+        private static int SkipWhiteSpaces(string source) => SkipWhiteSpaces(source, 0, source.Length);
+        private static int SkipWhiteSpaces(string source, int index, int endIndex)
         {
             for (; index < endIndex; index++)
             {
@@ -494,7 +494,7 @@ namespace Halak
             return endIndex;
         }
 
-        private static int BackwardSkipWhitespaces(string source, int index)
+        private static int BackwardSkipWhiteSpaces(string source, int index)
         {
             for (; index >= 0; index--)
             {
@@ -735,8 +735,8 @@ namespace Halak
             }
         }
 
-        public bool Equals(JValue other) => Equals(this, other);
         public int CompareTo(JValue other) => Compare(this, other);
+        public bool Equals(JValue other) => Equals(this, other);
         public override bool Equals(object obj) => obj is JValue other && Equals(other);
         public override string ToString()
         {
@@ -776,26 +776,6 @@ namespace Halak
         }
         #endregion
 
-        public static bool Equals(JValue left, JValue right)
-        {
-            var leftType = left.Type;
-            var rightType = right.Type;
-            if (leftType == rightType)
-            {
-                switch (leftType)
-                {
-                    case TypeCode.Null: return true;
-                    case TypeCode.Boolean: return left.ToBooleanCore() == right.ToBooleanCore();
-                    case TypeCode.Number: return JNumber.Equals(left.ToNumberCore(JNumber.NaN), right.ToNumberCore(JNumber.NaN));
-                    case TypeCode.String: return EqualsString(left, right);
-                    case TypeCode.Array: return SequenceEqual(left.Array().GetEnumerator(), right.Array().GetEnumerator(), Equals);
-                    case TypeCode.Object: return SequenceEqual(left.Object().GetEnumerator(), right.Object().GetEnumerator(), EqualsMember);
-                }
-            }
-
-            return false;
-        }
-
         public static int Compare(JValue left, JValue right)
         {
             var leftType = left.Type;
@@ -815,6 +795,26 @@ namespace Halak
             }
             else
                 return ((int)leftType).CompareTo((int)rightType);
+        }
+
+        public static bool Equals(JValue left, JValue right)
+        {
+            var leftType = left.Type;
+            var rightType = right.Type;
+            if (leftType == rightType)
+            {
+                switch (leftType)
+                {
+                    case TypeCode.Null: return true;
+                    case TypeCode.Boolean: return left.ToBooleanCore() == right.ToBooleanCore();
+                    case TypeCode.Number: return JNumber.Equals(left.ToNumberCore(JNumber.NaN), right.ToNumberCore(JNumber.NaN));
+                    case TypeCode.String: return EqualsString(left, right);
+                    case TypeCode.Array: return SequenceEqual(left.Array().GetEnumerator(), right.Array().GetEnumerator(), Equals);
+                    case TypeCode.Object: return SequenceEqual(left.Object().GetEnumerator(), right.Object().GetEnumerator(), EqualsMember);
+                }
+            }
+
+            return false;
         }
 
         private static int CompareMember(KeyValuePair<JValue, JValue> x, KeyValuePair<JValue, JValue> y)
