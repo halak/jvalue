@@ -56,6 +56,19 @@ namespace Halak
             }
         }
 
+        public int LeadingZeros
+        {
+            get
+            {
+                var index = startIndex;
+                var endIndex = startIndex + length;
+                while (index < endIndex && source[index] == '0')
+                    index++;
+
+                return index - startIndex;
+            }
+        }
+
         public bool HasFractionalPart => toDecimalPoint < length;
         public bool HasExponent => toExponent < length;
         private int FractionalPartIndex => startIndex + toDecimalPoint + 1;

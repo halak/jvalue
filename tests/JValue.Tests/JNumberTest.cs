@@ -73,6 +73,20 @@ namespace Halak
                 Assert.IsTrue(number.Exponent.IsNaN);
         }
 
+        [DataTestMethod]
+        [DataRow("", 0)]
+        [DataRow("123", 0)]
+        [DataRow("0.001", 2)]
+        [DataRow("0.01", 1)]
+        [DataRow("1.0E+2", 1)]
+        [DataRow("1.00E+2", 2)]
+        [DataRow("1.001E+2", 2)]
+        [DataRow("1.0000011123234", 5)]
+        public void LeadingZeros(string input, int expectedLeadingZeros)
+        {
+            Assert.AreEqual(expectedLeadingZeros, JNumber.Parse(input).FractionalPart.LeadingZeros);
+        }
+
         [TestMethod]
         public void Stringify()
         {
