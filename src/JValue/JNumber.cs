@@ -5,7 +5,7 @@ using System.Globalization;
 namespace Halak
 {
     [DebuggerDisplay("{ToString(),nq}")]
-    public partial struct JNumber : IEquatable<JNumber>, IComparable<JNumber>
+    public partial struct JNumber : IComparable<JNumber>, IEquatable<JNumber>
     {
         public static readonly JNumber NaN = new JNumber(string.Empty, 0, 0, 0, 0);
         public static readonly JNumber Zero = new JNumber(0);
@@ -95,8 +95,8 @@ namespace Halak
         public decimal? ToNullableDecimal()
             => ParseNullableDecimal(source, startIndex, length);
 
-        public bool Equals(JNumber other) => Equals(this, other);
         public int CompareTo(JNumber other) => Compare(this, other);
+        public bool Equals(JNumber other) => Equals(this, other);
         public override bool Equals(object obj) => obj is JNumber other && Equals(this, other);
         public override int GetHashCode()
         {
@@ -206,13 +206,6 @@ namespace Halak
             return true;
         }
 
-        public static bool Equals(JNumber left, JNumber right)
-        {
-            return
-                left.length == right.length &&
-                string.CompareOrdinal(left.source, left.startIndex, right.source, right.startIndex, left.length) == 0;
-        }
-
         public static int Compare(JNumber left, JNumber right)
         {
             var ordering = left.length.CompareTo(right.length);
@@ -220,6 +213,13 @@ namespace Halak
                 return ordering;
             else
                 return string.CompareOrdinal(left.source, left.startIndex, right.source, right.startIndex, left.length);
+        }
+
+        public static bool Equals(JNumber left, JNumber right)
+        {
+            return
+                left.length == right.length &&
+                string.CompareOrdinal(left.source, left.startIndex, right.source, right.startIndex, left.length) == 0;
         }
 
         private static int GetHashCode(char c)
