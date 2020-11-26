@@ -209,10 +209,7 @@ namespace Halak
         public static int Compare(JNumber left, JNumber right)
         {
             var ordering = left.length.CompareTo(right.length);
-            if (ordering != 0)
-                return ordering;
-            else
-                return string.CompareOrdinal(left.source, left.startIndex, right.source, right.startIndex, left.length);
+            return ordering != 0 ? ordering : string.CompareOrdinal(left.source, left.startIndex, right.source, right.startIndex, left.length);
         }
 
         public static bool Equals(JNumber left, JNumber right)
