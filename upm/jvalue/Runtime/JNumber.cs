@@ -215,6 +215,14 @@ namespace Halak
         public static bool Equals(JNumber left, JNumber right)
         {
             return
+                EqualsCore(left.IntegerPart, right.IntegerPart) &&
+                EqualsCore(left.FractionalPart, right.FractionalPart) &&
+                EqualsCore(left.Exponent, right.Exponent);
+        }
+
+        private static bool EqualsCore(JNumber left, JNumber right)
+        {
+            return
                 left.length == right.length &&
                 string.CompareOrdinal(left.source, left.startIndex, right.source, right.startIndex, left.length) == 0;
         }
