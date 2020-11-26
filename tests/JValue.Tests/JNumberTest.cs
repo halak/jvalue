@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Halak
 {
@@ -36,7 +37,7 @@ namespace Halak
         [DataRow("0.4e00669999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999969999999006", "0", "4", "00669999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999969999999006")]
         [DataRow("0e+1", "0", null, "1")]
         [DataRow("0e1", "0", null, "1")]
-        [DataRow("1.0", "1", "0")]
+        [DataRow("1.0", "1")]
         [DataRow("1.5e+9999", "1", "5", "9999")]
         [DataRow("100000000000000000000", "100000000000000000000")]
         [DataRow("123.456789", "123", "456789")]
@@ -74,12 +75,74 @@ namespace Halak
         }
 
         [DataTestMethod]
+        [DataRow("", "")]
+        [DataRow("0", "0")]
+        [DataRow("0", "0.0")]
+        [DataRow("1", "1")]
+        [DataRow("0.1", "0.1")]
+        [DataRow("0.1", "0.1000")]
+        [DataRow("1", "1.0")]
+        [DataRow("1", "1.00")]
+        [DataRow("123.456E10", "123.456e10")]
+        [DataRow("123.456E10", "123.456e+10")]
+        public void Equality(string left, string right)
+        {
+            Assert.IsTrue(JNumber.Equals(JNumber.Parse(left), JNumber.Parse(right)));
+            if (left.StartsWith("-", StringComparison.Ordinal) == false)
+            {
+                left = FormattableString.Invariant($"-{left}");
+                right = FormattableString.Invariant($"-{right}");
+                Assert.IsTrue(JNumber.Equals(JNumber.Parse(left), JNumber.Parse(right)));
+            }
+        }
+
+        [DataTestMethod]
+        [DataRow("", "0")]
+        [DataRow("", "1")]
+        [DataRow("", "1.0")]
+        [DataRow("0", "1")]
+        [DataRow("1", "1.001")]
+        [DataRow("1.000", "1.001")]
+        [DataRow("123.456E10", "123.456E-10")]
+        public void Inequality(string left, string right)
+            => Assert.IsFalse(JNumber.Equals(JNumber.Parse(left), JNumber.Parse(right)));
+
+        [DataTestMethod]
+        [DataRow("", "1")]
+        [DataRow("0", "1")]
+        [DataRow("123", "456")]
+        [DataRow("123.123", "123.456")]
+        [DataRow("1.23", "1.234")]
+        [DataRow("1", "-1")]
+        [DataRow("-123", "-456")]
+        [DataRow("-12", "-456")]
+        public void Compare(string less, string greater)
+        {
+            Assert.IsTrue(JNumber.Compare(JNumber.Parse(less), JNumber.Parse(greater)) < 0);
+            Assert.IsTrue(JNumber.Compare(JNumber.Parse(greater), JNumber.Parse(less)) > 0);
+        }
+
+        [DataTestMethod]
+        [DataRow("0", "0.0")]
+        [DataRow("0.1", "0.1000")]
+        [DataRow("1", "1.0")]
+        [DataRow("1", "1.00")]
+        [DataRow("123.456E10", "123.456e10")]
+        [DataRow("123.456E10", "123.456e+10")]
+        public void TwoNumber_Are_Equal_But_NotEquivalent(string left, string right)
+        {
+            Assert.IsTrue(
+                JNumber.Equals(JNumber.Parse(left), JNumber.Parse(right)) &&
+                JNumber.Compare(JNumber.Parse(left), JNumber.Parse(right)) != 0);
+        }
+
+        [DataTestMethod]
         [DataRow("", 0)]
         [DataRow("123", 0)]
         [DataRow("0.001", 2)]
         [DataRow("0.01", 1)]
-        [DataRow("1.0E+2", 1)]
-        [DataRow("1.00E+2", 2)]
+        [DataRow("1.0E+2", 0)]
+        [DataRow("1.00E+2", 0)]
         [DataRow("1.001E+2", 2)]
         [DataRow("1.0000011123234", 5)]
         public void LeadingZeros(string input, int expectedLeadingZeros)
