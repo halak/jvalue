@@ -57,6 +57,10 @@ namespace Halak
             }
         }
 
+        public bool HasFractionalPart => decimalPointOffset < length;
+        public bool HasExponent => exponentOffset < length;
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public int LeadingZeros
         {
             get
@@ -70,8 +74,6 @@ namespace Halak
             }
         }
 
-        public bool HasFractionalPart => toDecimalPoint < length;
-        public bool HasExponent => toExponent < length;
         private int FractionalPartIndex => startIndex + toDecimalPoint + 1;
         private int FractionalPartLength => toExponent - toDecimalPoint - 1;
 
