@@ -74,8 +74,22 @@ namespace Halak
             }
         }
 
-        private int FractionalPartIndex => startIndex + toDecimalPoint + 1;
-        private int FractionalPartLength => toExponent - toDecimalPoint - 1;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        private int FractionalPartIndex => startIndex + decimalPointOffset + 1;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        private int FractionalPartLength
+        {
+            get
+            {
+                // Trim trailing zeros
+                var index = startIndex + exponentOffset - 1;
+                var endIndex = startIndex + decimalPointOffset;
+                while (index > endIndex && source[index] == '0')
+                    index--;
+
+                return index - endIndex;
+            }
+        }
 
         public int ToInt32(int defaultValue = default(int))
             => ParseInt32(source, startIndex, length, defaultValue);
