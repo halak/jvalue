@@ -14,8 +14,8 @@ namespace Halak
         private readonly string source;
         private readonly int startIndex;
         private readonly int length;
-        private readonly int toDecimalPoint;
-        private readonly int toExponent;
+        private readonly int decimalPointOffset;
+        private readonly int exponentOffset;
 
         public JNumber(int value) : this(value.ToString(NumberFormatInfo.InvariantInfo), true) { }
         public JNumber(long value) : this(value.ToString(NumberFormatInfo.InvariantInfo), true) { }
@@ -23,33 +23,34 @@ namespace Halak
         public JNumber(double value) : this(value.ToString(NumberFormatInfo.InvariantInfo)) { }
         public JNumber(decimal value) : this(value.ToString(NumberFormatInfo.InvariantInfo)) { }
         private JNumber(string source) : this(source, 0, source.Length, FindDecimalPoint(source), FindExponent(source)) { }
-        private JNumber(string source, bool _ /* from integer */) : this(source, 0, source.Length, source.Length, source.Length) { }
-        private JNumber(string source, int startIndex, int length, int toDecimalPoint, int toExponent)
+        private JNumber(string source, bool _ /* from integer */) : this(source, 0, source.Length) { }
+        private JNumber(string source, int startIndex, int length) : this(source, startIndex, length, length, length) { }
+        private JNumber(string source, int startIndex, int length, int decimalPointOffset, int exponentOffset)
         {
             this.source = source;
             this.startIndex = startIndex;
             this.length = length;
-            this.toDecimalPoint = toDecimalPoint;
-            this.toExponent = toExponent;
+            this.decimalPointOffset = decimalPointOffset;
+            this.exponentOffset = exponentOffset;
         }
 
         public bool IsNaN => length == 0;
         public bool IsPositive => length > 0 && source[startIndex] != '-';
         public bool IsNegative => length > 0 && source[startIndex] == '-';
-        public JNumber IntegerPart => new JNumber(source, startIndex, Math.Min(toDecimalPoint, toExponent), length, length);
-        public JNumber FractionalPart => HasFractionalPart ? new JNumber(source, FractionalPartIndex, FractionalPartLength, length, length) : NaN;
+        public JNumber IntegerPart => new JNumber(source, startIndex, Math.Min(decimalPointOffset, exponentOffset));
+        public JNumber FractionalPart => HasFractionalPart ? new JNumber(source, FractionalPartIndex, FractionalPartLength) : NaN;
         public JNumber Exponent
         {
             get
             {
                 if (HasExponent)
                 {
-                    var exponentIndex = startIndex + toExponent + 1;
+                    var exponentIndex = startIndex + exponentOffset + 1;
 
                     if (source[exponentIndex] == '+')
                         exponentIndex++;
 
-                    return new JNumber(source, exponentIndex, (startIndex + length) - exponentIndex, length, length);
+                    return new JNumber(source, exponentIndex, (startIndex + length) - exponentIndex);
                 }
                 else
                     return NaN;
