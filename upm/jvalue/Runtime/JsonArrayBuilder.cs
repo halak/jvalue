@@ -145,8 +145,11 @@ namespace Halak
         }
 
         #region Shorthand Methods
-        public JsonArrayBuilder PushArray(IEnumerable<string> values)
-            => PushArrayOf(values, (arrayBuilder, value) => arrayBuilder.Push(value));
+        public JsonArrayBuilder PushArray(IEnumerable<int> elements)
+            => PushArrayOf(elements, (arrayBuilder, value) => arrayBuilder.Push(value));
+
+        public JsonArrayBuilder PushArray(IEnumerable<string> elements)
+            => PushArrayOf(elements, (arrayBuilder, value) => arrayBuilder.Push(value));
 
         public JsonArrayBuilder PushObject(IEnumerable<KeyValuePair<string, string>> members)
             => PushObjectOf(members, (objectBuilder, member) => objectBuilder.Put(member.Key, member.Value));
