@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Halak
@@ -79,7 +80,7 @@ namespace Halak
         }
 
         [TestMethod]
-        public void TestEuropeCultureEnvironment()
+        public void TestDeutschlandCultureEnvironment()
         {
             var originalCulture = CultureInfo.CurrentCulture;
             var testCulture = new CultureInfo("de-DE");
@@ -87,7 +88,7 @@ namespace Halak
 
             try
             {
-                Assert.AreEqual("1234,5678", (1234.5678).ToString());  // test culture change
+                Assert.AreEqual("1234,5678", (1234.5678).ToString());  // Test changed culture.
 
                 Assert.AreEqual("1234.5678", new JValue(1234.5678).ToString());
                 Assert.AreEqual("1234.5678", (string)new JsonObjectBuilder(16).Put("test", 1234.5678).Build()["test"]);
@@ -97,6 +98,60 @@ namespace Halak
             {
                 CultureInfo.CurrentCulture = originalCulture;
             }
+        }
+
+        [TestMethod]
+        public void TestPutIf()
+        {
+            AssertAreEqual(x => x.PutNull("x"), x => x.PutNullIf(true, "x"));
+            AssertAreEqual(x => x.Put("x", true), x => x.PutIf(true, "x", true));
+            AssertAreEqual(x => x.Put("x", 123), x => x.PutIf(true, "x", 123));
+            AssertAreEqual(x => x.Put("x", 123L), x => x.PutIf(true, "x", 123L));
+            AssertAreEqual(x => x.Put("x", 123.0f), x => x.PutIf(true, "x", 123.0f));
+            AssertAreEqual(x => x.Put("x", 123.0), x => x.PutIf(true, "x", 123.0));
+            AssertAreEqual(x => x.Put("x", 123.0m), x => x.PutIf(true, "x", 123.0m));
+            AssertAreEqual(x => x.PutArray("x", new[] { 1, 2, 3 }), x => x.PutArrayIf(true, "x", new[] { 1, 2, 3 }));
+            AssertAreEqual(x => x.PutArray("x", new[] { "A", "B", "C" }), x => x.PutArrayIf(true, "x", new[] { "A", "B", "C" }));
+
+            AssertAreEqual(x => x, x => x.PutNullIf(false, "x"));
+            AssertAreEqual(x => x, x => x.PutIf(false, "x", true));
+            AssertAreEqual(x => x, x => x.PutIf(false, "x", 123));
+            AssertAreEqual(x => x, x => x.PutIf(false, "x", 123L));
+            AssertAreEqual(x => x, x => x.PutIf(false, "x", 123.0f));
+            AssertAreEqual(x => x, x => x.PutIf(false, "x", 123.0));
+            AssertAreEqual(x => x, x => x.PutIf(false, "x", 123.0m));
+            AssertAreEqual(x => x, x => x.PutArrayIf(false, "x", new[] { 1, 2, 3 }));
+            AssertAreEqual(x => x, x => x.PutArrayIf(false, "x", new[] { "A", "B", "C" }));
+
+            void AssertAreEqual(Func<JsonObjectBuilder, JsonObjectBuilder> build, Func<JsonObjectBuilder, JsonObjectBuilder> buildConditional)
+                => Assert.AreEqual(build(new JsonObjectBuilder(32)).Build(), buildConditional(new JsonObjectBuilder(32)).Build());
+        }
+
+        [TestMethod]
+        public void TestPushIf()
+        {
+            AssertAreEqual(x => x.PushNull(), x => x.PushNullIf(true));
+            AssertAreEqual(x => x.Push(true), x => x.PushIf(true, true));
+            AssertAreEqual(x => x.Push(123), x => x.PushIf(true, 123));
+            AssertAreEqual(x => x.Push(123L), x => x.PushIf(true, 123L));
+            AssertAreEqual(x => x.Push(123.0f), x => x.PushIf(true, 123.0f));
+            AssertAreEqual(x => x.Push(123.0), x => x.PushIf(true, 123.0));
+            AssertAreEqual(x => x.Push(123.0m), x => x.PushIf(true, 123.0m));
+            AssertAreEqual(x => x.PushArray(new[] { 1, 2, 3 }), x => x.PushArrayIf(true, new[] { 1, 2, 3 }));
+            AssertAreEqual(x => x.PushArray(new[] { "A", "B", "C" }), x => x.PushArrayIf(true, new[] { "A", "B", "C" }));
+
+            AssertAreEqual(x => x, x => x.PushNullIf(false));
+            AssertAreEqual(x => x, x => x.PushIf(false, true));
+            AssertAreEqual(x => x, x => x.PushIf(false, 123));
+            AssertAreEqual(x => x, x => x.PushIf(false, 123L));
+            AssertAreEqual(x => x, x => x.PushIf(false, 123.0f));
+            AssertAreEqual(x => x, x => x.PushIf(false, 123.0));
+            AssertAreEqual(x => x, x => x.PushIf(false, 123.0m));
+            AssertAreEqual(x => x, x => x.PushArrayIf(false, new[] { 1, 2, 3 }));
+            AssertAreEqual(x => x, x => x.PushArrayIf(false, new[] { "A", "B", "C" }));
+
+            void AssertAreEqual(Func<JsonArrayBuilder, JsonArrayBuilder> build, Func<JsonArrayBuilder, JsonArrayBuilder> buildConditional)
+                => Assert.AreEqual(build(new JsonArrayBuilder(32)).Build(), buildConditional(new JsonArrayBuilder(32)).Build());
         }
 
         [TestMethod]

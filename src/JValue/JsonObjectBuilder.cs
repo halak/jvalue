@@ -184,6 +184,28 @@ namespace Halak
 
         public JsonObjectBuilder PutObjectOf<T>(string key, IEnumerable<KeyValuePair<string, T>> source, Func<JsonObjectBuilder, KeyValuePair<string, T>, JsonObjectBuilder> build)
             => PutObject(key, (source, build), Internal.ObjectOf);
+
+        public JsonObjectBuilder PutNullIf(bool condition, string key) => condition ? PutNull(key) : this;
+        public JsonObjectBuilder PutIf(bool condition, string key, bool value) => condition ? Put(key, value) : this;
+        public JsonObjectBuilder PutIf(bool condition, string key, int value) => condition ? Put(key, value) : this;
+        public JsonObjectBuilder PutIf(bool condition, string key, long value) => condition ? Put(key, value) : this;
+        public JsonObjectBuilder PutIf(bool condition, string key, float value) => condition ? Put(key, value) : this;
+        public JsonObjectBuilder PutIf(bool condition, string key, double value) => condition ? Put(key, value) : this;
+        public JsonObjectBuilder PutIf(bool condition, string key, decimal value) => condition ? Put(key, value) : this;
+        public JsonObjectBuilder PutIf(bool condition, string key, string value) => condition ? Put(key, value) : this;
+        public JsonObjectBuilder PutIf(bool condition, string key, JValue value) => condition ? Put(key, value) : this;
+        public JsonObjectBuilder PutArrayIf(bool condition, string key, Action<JsonArrayBuilder> put) => condition ? PutArray(key, put) : this;
+        public JsonObjectBuilder PutArrayIf<T>(bool condition, string key, T value, Action<JsonArrayBuilder, T> put) => condition ? PutArray(key, value, put) : this;
+        public JsonObjectBuilder PutObjectIf(bool condition, string key, Action<JsonObjectBuilder> put) => condition ? PutObject(key, put) : this;
+        public JsonObjectBuilder PutObjectIf<T>(bool condition, string key, T value, Action<JsonObjectBuilder, T> put) => condition ? PutObject(key, value, put) : this;
+
+        public JsonObjectBuilder PutArrayIf(bool condition, string key, IEnumerable<int> elements) => condition ? PutArray(key, elements) : this;
+        public JsonObjectBuilder PutArrayIf(bool condition, string key, IEnumerable<string> elements) => condition ? PutArray(key, elements) : this;
+        public JsonObjectBuilder PutObjectIf(bool condition, string key, IEnumerable<KeyValuePair<string, string>> members) => condition ? PutObject(key, members) : this;
+        public JsonObjectBuilder PutArrayOfArrayIf<T>(bool condition, string key, IEnumerable<T> source, Action<JsonArrayBuilder, T> build) => condition ? PutArrayOfArray(key, source, build) : this;
+        public JsonObjectBuilder PutObjectOfArrayIf<T>(bool condition, string key, IEnumerable<KeyValuePair<string, T>> source, Action<JsonArrayBuilder, T> build) => condition ? PutObjectOfArray(key, source, build) : this;
+        public JsonObjectBuilder PutArrayOfObjectIf<T>(bool condition, string key, IEnumerable<T> source, Action<JsonObjectBuilder, T> build) => condition ? PutArrayOfObject(key, source, build) : this;
+        public JsonObjectBuilder PutObjectOfObjectIf<T>(bool condition, string key, IEnumerable<KeyValuePair<string, T>> source, Action<JsonObjectBuilder, T> build) => condition ? PutObjectOfObject(key, source, build) : this;
         #endregion
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

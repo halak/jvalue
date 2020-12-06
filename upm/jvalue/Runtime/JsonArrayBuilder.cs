@@ -171,6 +171,28 @@ namespace Halak
 
         public JsonArrayBuilder PushObjectOf<T>(IEnumerable<KeyValuePair<string, T>> source, Func<JsonObjectBuilder, KeyValuePair<string, T>, JsonObjectBuilder> build)
             => PushObject((source, build), Internal.ObjectOf);
+
+        public JsonArrayBuilder PushNullIf(bool condition) => condition ? PushNull() : this;
+        public JsonArrayBuilder PushIf(bool condition, bool value) => condition ? Push(value) : this;
+        public JsonArrayBuilder PushIf(bool condition, int value) => condition ? Push(value) : this;
+        public JsonArrayBuilder PushIf(bool condition, long value) => condition ? Push(value) : this;
+        public JsonArrayBuilder PushIf(bool condition, float value) => condition ? Push(value) : this;
+        public JsonArrayBuilder PushIf(bool condition, double value) => condition ? Push(value) : this;
+        public JsonArrayBuilder PushIf(bool condition, decimal value) => condition ? Push(value) : this;
+        public JsonArrayBuilder PushIf(bool condition, string value) => condition ? Push(value) : this;
+        public JsonArrayBuilder PushIf(bool condition, JValue value) => condition ? Push(value) : this;
+        public JsonArrayBuilder PushArrayIf(bool condition, Action<JsonArrayBuilder> push) => condition ? PushArray(push) : this;
+        public JsonArrayBuilder PushArrayIf<T>(bool condition, T value, Action<JsonArrayBuilder, T> push) => condition ? PushArray(value, push) : this;
+        public JsonArrayBuilder PushObjectIf(bool condition, Action<JsonObjectBuilder> push) => condition ? PushObject(push) : this;
+        public JsonArrayBuilder PushObjectIf<T>(bool condition, T value, Action<JsonObjectBuilder, T> push) => condition ? PushObject(value, push) : this;
+
+        public JsonArrayBuilder PushArrayIf(bool condition, IEnumerable<int> elements) => condition ? PushArray(elements) : this;
+        public JsonArrayBuilder PushArrayIf(bool condition, IEnumerable<string> elements) => condition ? PushArray(elements) : this;
+        public JsonArrayBuilder PushObjectIf(bool condition, IEnumerable<KeyValuePair<string, string>> members) => condition ? PushObject(members) : this;
+        public JsonArrayBuilder PushArrayOfArrayIf<T>(bool condition, IEnumerable<T> source, Action<JsonArrayBuilder, T> build) => condition ? PushArrayOfArray(source, build) : this;
+        public JsonArrayBuilder PushObjectOfArrayIf<T>(bool condition, IEnumerable<KeyValuePair<string, T>> source, Action<JsonArrayBuilder, T> build) => condition ? PushObjectOfArray(source, build) : this;
+        public JsonArrayBuilder PushArrayOfObjectIf<T>(bool condition, IEnumerable<T> source, Action<JsonObjectBuilder, T> build) => condition ? PushArrayOfObject(source, build) : this;
+        public JsonArrayBuilder PushObjectOfObjectIf<T>(bool condition, IEnumerable<KeyValuePair<string, T>> source, Action<JsonObjectBuilder, T> build) => condition ? PushObjectOfObject(source, build) : this;
         #endregion
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
