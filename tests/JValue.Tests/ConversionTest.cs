@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace Halak
 {
-    [TestClass]
     public class ConversionTest
     {
-        [TestMethod]
+        [Test]
         public void TestNullConversion()
         {
             var value = JValue.Parse("null");
@@ -25,7 +24,7 @@ namespace Halak
             Assert.IsTrue(value.ToObject().SequenceEqual(new Dictionary<JValue, JValue>()));
         }
 
-        [TestMethod]
+        [Test]
         public void TestFalseConversion()
         {
             var value = JValue.Parse("false");
@@ -41,7 +40,7 @@ namespace Halak
             Assert.IsTrue(value.ToObject().SequenceEqual(new Dictionary<JValue, JValue>()));
         }
 
-        [TestMethod]
+        [Test]
         public void TestTrueConversion()
         {
             var value = JValue.Parse("true");
@@ -57,7 +56,7 @@ namespace Halak
             Assert.IsTrue(value.ToObject().SequenceEqual(new Dictionary<JValue, JValue>()));
         }
 
-        [TestMethod]
+        [Test]
         public void TestZeroConversion()
         {
             var value = JValue.Parse("0");
@@ -70,7 +69,7 @@ namespace Halak
             Assert.IsTrue(value.ToObject().SequenceEqual(new Dictionary<JValue, JValue>()));
         }
 
-        [TestMethod]
+        [Test]
         public void TestOneConversion()
         {
             var value = JValue.Parse("1");
@@ -83,7 +82,7 @@ namespace Halak
             Assert.IsTrue(value.ToObject().SequenceEqual(new Dictionary<JValue, JValue>()));
         }
 
-        [TestMethod]
+        [Test]
         public void TestTwoConversion()
         {
             var value = JValue.Parse("2");
@@ -96,7 +95,7 @@ namespace Halak
             Assert.IsTrue(value.ToObject().SequenceEqual(new Dictionary<JValue, JValue>()));
         }
 
-        [TestMethod]
+        [Test]
         public void TestEmptyStringConversion()
         {
             var value = JValue.Parse("\"\"");
@@ -112,7 +111,7 @@ namespace Halak
             Assert.IsTrue(value.ToObject().SequenceEqual(new Dictionary<JValue, JValue>()));
         }
 
-        [TestMethod]
+        [Test]
         public void TestZeroStringConversion()
         {
             var value = JValue.Parse("\"0\"");
@@ -128,7 +127,7 @@ namespace Halak
             Assert.IsTrue(value.ToObject().SequenceEqual(new Dictionary<JValue, JValue>()));
         }
 
-        [TestMethod]
+        [Test]
         public void TestNumberStringConversion()
         {
             var value = JValue.Parse("\"123.456\"");
@@ -144,7 +143,7 @@ namespace Halak
             Assert.IsTrue(value.ToObject().SequenceEqual(new Dictionary<JValue, JValue>()));
         }
 
-        [TestMethod]
+        [Test]
         public void TestStringConversion()
         {
             var value = JValue.Parse("\"hello world\"");

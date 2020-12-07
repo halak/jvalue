@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Globalization;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace Halak
 {
-    [TestClass]
     public class JsonSerializeTest
     {
-        [TestMethod]
+        [Test]
         public void TestBasicValueSerializing()
         {
             Assert.AreEqual("true", new JValue(true).ToString());
@@ -17,7 +16,7 @@ namespace Halak
             Assert.AreEqual("Hello\nWorld", new JValue("Hello\nWorld").ToUnescapedString());
         }
 
-        [TestMethod]
+        [Test]
         public void TestArrayBuilder()
         {
             var simpleArray = new JsonArrayBuilder(16)
@@ -31,7 +30,7 @@ namespace Halak
             Assert.AreEqual(@"[10, 20, 30]", simpleArray.Serialize(2));
         }
 
-        [TestMethod]
+        [Test]
         public void TestObjectBuilder()
         {
             var simpleObject = new JsonObjectBuilder(16)
@@ -56,7 +55,7 @@ namespace Halak
                 complexObject.ToString());
         }
 
-        [TestMethod]
+        [Test]
         public void TestObjectBuilderWithoutChaining()
         {
             var builder = new JsonObjectBuilder(1024);
@@ -79,7 +78,7 @@ namespace Halak
             }
         }
 
-        [TestMethod]
+        [Test]
         public void TestDeutschlandCultureEnvironment()
         {
             var originalCulture = CultureInfo.CurrentCulture;
@@ -100,7 +99,7 @@ namespace Halak
             }
         }
 
-        [TestMethod]
+        [Test]
         public void TestPutIf()
         {
             AssertAreEqual(x => x.PutNull("x"), x => x.PutNullIf(true, "x"));
@@ -127,7 +126,7 @@ namespace Halak
                 => Assert.AreEqual(build(new JsonObjectBuilder(32)).Build(), buildConditional(new JsonObjectBuilder(32)).Build());
         }
 
-        [TestMethod]
+        [Test]
         public void TestPushIf()
         {
             AssertAreEqual(x => x.PushNull(), x => x.PushNullIf(true));
@@ -154,7 +153,7 @@ namespace Halak
                 => Assert.AreEqual(build(new JsonArrayBuilder(32)).Build(), buildConditional(new JsonArrayBuilder(32)).Build());
         }
 
-        [TestMethod]
+        [Test]
         public void TestStringBuilderExtension()
         {
             foreach (var value in new[] { int.MinValue, int.MaxValue, 0, -1234, 5677, 23472634, -12391823, 23487621 })

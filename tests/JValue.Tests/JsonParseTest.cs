@@ -1,12 +1,11 @@
 ﻿using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace Halak
 {
-    [TestClass]
     public class JsonParseTest
     {
-        [TestMethod]
+        [Test]
         public void TestBasicValueParsing()
         {
             Assert.IsTrue(JValue.Parse("true"));
@@ -14,13 +13,13 @@ namespace Halak
             Assert.AreEqual(JValue.Parse("10").ToInt32(), 10);
         }
 
-        [TestMethod]
+        [Test]
         public void TestInvalidValueParsing()
         {
             Assert.AreEqual(-1, new JValue("environment").ToInt32(-1));
         }
 
-        [TestMethod]
+        [Test]
         public void TestParsedValueType()
         {
             Assert.AreEqual(JValue.TypeCode.Boolean, JValue.Parse("true").Type);
@@ -36,7 +35,7 @@ namespace Halak
             Assert.AreEqual(JValue.TypeCode.Null, new JValue().Type);
         }
 
-        [TestMethod]
+        [Test]
         public void TestBasicArrayParsing()
         {
             var array = JValue.Parse(@"   [10,  20    ,  [10  ,30,40 ]     ,30 ,""Hello""  , ""World"", 1]");
@@ -57,7 +56,7 @@ namespace Halak
             Assert.AreEqual(40, (int)subElements[2]);
         }
 
-        [TestMethod]
+        [Test]
         public void TestFlatObjectParsing()
         {
             var person = JValue.Parse(@"{
@@ -73,7 +72,7 @@ namespace Halak
             Assert.AreEqual("Programmer", (string)person["job"]);
         }
 
-        [TestMethod]
+        [Test]
         public void TestComplexObjectParsing()
         {
             var book = JValue.Parse(@"{
@@ -107,7 +106,7 @@ namespace Halak
             Assert.AreEqual(JValue.Null, app["nameNo"]);
         }
 
-        [TestMethod]
+        [Test]
         public void TestEscapedStringParsing()
         {
             Assert.AreEqual("마린", JValue.Parse(@"""\ub9c8\ub9b0""").ToUnescapedString());

@@ -1,54 +1,49 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace Halak
 {
-    [TestClass]
     public class HashCodeTest
     {
-        [TestMethod]
+        [Test]
         public void TestNull()
             => Assert.AreEqual(JValue.Null.GetHashCode(), JValue.Parse("null").GetHashCode());
 
-        [TestMethod]
+        [Test]
         public void TestTrue()
         {
             Assert.AreEqual(JValue.True.GetHashCode(), JValue.Parse("true").GetHashCode());
             Assert.AreEqual(JValue.True.GetHashCode(), new JValue(true).GetHashCode());
         }
 
-        [TestMethod]
+        [Test]
         public void TestFalse()
         {
             Assert.AreEqual(JValue.False.GetHashCode(), JValue.Parse("false").GetHashCode());
             Assert.AreEqual(JValue.False.GetHashCode(), new JValue(false).GetHashCode());
         }
 
-        [DataTestMethod]
+        [Test]
         public void TestBoolean()
             => Assert.AreNotEqual(JValue.True.GetHashCode(), JValue.False.GetHashCode());
 
-        [DataTestMethod]
-        [DataRow(123)]
+        [TestCase(123)]
         public void TestNumber(int n)
             => Assert.AreEqual(new JValue(n).GetHashCode(), new JValue((long)n).GetHashCode());
 
-        [DataTestMethod]
-        [DataRow(123)]
+        [TestCase(123)]
         public void TestNumberAndDigitString(int n)
             => Assert.AreNotEqual(new JValue(n).GetHashCode(), JValue.Parse(FormattableString.Invariant($@"""{n}""")));
 
-        [DataTestMethod]
-        [DataRow("마린")]
-        [DataRow("hello world")]
-        [DataRow("我思う故に我在り")]
-        [DataRow("😃💁 People")]
+        [TestCase("마린")]
+        [TestCase("hello world")]
+        [TestCase("我思う故に我在り")]
+        [TestCase("😃💁 People")]
         public void TestEscapedString(string s)
             => Assert.AreEqual(new JValue(s).GetHashCode(), JsonEncoding.EnsureAscii(s).GetHashCode());
 
-        [DataTestMethod]
-        [DataRow(@"{""name"": ""harry"", ""age"": 30}")]
-        [DataRow(@"[1, 2, 3, 4, 5, 6, 7]")]
+        [TestCase(@"{""name"": ""harry"", ""age"": 30}")]
+        [TestCase(@"[1, 2, 3, 4, 5, 6, 7]")]
         public void TestPaddedJson(string json)
         {
             var originalHashCode = JValue.Parse(json).GetHashCode();
@@ -59,7 +54,7 @@ namespace Halak
             Assert.AreEqual(originalHashCode, JValue.Parse(beautifiedJson).GetHashCode());
         }
 
-        [TestMethod]
+        [Test]
         public void TestAnotherLocatedValue()
         {
             var array = JValue.Parse("[123, 123]");

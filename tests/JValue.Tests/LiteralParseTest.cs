@@ -1,12 +1,11 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace Halak
 {
-    [TestClass]
     public class LiteralParseTest
     {
-        [TestMethod]
+        [Test]
         public void ParseInt32()
         {
             static int Parse(string s) => JNumber.ParseInt32(s);
@@ -32,7 +31,7 @@ namespace Halak
             }
         }
 
-        [TestMethod]
+        [Test]
         public void ParseInt64()
         {
             static long Parse(string s) => JNumber.ParseInt64(s);
@@ -57,7 +56,7 @@ namespace Halak
             }
         }
 
-        [TestMethod]
+        [Test]
         public void ParseSingle()
         {
             static float Parse(string s) => JNumber.ParseSingle(s);
@@ -81,19 +80,18 @@ namespace Halak
             Assert.AreEqual(7.9615384615384635f, JNumber.ParseSingle("{\"hello\": 7.9615384615384635, \"world\": 1}", 10), Epsilon);
         }
 
-        [DataTestMethod]
-        [DataRow(10000.0, "10000")]
-        [DataRow(2147483647.0, "2147483647")]
-        [DataRow(0.0, "0")]
-        [DataRow(-1293.8723, "-1293.8723")]
-        [DataRow(3948.222, "3948.222")]
-        [DataRow(123.45e+6, "123.45e+6")]
-        [DataRow(123.45e6, "123.45e6")]
-        [DataRow(1E3, "1E3")]
+        [TestCase(10000.0, "10000")]
+        [TestCase(2147483647.0, "2147483647")]
+        [TestCase(0.0, "0")]
+        [TestCase(-1293.8723, "-1293.8723")]
+        [TestCase(3948.222, "3948.222")]
+        [TestCase(123.45e+6, "123.45e+6")]
+        [TestCase(123.45e6, "123.45e6")]
+        [TestCase(1E3, "1E3")]
         public void ParseDouble(double expected, string input)
             => Assert.AreEqual(expected, JNumber.ParseDouble(input));
 
-        [TestMethod]
+        [Test]
         public void ParseRandomDouble()
         {
             static double Parse(string s) => JNumber.ParseDouble(s);

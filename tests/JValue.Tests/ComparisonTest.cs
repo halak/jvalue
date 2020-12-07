@@ -1,22 +1,20 @@
 ﻿using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace Halak
 {
-    [TestClass]
     public class ComparisonTest
     {
-        [TestMethod]
+        [Test]
         public void TestRuntimeValues()
         {
             AssertOrdering(JValue.Null, JValue.False, JValue.True, JValue.EmptyString, JValue.EmptyArray, JValue.EmptyObject);
         }
 
-        [DataTestMethod]
-        [DataRow(@"""a""", @"""b""")]
-        [DataRow(@"""ab""", @"""abc""")]
-        [DataRow(@"[1,2]", @"[2,3]")]
-        [DataRow(@"[1,2]", @"[1,2,3]")]
+        [TestCase(@"""a""", @"""b""")]
+        [TestCase(@"""ab""", @"""abc""")]
+        [TestCase(@"[1,2]", @"[2,3]")]
+        [TestCase(@"[1,2]", @"[1,2,3]")]
         public void TestOrdering(params string[] values)
             => AssertOrdering(values.Select(value => Parse(value)).ToArray());
 
