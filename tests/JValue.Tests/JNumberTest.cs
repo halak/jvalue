@@ -130,18 +130,16 @@ namespace Halak
                 JNumber.Compare(JNumber.Parse(left), JNumber.Parse(right)) != 0);
         }
 
-        [TestCase("", 0)]
-        [TestCase("123", 0)]
-        [TestCase("0.001", 2)]
-        [TestCase("0.01", 1)]
-        [TestCase("1.0E+2", 0)]
-        [TestCase("1.00E+2", 0)]
-        [TestCase("1.001E+2", 2)]
-        [TestCase("1.0000011123234", 5)]
-        public void LeadingZeros(string input, int expectedLeadingZeros)
-        {
-            Assert.AreEqual(expectedLeadingZeros, JNumber.Parse(input).FractionalPart.LeadingZeros);
-        }
+        [TestCase("", ExpectedResult = 0)]
+        [TestCase("123", ExpectedResult = 0)]
+        [TestCase("0.001", ExpectedResult = 2)]
+        [TestCase("0.01", ExpectedResult = 1)]
+        [TestCase("1.0E+2", ExpectedResult = 0)]
+        [TestCase("1.00E+2", ExpectedResult = 0)]
+        [TestCase("1.001E+2", ExpectedResult = 2)]
+        [TestCase("1.0000011123234", ExpectedResult = 5)]
+        public int LeadingZeros(string input)
+            => JNumber.Parse(input).FractionalPart.LeadingZeros;
 
         [Test]
         public void Stringify()

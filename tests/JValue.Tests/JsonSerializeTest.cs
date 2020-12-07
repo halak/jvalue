@@ -44,7 +44,7 @@ namespace Halak
             Assert.AreEqual(@"{""id"":10,""name"":""John"",""age"":29,""alive"":true,""friends"":null}", simpleObject.ToString());
             Assert.AreEqual(@"{""id"": 10, ""name"": ""John"", ""age"": 29, ""alive"": true, ""friends"": null}", simpleObject.Serialize(2));
 
-            var complexObject = new JsonObjectBuilder(16)
+            var complexObject = new JsonObjectBuilder(64)
                 .Put("name", "Mike")
                 .PutArray("jobs", jobs => jobs.Push("chef").Push("programmer").Push("designer"))
                 .PutNull("children")
@@ -158,14 +158,14 @@ namespace Halak
         {
             foreach (var value in new[] { int.MinValue, int.MaxValue, 0, -1234, 5677, 23472634, -12391823, 23487621 })
             {
-                var expected = value.ToString(CultureInfo.InvariantCulture);
+                var expected = value.ToString(NumberFormatInfo.InvariantInfo);
                 var actual = new JsonArrayBuilder(32).Push(value).Build()[0].ToString();
                 Assert.AreEqual(expected, actual);
             }
 
             foreach (var value in new[] { long.MinValue, long.MaxValue, 0L, -1234L, 239482734L, 2359237498237492837L, -3871623123L })
             {
-                var expected = value.ToString(CultureInfo.InvariantCulture);
+                var expected = value.ToString(NumberFormatInfo.InvariantInfo);
                 var actual = new JsonArrayBuilder(32).Push(value).Build()[0].ToString();
                 Assert.AreEqual(expected, actual);
             }
