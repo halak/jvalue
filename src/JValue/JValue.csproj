@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <OutputType>Library</OutputType>
-    <Version>1.7.7</Version>
+    <Version>1.7.8</Version>
     <RootNamespace>Halak</RootNamespace>
     <Product>JValue</Product>
     <Authors>Halak</Authors>
