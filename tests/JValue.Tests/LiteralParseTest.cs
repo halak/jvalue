@@ -14,6 +14,7 @@ namespace Halak
             Assert.AreEqual(10000, Parse("10000"));
             Assert.AreEqual(0, Parse("4294967295"));  // overflow
             Assert.AreEqual(0, Parse("2147483648"));  // overflow
+            Assert.AreEqual(0, Parse("-2147483649"));  // overflow
             Assert.AreEqual(2147483647, Parse("2147483647"));  // max
             Assert.AreEqual(0, Parse("12387cs831"));  // invalid
             Assert.AreEqual(0, Parse("0"));
@@ -77,6 +78,7 @@ namespace Halak
             Assert.AreEqual(123.45e+6f, Parse("123.45e+6"));
             Assert.AreEqual(123.45e6f, Parse("123.45e6"));
             Assert.AreEqual(1E3f, Parse("1E3"));
+            Assert.AreEqual(1e-3f, Parse("1e-3"));
 
             const float Epsilon = 0.00001f;
             Assert.AreEqual(7.96153846f, Parse("7.96153846"), Epsilon);
