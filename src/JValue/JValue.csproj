@@ -10,6 +10,9 @@
     <RepositoryUrl>https://github.com/halak/jvalue</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>json</PackageTags>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/halak/jvalue</PackageProjectUrl>
   </PropertyGroup>
   <ItemGroup>
     <None Update="JNumber.Generated.tt">
