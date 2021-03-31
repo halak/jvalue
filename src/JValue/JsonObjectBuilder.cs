@@ -158,6 +158,9 @@ namespace Halak
         }
 
         #region Shorthand Methods
+        public JsonObjectBuilder PutArray(string key, IEnumerable<JValue> elements)
+            => PutArrayOf(key, elements, (arrayBuilder, value) => arrayBuilder.Push(value));
+
         public JsonObjectBuilder PutArray(string key, IEnumerable<int> elements)
             => PutArrayOf(key, elements, (arrayBuilder, value) => arrayBuilder.Push(value));
 
@@ -165,6 +168,9 @@ namespace Halak
             => PutArrayOf(key, elements, (arrayBuilder, value) => arrayBuilder.Push(value));
 
         public JsonObjectBuilder PutObject(string key, IEnumerable<KeyValuePair<string, string>> members)
+            => PutObjectOf(key, members, (objectBuilder, member) => objectBuilder.Put(member.Key, member.Value));
+
+        public JsonObjectBuilder PutObject(string key, IEnumerable<KeyValuePair<string, JValue>> members)
             => PutObjectOf(key, members, (objectBuilder, member) => objectBuilder.Put(member.Key, member.Value));
 
         public JsonObjectBuilder PutArrayOfArray<T>(string key, IEnumerable<T> source, Action<JsonArrayBuilder, T> build)
