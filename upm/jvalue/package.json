@@ -1,7 +1,7 @@
 {
   "name": "com.halak.json",
   "displayName": "JValue",
-  "version": "1.7.9",
+  "version": "1.7.11",
   "author": "Halak",
   "description": "Simple Lightweight Json Parser",
   "license": "MIT"
