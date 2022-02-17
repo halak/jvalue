@@ -9,8 +9,8 @@ namespace Halak
     /// <summary>
     /// Super lightweight JSON Reader
     /// </summary>
-    /// <seealso cref="http://www.json.org/"/>
-    /// <seealso cref="https://github.com/halak/jvalue/"/>
+    /// <seealso href="http://www.json.org/"/>
+    /// <seealso href="https://github.com/halak/jvalue/"/>
     public partial struct JValue : IComparable<JValue>, IEquatable<JValue>
     {
         #region TypeCode

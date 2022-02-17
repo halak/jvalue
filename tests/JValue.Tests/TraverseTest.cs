@@ -6,7 +6,7 @@ namespace Halak
     /// Test case from https://github.com/nst/JSONTestSuite
     /// Generate via https://gist.github.com/halak/3f1dba374038f801ac5625c46a2f575a
     /// </summary>
-    /// <seealso cref="http://seriot.ch/parsing_json.php"/>
+    /// <seealso href="http://seriot.ch/parsing_json.php"/>
     public class TraverseTest
     {
         [TestCase("[123.456e-789]", Description = "i_number_double_huge_neg_exp")]
