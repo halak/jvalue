@@ -1,15 +1,21 @@
-﻿using System.Globalization;
+using System.Globalization;
 using BenchmarkDotNet.Attributes;
 
 namespace Halak
 {
     public class ParseInt32Benchmark
     {
+        private const NumberStyles jsonNumberStyles =
+            NumberStyles.AllowLeadingSign |
+            NumberStyles.AllowDecimalPoint |
+            NumberStyles.AllowExponent;
+
         private string shortNumber;
         private string longNumber;
         private string negativeNumber;
         private string minNumber;
         private string maxNumber;
+        private string exponentNumber;
         private NumberFormatInfo invariantInfo;
 
         [GlobalSetup]
@@ -20,6 +26,7 @@ namespace Halak
             negativeNumber = "-1123";
             minNumber = int.MinValue.ToString();
             maxNumber = int.MaxValue.ToString();
+            exponentNumber = "1.23E2";
             invariantInfo = NumberFormatInfo.InvariantInfo;
         }
 
@@ -27,22 +34,24 @@ namespace Halak
         public int SystemInt32Parse()
         {
             return
-                int.Parse(shortNumber) +
-                int.Parse(longNumber) +
-                int.Parse(negativeNumber) +
-                int.Parse(minNumber) +
-                int.Parse(maxNumber);
+                int.Parse(shortNumber, jsonNumberStyles) +
+                int.Parse(longNumber, jsonNumberStyles) +
+                int.Parse(negativeNumber, jsonNumberStyles) +
+                int.Parse(minNumber, jsonNumberStyles) +
+                int.Parse(maxNumber, jsonNumberStyles) +
+                int.Parse(exponentNumber, jsonNumberStyles);
         }
 
         [Benchmark(Description = "int.TryParse")]
         public int SystemInt32TryParse()
         {
-            if (int.TryParse(shortNumber, out var a) &&
-                int.TryParse(longNumber, out var b) &&
-                int.TryParse(negativeNumber, out var c) &&
-                int.TryParse(minNumber, out var d) &&
-                int.TryParse(maxNumber, out var e))
-                return a + b + c + d + e;
+            if (int.TryParse(shortNumber, jsonNumberStyles, default, out var a) &&
+                int.TryParse(longNumber, jsonNumberStyles, default, out var b) &&
+                int.TryParse(negativeNumber, jsonNumberStyles, default, out var c) &&
+                int.TryParse(minNumber, jsonNumberStyles, default, out var d) &&
+                int.TryParse(maxNumber, jsonNumberStyles, default, out var e) &&
+                int.TryParse(exponentNumber, jsonNumberStyles, default, out var f))
+                return a + b + c + d + e + f;
             else
                 return 0;
         }
@@ -51,14 +60,15 @@ namespace Halak
         public int SystemInt32ParseInvariant()
         {
             return
-                int.Parse(shortNumber, invariantInfo) +
-                int.Parse(longNumber, invariantInfo) +
-                int.Parse(negativeNumber, invariantInfo) +
-                int.Parse(minNumber, invariantInfo) +
-                int.Parse(maxNumber, invariantInfo);
+                int.Parse(shortNumber, jsonNumberStyles, invariantInfo) +
+                int.Parse(longNumber, jsonNumberStyles, invariantInfo) +
+                int.Parse(negativeNumber, jsonNumberStyles, invariantInfo) +
+                int.Parse(minNumber, jsonNumberStyles, invariantInfo) +
+                int.Parse(maxNumber, jsonNumberStyles, invariantInfo) +
+                int.Parse(exponentNumber, jsonNumberStyles, invariantInfo);
         }
 
-        [Benchmark(Description = "JValue.Parse")]
+        [Benchmark(Description = "JNumber.Parse")]
         public int JValueParse()
         {
             return
@@ -66,7 +76,8 @@ namespace Halak
                 JNumber.ParseInt32(longNumber) +
                 JNumber.ParseInt32(negativeNumber) +
                 JNumber.ParseInt32(minNumber) +
-                JNumber.ParseInt32(maxNumber);
+                JNumber.ParseInt32(maxNumber) +
+                JNumber.ParseInt32(exponentNumber);
         }
     }
 }
