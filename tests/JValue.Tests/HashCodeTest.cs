@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using NUnit.Framework;
 
 namespace Halak
@@ -7,40 +7,40 @@ namespace Halak
     {
         [Test]
         public void TestNull()
-            => Assert.AreEqual(JValue.Null.GetHashCode(), JValue.Parse("null").GetHashCode());
+            => Assert.That(JValue.Parse("null").GetHashCode(), Is.EqualTo(JValue.Null.GetHashCode()));
 
         [Test]
         public void TestTrue()
         {
-            Assert.AreEqual(JValue.True.GetHashCode(), JValue.Parse("true").GetHashCode());
-            Assert.AreEqual(JValue.True.GetHashCode(), new JValue(true).GetHashCode());
+            Assert.That(JValue.Parse("true").GetHashCode(), Is.EqualTo(JValue.True.GetHashCode()));
+            Assert.That(new JValue(true).GetHashCode(), Is.EqualTo(JValue.True.GetHashCode()));
         }
 
         [Test]
         public void TestFalse()
         {
-            Assert.AreEqual(JValue.False.GetHashCode(), JValue.Parse("false").GetHashCode());
-            Assert.AreEqual(JValue.False.GetHashCode(), new JValue(false).GetHashCode());
+            Assert.That(JValue.Parse("false").GetHashCode(), Is.EqualTo(JValue.False.GetHashCode()));
+            Assert.That(new JValue(false).GetHashCode(), Is.EqualTo(JValue.False.GetHashCode()));
         }
 
         [Test]
         public void TestBoolean()
-            => Assert.AreNotEqual(JValue.True.GetHashCode(), JValue.False.GetHashCode());
+            => Assert.That(JValue.False.GetHashCode(), Is.Not.EqualTo(JValue.True.GetHashCode()));
 
         [TestCase(123)]
         public void TestNumber(int n)
-            => Assert.AreEqual(new JValue(n).GetHashCode(), new JValue((long)n).GetHashCode());
+            => Assert.That(new JValue((long)n).GetHashCode(), Is.EqualTo(new JValue(n).GetHashCode()));
 
         [TestCase(123)]
         public void TestNumberAndDigitString(int n)
-            => Assert.AreNotEqual(new JValue(n).GetHashCode(), JValue.Parse(FormattableString.Invariant($@"""{n}""")));
+            => Assert.That(JValue.Parse(FormattableString.Invariant($@"""{n}""")).GetHashCode(), Is.Not.EqualTo(new JValue(n).GetHashCode()));
 
         [TestCase("마린")]
         [TestCase("hello world")]
         [TestCase("我思う故に我在り")]
         [TestCase("😃💁 People")]
         public void TestEscapedString(string s)
-            => Assert.AreEqual(new JValue(s).GetHashCode(), JsonEncoding.EnsureAscii(s).GetHashCode());
+            => Assert.That(JsonEncoding.EnsureAscii(s).GetHashCode(), Is.EqualTo(new JValue(s).GetHashCode()));
 
         [TestCase(@"{""name"": ""harry"", ""age"": 30}")]
         [TestCase(@"[1, 2, 3, 4, 5, 6, 7]")]
@@ -48,17 +48,17 @@ namespace Halak
         {
             var originalHashCode = JValue.Parse(json).GetHashCode();
             var minifiedJson = JValue.Parse(json).Serialize(0);
-            var beautifiedJson = JValue.Parse(json).Serialize(2);
-            Assert.AreNotEqual(json, minifiedJson);
-            Assert.AreEqual(originalHashCode, JValue.Parse(minifiedJson).GetHashCode());
-            Assert.AreEqual(originalHashCode, JValue.Parse(beautifiedJson).GetHashCode());
+            var prettyJson = JValue.Parse(json).Serialize(2);
+            Assert.That(minifiedJson, Is.Not.EqualTo(json));
+            Assert.That(JValue.Parse(minifiedJson).GetHashCode(), Is.EqualTo(originalHashCode));
+            Assert.That(JValue.Parse(prettyJson).GetHashCode(), Is.EqualTo(originalHashCode));
         }
 
         [Test]
         public void TestAnotherLocatedValue()
         {
             var array = JValue.Parse("[123, 123]");
-            Assert.AreEqual(array[0].GetHashCode(), array[1].GetHashCode());
+            Assert.That(array[1].GetHashCode(), Is.EqualTo(array[0].GetHashCode()));
         }
     }
 }

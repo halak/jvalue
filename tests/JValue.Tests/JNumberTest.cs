@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using NUnit.Framework;
 
 namespace Halak
@@ -8,19 +8,19 @@ namespace Halak
         [Test]
         public void Constants()
         {
-            Assert.AreEqual(JNumber.NaN, JNumber.NaN);
-            Assert.IsTrue(default(JNumber).IsNaN);
-            Assert.IsTrue(JNumber.NaN.IsNaN);
-            Assert.IsFalse(JNumber.NaN.IsPositive);
-            Assert.IsFalse(JNumber.NaN.IsNegative);
-            Assert.IsFalse(JNumber.NaN.HasExponent);
-            Assert.IsFalse(JNumber.NaN.HasFractionalPart);
-            Assert.AreNotEqual(JNumber.NaN, new JNumber(1234));
-            Assert.IsFalse(JNumber.Zero.IsNaN);
-            Assert.IsTrue(JNumber.One.IsPositive);
-            Assert.AreEqual(JNumber.One, JNumber.One);
-            Assert.AreEqual(JNumber.One, new JNumber(1));
-            Assert.AreNotEqual(JNumber.One, JNumber.Zero);
+            Assert.That(JNumber.NaN, Is.EqualTo(JNumber.NaN));
+            Assert.That(default(JNumber).IsNaN, Is.True);
+            Assert.That(JNumber.NaN.IsNaN, Is.True);
+            Assert.That(JNumber.NaN.IsPositive, Is.False);
+            Assert.That(JNumber.NaN.IsNegative, Is.False);
+            Assert.That(JNumber.NaN.HasExponent, Is.False);
+            Assert.That(JNumber.NaN.HasFractionalPart, Is.False);
+            Assert.That(new JNumber(1234), Is.Not.EqualTo(JNumber.NaN));
+            Assert.That(JNumber.Zero.IsNaN, Is.False);
+            Assert.That(JNumber.One.IsPositive, Is.True);
+            Assert.That(JNumber.One, Is.EqualTo(JNumber.One));
+            Assert.That(new JNumber(1), Is.EqualTo(JNumber.One));
+            Assert.That(JNumber.Zero, Is.Not.EqualTo(JNumber.One));
         }
 
         [TestCase("-0.000000000000000000000000000000000000000000000000000000000000000000000000000001", "-0", "000000000000000000000000000000000000000000000000000000000000000000000000000001")]
@@ -57,19 +57,19 @@ namespace Halak
             var number = JNumber.Parse(input);
 
             if (string.IsNullOrEmpty(expectedIntegerPart) == false)
-                Assert.AreEqual(expectedIntegerPart, number.IntegerPart.ToString());
+                Assert.That(number.IntegerPart.ToString(), Is.EqualTo(expectedIntegerPart));
             else
-                Assert.IsTrue(number.IntegerPart.IsNaN);
+                Assert.That(number.IntegerPart.IsNaN, Is.True);
 
             if (string.IsNullOrEmpty(expectedFractionalPart) == false)
-                Assert.AreEqual(expectedFractionalPart, number.FractionalPart.ToString());
+                Assert.That(number.FractionalPart.ToString(), Is.EqualTo(expectedFractionalPart));
             else
-                Assert.IsTrue(number.FractionalPart.IsNaN);
+                Assert.That(number.FractionalPart.IsNaN, Is.True);
 
             if (string.IsNullOrEmpty(expectedExponent) == false)
-                Assert.AreEqual(expectedExponent, number.Exponent.ToString());
+                Assert.That(number.Exponent.ToString(), Is.EqualTo(expectedExponent));
             else
-                Assert.IsTrue(number.Exponent.IsNaN);
+                Assert.That(number.Exponent.IsNaN, Is.True);
         }
 
         [TestCase("", "")]
@@ -84,12 +84,12 @@ namespace Halak
         [TestCase("123.456E10", "123.456e+10")]
         public void Equality(string left, string right)
         {
-            Assert.IsTrue(JNumber.Equals(JNumber.Parse(left), JNumber.Parse(right)));
+            Assert.That(JNumber.Equals(JNumber.Parse(left), JNumber.Parse(right)), Is.True);
             if (left.StartsWith("-", StringComparison.Ordinal) == false)
             {
                 left = FormattableString.Invariant($"-{left}");
                 right = FormattableString.Invariant($"-{right}");
-                Assert.IsTrue(JNumber.Equals(JNumber.Parse(left), JNumber.Parse(right)));
+                Assert.That(JNumber.Equals(JNumber.Parse(left), JNumber.Parse(right)), Is.True);
             }
         }
 
@@ -101,7 +101,7 @@ namespace Halak
         [TestCase("1.000", "1.001")]
         [TestCase("123.456E10", "123.456E-10")]
         public void Inequality(string left, string right)
-            => Assert.IsFalse(JNumber.Equals(JNumber.Parse(left), JNumber.Parse(right)));
+            => Assert.That(JNumber.Equals(JNumber.Parse(left), JNumber.Parse(right)), Is.False);
 
         [TestCase("", "1")]
         [TestCase("0", "1")]
@@ -113,8 +113,8 @@ namespace Halak
         [TestCase("-12", "-456")]
         public void Compare(string less, string greater)
         {
-            Assert.IsTrue(JNumber.Compare(JNumber.Parse(less), JNumber.Parse(greater)) < 0);
-            Assert.IsTrue(JNumber.Compare(JNumber.Parse(greater), JNumber.Parse(less)) > 0);
+            Assert.That(JNumber.Compare(JNumber.Parse(less), JNumber.Parse(greater)), Is.LessThan(0));
+            Assert.That(JNumber.Compare(JNumber.Parse(greater), JNumber.Parse(less)), Is.GreaterThan(0));
         }
 
         [TestCase("0", "0.0")]
@@ -125,9 +125,9 @@ namespace Halak
         [TestCase("123.456E10", "123.456e+10")]
         public void TwoNumber_Are_Equal_But_NotEquivalent(string left, string right)
         {
-            Assert.IsTrue(
+            Assert.That(
                 JNumber.Equals(JNumber.Parse(left), JNumber.Parse(right)) &&
-                JNumber.Compare(JNumber.Parse(left), JNumber.Parse(right)) != 0);
+                JNumber.Compare(JNumber.Parse(left), JNumber.Parse(right)) != 0, Is.True);
         }
 
         [TestCase("", ExpectedResult = 0)]
@@ -144,12 +144,12 @@ namespace Halak
         [Test]
         public void Stringify()
         {
-            Assert.AreEqual("0", new JNumber(0).ToString());
-            Assert.AreEqual("1234", new JNumber(1234).ToString());
-            Assert.AreEqual("-5833", new JNumber(-5833).ToString());
+            Assert.That(new JNumber(0).ToString(), Is.EqualTo("0"));
+            Assert.That(new JNumber(1234).ToString(), Is.EqualTo("1234"));
+            Assert.That(new JNumber(-5833).ToString(), Is.EqualTo("-5833"));
 
-            Assert.AreEqual("-123", new JNumber(-123.456m).IntegerPart.ToString());
-            Assert.AreEqual("456", new JNumber(-123.456m).FractionalPart.ToString());
+            Assert.That(new JNumber(-123.456m).IntegerPart.ToString(), Is.EqualTo("-123"));
+            Assert.That(new JNumber(-123.456m).FractionalPart.ToString(), Is.EqualTo("456"));
         }
     }
 }

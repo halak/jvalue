@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using NUnit.Framework;
 
 namespace Halak
@@ -16,14 +16,14 @@ namespace Halak
         [TestCase(@"[1,2]", @"[2,3]")]
         [TestCase(@"[1,2]", @"[1,2,3]")]
         public void TestOrdering(params string[] values)
-            => AssertOrdering(values.Select(value => Parse(value)).ToArray());
+            => AssertOrdering(values.Select((value) => Parse(value)).ToArray());
 
         private static JValue Parse(string source)
         {
             var json = JValue.Parse(source);
-            Assert.AreEqual(0, JValue.Compare(json, json));
-            Assert.AreEqual(0, JValue.Compare(json, JValue.Parse(json.Serialize(0))));
-            Assert.AreEqual(0, JValue.Compare(json, JValue.Parse(json.Serialize(2))));
+            Assert.That(JValue.Compare(json, json), Is.EqualTo(0));
+            Assert.That(JValue.Compare(json, JValue.Parse(json.Serialize(0))), Is.EqualTo(0));
+            Assert.That(JValue.Compare(json, JValue.Parse(json.Serialize(2))), Is.EqualTo(0));
             return json;
         }
 
@@ -33,8 +33,10 @@ namespace Halak
             {
                 for (var k = i + 1; k < values.Length; k++)
                 {
-                    Assert.IsTrue(values[i] < values[k], $"'{values[i]} < {values[k]}' is false.");
-                    Assert.IsTrue(values[k] > values[i], $"'{values[k]} > {values[i]}' is false.");
+                    Assert.That(values[i] < values[k], Is.True, $"'{values[i]} < {values[k]}' is false.");
+                    Assert.That(values[i], Is.LessThan(values[k]), $"'{values[i]} < {values[k]}' is false.");
+                    Assert.That(values[k] > values[i], Is.True, $"'{values[k]} > {values[i]}' is false.");
+                    Assert.That(values[k], Is.GreaterThan(values[i]), $"'{values[k]} > {values[i]}' is false.");
                 }
             }
         }

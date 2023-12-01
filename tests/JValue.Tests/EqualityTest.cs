@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 
 namespace Halak
 {
@@ -72,14 +72,14 @@ namespace Halak
 
         private static void AssertAreEqual(JValue expected, JValue actual)
         {
-            Assert.AreEqual(expected, actual);
-            Assert.AreEqual(0, JValue.Compare(expected, actual));
+            Assert.That(actual, Is.EqualTo(expected));
+            Assert.That(JValue.Compare(expected, actual), Is.EqualTo(0));
         }
 
         private static void AssertAreNotEqual(JValue expected, JValue actual)
         {
-            Assert.AreNotEqual(expected, actual);
-            Assert.AreNotEqual(0, JValue.Compare(expected, actual));
+            Assert.That(actual, Is.Not.EqualTo(expected));
+            Assert.That(JValue.Compare(expected, actual), Is.Not.EqualTo(0));
         }
     }
 }
