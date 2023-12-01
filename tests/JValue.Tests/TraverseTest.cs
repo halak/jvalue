@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 
 namespace Halak
 {
@@ -49,8 +49,7 @@ namespace Halak
         [TestCase("[\"a\",\n4\n,1,", Description = "n_array_newlines_unclosed")]
         [TestCase("[1,]", Description = "n_array_number_and_comma")]
         [TestCase("[1,,]", Description = "n_array_number_and_several_commas")]
-        [TestCase("[\"
-a\"\\f]", Description = "n_array_spaces_vertical_tab_formfeed")]
+        [TestCase("[\"\va\"\\f]", Description = "n_array_spaces_vertical_tab_formfeed")]
         [TestCase("[*]", Description = "n_array_star_inside")]
         [TestCase("[\"\"", Description = "n_array_unclosed")]
         [TestCase("[1,", Description = "n_array_unclosed_trailing_comma")]
@@ -203,10 +202,9 @@ a\"\\f]", Description = "n_array_spaces_vertical_tab_formfeed")]
         [TestCase("[ false, tru", Description = "n_structure_unclosed_array_unfinished_true")]
         [TestCase("{\"asd\":\"asd\"", Description = "n_structure_unclosed_object")]
         [TestCase("å", Description = "n_structure_unicode-identifier")]
-        [TestCase("﻿", Description = "n_structure_UTF8_BOM_no_data")]
-        [TestCase("[
-]", Description = "n_structure_whitespace_formfeed")]
-        [TestCase("[⁠]", Description = "n_structure_whitespace_U+2060_word_joiner")]
+        [TestCase("﻿\uFEFF", Description = "n_structure_UTF8_BOM_no_data")]
+        [TestCase("[\uFFFF]", Description = "n_structure_whitespace_formfeed")]
+        [TestCase("[\u2060]", Description = "n_structure_whitespace_U+2060_word_joiner")]
         [TestCase("[-9223372036854775808]\n", Description = "number_-9223372036854775808")]
         [TestCase("[-9223372036854775809]\n", Description = "number_-9223372036854775809")]
         [TestCase("[1.0]\n", Description = "number_1.0")]
