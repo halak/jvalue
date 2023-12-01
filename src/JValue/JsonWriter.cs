@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Globalization;
 using System.IO;
 using System.Runtime.CompilerServices;
@@ -39,7 +39,9 @@ namespace Halak
         public void WriteNull() => underlyingWriter.Write(JValue.NullLiteral);
         public void Write(bool value) => underlyingWriter.Write(value ? JValue.TrueLiteral : JValue.FalseLiteral);
         public void Write(int value) => underlyingWriter.WriteInt32(value);
+        public void Write(uint value) => underlyingWriter.WriteUInt32(value);
         public void Write(long value) => underlyingWriter.WriteInt64(value);
+        public void Write(ulong value) => underlyingWriter.WriteUInt64(value);
         public void Write(float value) => underlyingWriter.Write(value.ToString(NumberFormatInfo.InvariantInfo));
         public void Write(double value) => underlyingWriter.Write(value.ToString(NumberFormatInfo.InvariantInfo));
         public void Write(decimal value) => underlyingWriter.Write(value.ToString(NumberFormatInfo.InvariantInfo));
@@ -116,6 +118,36 @@ namespace Halak
                 writer.Write('0');
         }
 
+        public static void WriteUInt32(this TextWriter writer, uint value)
+        {
+            if (value != 0u)
+            {
+                if (value < 10u) goto E0;
+                else if (value < 100u) goto E1;
+                else if (value < 1000u) goto E2;
+                else if (value < 10000u) goto E3;
+                else if (value < 100000u) goto E4;
+                else if (value < 1000000u) goto E5;
+                else if (value < 10000000u) goto E6;
+                else if (value < 100000000u) goto E7;
+                else if (value < 1000000000u) goto E8;
+                else goto E9;
+
+                E9: writer.Write((char)('0' + ((value / 1000000000u) % 10)));
+                E8: writer.Write((char)('0' + ((value / 100000000u) % 10)));
+                E7: writer.Write((char)('0' + ((value / 10000000u) % 10)));
+                E6: writer.Write((char)('0' + ((value / 1000000u) % 10)));
+                E5: writer.Write((char)('0' + ((value / 100000u) % 10)));
+                E4: writer.Write((char)('0' + ((value / 10000u) % 10)));
+                E3: writer.Write((char)('0' + ((value / 1000u) % 10)));
+                E2: writer.Write((char)('0' + ((value / 100u) % 10)));
+                E1: writer.Write((char)('0' + ((value / 10u) % 10)));
+                E0: writer.Write((char)('0' + ((value / 1u) % 10)));
+            }
+            else
+                writer.Write('0');
+        }
+
         public static void WriteInt64(this TextWriter writer, long value)
         {
             if (value != 0)
@@ -171,6 +203,56 @@ namespace Halak
                 E2: writer.Write((char)('0' + ((value / 100L) % 10)));
                 E1: writer.Write((char)('0' + ((value / 10L) % 10)));
                 E0: writer.Write((char)('0' + ((value / 1L) % 10)));
+            }
+            else
+                writer.Write('0');
+        }
+
+        public static void WriteUInt64(this TextWriter writer, ulong value)
+        {
+            if (value != 0)
+            {
+                if (value < 10UL) goto E0;
+                else if (value < 100UL) goto E1;
+                else if (value < 1000UL) goto E2;
+                else if (value < 10000UL) goto E3;
+                else if (value < 100000UL) goto E4;
+                else if (value < 1000000UL) goto E5;
+                else if (value < 10000000UL) goto E6;
+                else if (value < 100000000UL) goto E7;
+                else if (value < 1000000000UL) goto E8;
+                else if (value < 10000000000UL) goto E9;
+                else if (value < 100000000000UL) goto E10;
+                else if (value < 1000000000000UL) goto E11;
+                else if (value < 10000000000000UL) goto E12;
+                else if (value < 100000000000000UL) goto E13;
+                else if (value < 1000000000000000UL) goto E14;
+                else if (value < 10000000000000000UL) goto E15;
+                else if (value < 100000000000000000UL) goto E16;
+                else if (value < 1000000000000000000UL) goto E17;
+                else if (value < 10000000000000000000UL) goto E18;
+                else goto E19;
+
+                E19: writer.Write((char)('0' + ((value / 10000000000000000000UL) % 10)));
+                E18: writer.Write((char)('0' + ((value / 1000000000000000000UL) % 10)));
+                E17: writer.Write((char)('0' + ((value / 100000000000000000UL) % 10)));
+                E16: writer.Write((char)('0' + ((value / 10000000000000000UL) % 10)));
+                E15: writer.Write((char)('0' + ((value / 1000000000000000UL) % 10)));
+                E14: writer.Write((char)('0' + ((value / 100000000000000UL) % 10)));
+                E13: writer.Write((char)('0' + ((value / 10000000000000UL) % 10)));
+                E12: writer.Write((char)('0' + ((value / 1000000000000UL) % 10)));
+                E11: writer.Write((char)('0' + ((value / 100000000000UL) % 10)));
+                E10: writer.Write((char)('0' + ((value / 10000000000UL) % 10)));
+                E9: writer.Write((char)('0' + ((value / 1000000000UL) % 10)));
+                E8: writer.Write((char)('0' + ((value / 100000000UL) % 10)));
+                E7: writer.Write((char)('0' + ((value / 10000000UL) % 10)));
+                E6: writer.Write((char)('0' + ((value / 1000000UL) % 10)));
+                E5: writer.Write((char)('0' + ((value / 100000UL) % 10)));
+                E4: writer.Write((char)('0' + ((value / 10000UL) % 10)));
+                E3: writer.Write((char)('0' + ((value / 1000UL) % 10)));
+                E2: writer.Write((char)('0' + ((value / 100UL) % 10)));
+                E1: writer.Write((char)('0' + ((value / 10UL) % 10)));
+                E0: writer.Write((char)('0' + ((value / 1UL) % 10)));
             }
             else
                 writer.Write('0');

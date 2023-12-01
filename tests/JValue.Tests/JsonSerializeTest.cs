@@ -169,7 +169,21 @@ namespace Halak
                 Assert.That(actual, Is.EqualTo(expected));
             }
 
+            foreach (var value in new[] { uint.MinValue, uint.MaxValue, 1234U, 5677U, 23472634U, 12391823U, 23487621U })
+            {
+                var expected = value.ToString(NumberFormatInfo.InvariantInfo);
+                var actual = new JsonArrayBuilder(32).Push(value).Build()[0].ToString();
+                Assert.That(actual, Is.EqualTo(expected));
+            }
+
             foreach (var value in new[] { long.MinValue, long.MaxValue, 0L, -1234L, 239482734L, 2359237498237492837L, -3871623123L })
+            {
+                var expected = value.ToString(NumberFormatInfo.InvariantInfo);
+                var actual = new JsonArrayBuilder(32).Push(value).Build()[0].ToString();
+                Assert.That(actual, Is.EqualTo(expected));
+            }
+
+            foreach (var value in new[] { ulong.MinValue, ulong.MaxValue, 1234UL, 239482734UL, 2359237498237492837UL, 3871623123UL })
             {
                 var expected = value.ToString(NumberFormatInfo.InvariantInfo);
                 var actual = new JsonArrayBuilder(32).Push(value).Build()[0].ToString();

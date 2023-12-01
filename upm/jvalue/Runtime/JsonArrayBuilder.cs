@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
@@ -50,7 +50,23 @@ namespace Halak
             return this;
         }
 
+        public JsonArrayBuilder Push(uint value)
+        {
+            EnsureState();
+            writer.WriteCommaIf(startOffset);
+            writer.Write(value);
+            return this;
+        }
+
         public JsonArrayBuilder Push(long value)
+        {
+            EnsureState();
+            writer.WriteCommaIf(startOffset);
+            writer.Write(value);
+            return this;
+        }
+
+        public JsonArrayBuilder Push(ulong value)
         {
             EnsureState();
             writer.WriteCommaIf(startOffset);
@@ -181,7 +197,9 @@ namespace Halak
         public JsonArrayBuilder PushNullIf(bool condition) => condition ? PushNull() : this;
         public JsonArrayBuilder PushIf(bool condition, bool value) => condition ? Push(value) : this;
         public JsonArrayBuilder PushIf(bool condition, int value) => condition ? Push(value) : this;
+        public JsonArrayBuilder PushIf(bool condition, uint value) => condition ? Push(value) : this;
         public JsonArrayBuilder PushIf(bool condition, long value) => condition ? Push(value) : this;
+        public JsonArrayBuilder PushIf(bool condition, ulong value) => condition ? Push(value) : this;
         public JsonArrayBuilder PushIf(bool condition, float value) => condition ? Push(value) : this;
         public JsonArrayBuilder PushIf(bool condition, double value) => condition ? Push(value) : this;
         public JsonArrayBuilder PushIf(bool condition, decimal value) => condition ? Push(value) : this;

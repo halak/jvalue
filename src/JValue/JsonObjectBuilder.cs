@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
@@ -53,7 +53,25 @@ namespace Halak
             return this;
         }
 
+        public JsonObjectBuilder Put(string key, uint value)
+        {
+            EnsureState();
+            writer.WriteCommaIf(startOffset);
+            writer.WriteKey(key);
+            writer.Write(value);
+            return this;
+        }
+
         public JsonObjectBuilder Put(string key, long value)
+        {
+            EnsureState();
+            writer.WriteCommaIf(startOffset);
+            writer.WriteKey(key);
+            writer.Write(value);
+            return this;
+        }
+
+        public JsonObjectBuilder Put(string key, ulong value)
         {
             EnsureState();
             writer.WriteCommaIf(startOffset);
@@ -194,7 +212,9 @@ namespace Halak
         public JsonObjectBuilder PutNullIf(bool condition, string key) => condition ? PutNull(key) : this;
         public JsonObjectBuilder PutIf(bool condition, string key, bool value) => condition ? Put(key, value) : this;
         public JsonObjectBuilder PutIf(bool condition, string key, int value) => condition ? Put(key, value) : this;
+        public JsonObjectBuilder PutIf(bool condition, string key, uint value) => condition ? Put(key, value) : this;
         public JsonObjectBuilder PutIf(bool condition, string key, long value) => condition ? Put(key, value) : this;
+        public JsonObjectBuilder PutIf(bool condition, string key, ulong value) => condition ? Put(key, value) : this;
         public JsonObjectBuilder PutIf(bool condition, string key, float value) => condition ? Put(key, value) : this;
         public JsonObjectBuilder PutIf(bool condition, string key, double value) => condition ? Put(key, value) : this;
         public JsonObjectBuilder PutIf(bool condition, string key, decimal value) => condition ? Put(key, value) : this;
