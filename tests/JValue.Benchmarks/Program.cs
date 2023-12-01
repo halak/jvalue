@@ -1,4 +1,4 @@
-﻿using BenchmarkDotNet.Running;
+using BenchmarkDotNet.Running;
 
 namespace Halak
 {
@@ -6,7 +6,8 @@ namespace Halak
     {
         static void Main(string[] args)
         {
-            var switcher = new BenchmarkSwitcher(new[] {
+            var switcher = new BenchmarkSwitcher(new[]
+            {
                 typeof(ParseInt32Benchmark),
                 typeof(ParseSingleBenchmark),
                 typeof(ParseDoubleBenchmark),
