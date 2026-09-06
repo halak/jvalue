@@ -1,7 +1,8 @@
 {
   "name": "com.halak.json",
   "displayName": "JValue",
-  "version": "1.8.2",
+  "version": "1.8.3",
+  "unity": "2021.3",
   "author": "Halak",
   "description": "Simple Lightweight Json Parser",
   "license": "MIT"
